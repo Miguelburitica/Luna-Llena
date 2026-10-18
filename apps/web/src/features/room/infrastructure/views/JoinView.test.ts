@@ -1,11 +1,45 @@
 import { err, ok } from '@luna/contracts'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { summaryOf } from '../../application/RoomGateway.fixtures'
+import { sessionFor, summaryOf } from '../../application/RoomGateway.fixtures'
+import { snapshotOf } from '../../domain/snapshot.fixtures'
 import { mountRoomView } from '../mountRoomView.fixtures'
 import JoinView from './JoinView.vue'
 
+const caroSeat = { code: 'LUNA42', memberId: 'id-Caro', token: 'token-id-Caro' }
+
 describe('JoinView', () => {
+  it('offers the saved seat in a running game and returns the player to it', async () => {
+    const { wrapper, router } = await mountRoomView(JoinView, {
+      path: '/join/LUNA42',
+      stored: caroSeat,
+      seed: async ({ gateway }) => {
+        gateway.answer('lookUp', ok(summaryOf({ acceptingPlayers: false })))
+        gateway.answer('resume', ok(sessionFor('id-Caro', snapshotOf({ status: 'in-game' }))))
+      }
+    })
+    expect(wrapper.text()).toContain('Your seat is waiting')
+    expect(wrapper.text()).not.toContain('This village is mid-game')
+    expect(wrapper.find('#join-name').exists()).toBe(false)
+    await wrapper.find('form').trigger('submit')
+    await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/room/LUNA42'))
+  })
+
+  it('shows the normal join form for a room other than the saved seat', async () => {
+    const { wrapper } = await mountRoomView(JoinView, { path: '/join/NUBE77', stored: caroSeat })
+    expect(wrapper.text()).not.toContain('Your seat is waiting')
+    expect(wrapper.find('#join-name').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Pick your look')
+  })
+
+  it('falls back to the join form when the saved seat is gone', async () => {
+    const { wrapper } = await mountRoomView(JoinView, { path: '/join/LUNA42', stored: caroSeat })
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Your seat is gone. Join again with the code.')
+    expect(wrapper.find('#join-name').exists()).toBe(true)
+  })
+
   it('fills the code from the invite link and shows the room it found', async () => {
     const { wrapper } = await mountRoomView(JoinView, { path: '/join/LUNA42' })
     const letters = wrapper.findAll('.code input').map((input) => (input.element as HTMLInputElement).value)

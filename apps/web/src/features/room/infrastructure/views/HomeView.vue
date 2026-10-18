@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import SettingsOverlay from '@/features/atmosphere/infrastructure/components/SettingsOverlay.vue'
 import LanguageSwitch from '@/shared/infrastructure/ui/components/LanguageSwitch.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
+import { useRoomAction } from '../../application/useRoomAction'
+import { useRoomStore } from '../../application/useRoomStore'
+import RoomFailureMessage from '../components/RoomFailureMessage.vue'
 
 const { t } = useI18n()
+const router = useRouter()
+const store = useRoomStore()
+const { failure, pending, run } = useRoomAction()
+
+const returnToSeat = async () => {
+  const result = await run(() => store.returnToSeat())
+  if (result.ok) await router.push({ name: 'lobby', params: { code: result.value.code } })
+}
 </script>
 
 <template>
@@ -26,7 +38,18 @@ const { t } = useI18n()
       <span class="firefly home-firefly-c" />
     </div>
     <nav class="home-actions">
-      <RouterLink :to="{ name: 'host' }" class="btn btn-primary btn-lg btn-block">
+      <RoomFailureMessage v-if="failure" :failure="failure" />
+      <button
+        v-if="store.savedSeat"
+        type="button"
+        class="btn btn-primary btn-lg btn-block home-return"
+        :disabled="pending"
+        @click="returnToSeat"
+      >
+        <LunaIcon name="arrow-right" />{{ t('room.home.returnToSeat') }}
+        <span class="sbadge home-return-code">{{ t('room.home.seatRoom', { code: store.savedSeat.code }) }}</span>
+      </button>
+      <RouterLink :to="{ name: 'host' }" class="btn btn-lg btn-block" :class="store.savedSeat ? 'btn-secondary' : 'btn-primary'">
         <LunaIcon name="quill" />{{ t('room.home.create') }}
       </RouterLink>
       <RouterLink :to="{ name: 'join' }" class="btn btn-secondary btn-lg btn-block home-join">
@@ -114,6 +137,10 @@ const { t } = useI18n()
   gap: 12px;
   position: relative;
   z-index: 5;
+}
+
+.home-return-code {
+  margin-left: auto;
 }
 
 .home-join {

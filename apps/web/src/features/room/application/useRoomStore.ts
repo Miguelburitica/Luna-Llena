@@ -26,6 +26,7 @@ export const useRoomStore = defineStore('room', () => {
   const sessions = required(inject(SESSION_STORE), 'SessionStore')
 
   const session = ref<StoredSession | null>(null)
+  const savedSeat = ref<StoredSession | null>(sessions.load())
   const snapshot = ref<RoomSnapshot | null>(null)
   const ending = ref<RoomEnding | null>(null)
 
@@ -34,6 +35,7 @@ export const useRoomStore = defineStore('room', () => {
 
   const forget = () => {
     session.value = null
+    savedSeat.value = null
     snapshot.value = null
     sessions.clear()
   }
@@ -47,6 +49,7 @@ export const useRoomStore = defineStore('room', () => {
     if (!result.ok) return result
     const { code, memberId, token } = result.value
     session.value = { code, memberId, token }
+    savedSeat.value = session.value
     snapshot.value = result.value.snapshot
     ending.value = null
     sessions.save(session.value)
@@ -61,6 +64,9 @@ export const useRoomStore = defineStore('room', () => {
     return enter(result)
   }
 
+  const returnToSeat = async (): Promise<Result<RoomSession, RoomFailure>> =>
+    savedSeat.value === null ? err(roomError('session-invalid')) : resume(savedSeat.value.code)
+
   gateway.onSnapshot((next) => {
     if (next.code === session.value?.code) snapshot.value = next
   })
@@ -72,6 +78,7 @@ export const useRoomStore = defineStore('room', () => {
 
   return {
     session,
+    savedSeat,
     snapshot,
     ending,
     me,
@@ -80,6 +87,7 @@ export const useRoomStore = defineStore('room', () => {
     lookUp: (code: string) => gateway.lookUp(normalizeRoomCode(code)),
     join: async (code: string, name: string) => enter(await gateway.join(normalizeRoomCode(code), name)),
     resume,
+    returnToSeat,
     chooseAvatar: (avatar: AvatarId | null) => gateway.chooseAvatar(avatar),
     setReady: (ready: boolean) => gateway.setReady(ready),
     updateSettings: (settings: RoomSettingsInput) => gateway.updateSettings(settings),

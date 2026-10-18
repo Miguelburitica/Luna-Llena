@@ -3,7 +3,9 @@ const en = {
     moon: 'Full moon',
     tagline: 'Someone in the village is a wolf. Probably your cousin.',
     create: 'Create a room',
-    join: 'Join with code'
+    join: 'Join with code',
+    returnToSeat: 'Return to your seat',
+    seatRoom: 'Room {code}'
   },
   join: {
     step: 'Step 1 of 2',
@@ -19,7 +21,10 @@ const en = {
     name: 'Your name',
     namePlaceholder: 'What do your friends call you?',
     tryThese: 'Try one of these',
-    continue: 'Pick your look'
+    continue: 'Pick your look',
+    seatWaiting: 'Your seat is waiting',
+    seatWaitingHint: 'This device already has a seat in this village.',
+    returnToSeat: 'Return to my seat'
   },
   lobby: {
     caption: 'Lobby · {theme}',
@@ -154,7 +159,9 @@ const es: typeof en = {
     moon: 'Luna llena',
     tagline: 'Alguien en la aldea es un lobo. Seguro es tu primo.',
     create: 'Crear una sala',
-    join: 'Unirse con código'
+    join: 'Unirse con código',
+    returnToSeat: 'Volver a tu puesto',
+    seatRoom: 'Sala {code}'
   },
   join: {
     step: 'Paso 1 de 2',
@@ -170,7 +177,10 @@ const es: typeof en = {
     name: 'Tu nombre',
     namePlaceholder: '¿Cómo te dicen tus amigos?',
     tryThese: 'Prueba uno de estos',
-    continue: 'Elige tu look'
+    continue: 'Elige tu look',
+    seatWaiting: 'Tu puesto te espera',
+    seatWaitingHint: 'Este dispositivo ya tiene un puesto en esta aldea.',
+    returnToSeat: 'Volver a mi puesto'
   },
   lobby: {
     caption: 'Sala de espera · {theme}',

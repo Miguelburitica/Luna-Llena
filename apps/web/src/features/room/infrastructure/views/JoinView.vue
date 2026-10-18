@@ -26,6 +26,10 @@ const lookUpFailure = ref<RoomFailure | null>(null)
 const searching = ref(false)
 const { failure: joinFailure, pending: joining, run: runJoin, clear: clearJoinFailure } = useRoomAction()
 
+const { failure: returnFailure, pending: returning, run: runReturn } = useRoomAction()
+
+const seatHere = computed(() => isCompleteRoomCode(code.value) && store.savedSeat?.code === code.value)
+
 const closedReason = computed<RoomFailure | null>(() => {
   if (summary.value === null || summary.value.acceptingPlayers) return null
   return { code: summary.value.playerCount >= summary.value.capacity ? 'room-full' : 'game-already-started' }
@@ -59,6 +63,16 @@ const usePick = (suggestion: string) => {
   name.value = suggestion
 }
 
+const returnToSeat = async () => {
+  const result = await runReturn(() => store.returnToSeat())
+  if (result.ok) await router.push({ name: 'lobby', params: { code: result.value.code } })
+}
+
+const submit = async () => {
+  if (seatHere.value) await returnToSeat()
+  else await join()
+}
+
 const join = async () => {
   if (!canContinue.value) return
   const result = await runJoin(() => store.join(code.value, name.value))
@@ -75,7 +89,7 @@ const join = async () => {
       <span class="t-cap t-muted">{{ t('room.join.step') }}</span>
     </header>
 
-    <form id="join-form" class="join-body" @submit.prevent="join">
+    <form id="join-form" class="join-body" @submit.prevent="submit">
       <div>
         <h1 class="h1 join-title">{{ t('room.join.title') }}</h1>
         <p class="t-body t-muted join-intro">{{ fromLink ? t('room.join.introFromLink') : t('room.join.intro') }}</p>
@@ -116,9 +130,19 @@ const join = async () => {
           <JoinCallButton v-if="summary.voiceCallUrl" class="join-room-call" :url="summary.voiceCallUrl" compact />
         </div>
       </div>
-      <RoomFailureMessage v-if="closedReason" :failure="closedReason" />
+      <RoomFailureMessage v-if="returnFailure" :failure="returnFailure" />
 
-      <div class="field">
+      <div v-if="seatHere" class="card join-seat" role="status">
+        <LunaIcon name="check" />
+        <div>
+          <div class="h3">{{ t('room.join.seatWaiting') }}</div>
+          <div class="t-small t-muted">{{ t('room.join.seatWaitingHint') }}</div>
+        </div>
+      </div>
+
+      <RoomFailureMessage v-else-if="closedReason" :failure="closedReason" />
+
+      <div v-if="!seatHere" class="field">
         <label class="label" for="join-name">{{ t('room.join.name') }}</label>
         <input
           id="join-name"
@@ -133,7 +157,7 @@ const join = async () => {
         <RoomFailureMessage v-if="joinFailure" :failure="joinFailure" :name="name.trim()" />
       </div>
 
-      <div v-if="suggestions.length > 0" class="join-suggestions">
+      <div v-if="!seatHere && suggestions.length > 0" class="join-suggestions">
         <span class="label">{{ t('room.join.tryThese') }}</span>
         <div class="join-chips">
           <button
@@ -150,7 +174,10 @@ const join = async () => {
     </form>
 
     <footer class="join-footer">
-      <button type="submit" form="join-form" class="btn btn-primary btn-lg btn-block" :disabled="!canContinue">
+      <button v-if="seatHere" type="submit" form="join-form" class="btn btn-primary btn-lg btn-block" :disabled="returning">
+        {{ t('room.join.returnToSeat') }}<LunaIcon name="arrow-right" />
+      </button>
+      <button v-else type="submit" form="join-form" class="btn btn-primary btn-lg btn-block" :disabled="!canContinue">
         {{ t('room.join.continue') }}<LunaIcon name="arrow-right" />
       </button>
     </footer>
@@ -158,6 +185,12 @@ const join = async () => {
 </template>
 
 <style scoped>
+.join-seat {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .join-top {
   display: flex;
   align-items: center;

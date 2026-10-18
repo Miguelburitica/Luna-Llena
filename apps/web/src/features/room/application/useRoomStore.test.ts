@@ -91,6 +91,39 @@ describe('room store', () => {
     await store.leave()
     expect(store.session).toBeNull()
     expect(sessions.stored).toBeNull()
+    expect(store.savedSeat).toBeNull()
+  })
+
+  it('offers the seat saved on the device before entering any room', () => {
+    const { store } = createRoomTestApp(caroSeat)
+    expect(store.savedSeat).toEqual(caroSeat)
+  })
+
+  it('returns to the saved seat', async () => {
+    const { store, gateway } = createRoomTestApp(caroSeat)
+    gateway.answer('resume', ok(sessionFor('id-Caro')))
+    expect((await store.returnToSeat()).ok).toBe(true)
+    expect(gateway.calls.at(-1)).toEqual({ command: 'resume', input: { code: 'LUNA42', token: 'token-id-Caro' } })
+    expect(store.me?.name).toBe('Caro')
+  })
+
+  it('forgets the saved seat when returning finds it gone', async () => {
+    const { store } = createRoomTestApp(caroSeat)
+    expect(await store.returnToSeat()).toEqual({ ok: false, error: { code: 'session-invalid' } })
+    expect(store.savedSeat).toBeNull()
+  })
+
+  it('keeps the saved seat when returning cannot reach the server', async () => {
+    const { store, gateway } = createRoomTestApp(caroSeat)
+    gateway.answer('resume', err({ code: 'unreachable' }))
+    await store.returnToSeat()
+    expect(store.savedSeat).toEqual(caroSeat)
+  })
+
+  it('has nothing to return to without a saved seat', async () => {
+    const { store, gateway } = createRoomTestApp()
+    expect(await store.returnToSeat()).toEqual({ ok: false, error: { code: 'session-invalid' } })
+    expect(gateway.commands()).not.toContain('resume')
   })
 
   it('asks the gateway to play again and passes its answer through', async () => {
