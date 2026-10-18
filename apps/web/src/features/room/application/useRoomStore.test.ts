@@ -102,3 +102,24 @@ describe('room store', () => {
     expect(gateway.commands().filter((command) => command === 'playAgain')).toHaveLength(2)
   })
 })
+
+describe('room store voice call', () => {
+  it('sends the link to the gateway and keeps a failure for the caller', async () => {
+    const { store, gateway } = createRoomTestApp()
+    await store.join('LUNA42', 'Nico')
+    expect((await store.setVoiceCall('https://discord.gg/abc123')).ok).toBe(true)
+    expect(gateway.calls.at(-1)).toEqual({ command: 'setVoiceCall', input: 'https://discord.gg/abc123' })
+    gateway.answer('setVoiceCall', err({ code: 'voice-call-invalid' }))
+    const rejected = await store.setVoiceCall('http://nope')
+    expect(rejected).toEqual(err({ code: 'voice-call-invalid' }))
+  })
+
+  it('removes the link with null and follows the snapshot the server pushes', async () => {
+    const { store, gateway } = createRoomTestApp()
+    await store.join('LUNA42', 'Nico')
+    await store.setVoiceCall(null)
+    expect(gateway.calls.at(-1)).toEqual({ command: 'setVoiceCall', input: null })
+    gateway.pushSnapshot(snapshotOf({ voiceCallUrl: 'https://meet.jit.si/LunaLlena-LUNA42' }))
+    expect(store.snapshot?.voiceCallUrl).toBe('https://meet.jit.si/LunaLlena-LUNA42')
+  })
+})

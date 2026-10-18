@@ -107,3 +107,22 @@ describe('PlayerTable', () => {
     expect(wrapper.find('.dawn-nobody').exists()).toBe(false)
   })
 })
+
+describe('PlayerTable voice call', () => {
+  it('shows the call as an icon button in the top bar during every phase', async () => {
+    for (const phase of ['night', 'day', 'vote'] as const) {
+      const view = tableOf({ phase })
+      const { wrapper } = await mountMatchView(PlayerTable, { view, props: { view }, voiceCallUrl: 'https://discord.gg/abc123' })
+      const call = wrapper.find('.banner a.join-call')
+      expect(call.attributes('aria-label')).toBe('Join on Discord')
+      expect(call.classes()).toContain('btn-icon')
+      expect(call.attributes('rel')).toBe('noopener noreferrer')
+    }
+  })
+
+  it('shows no call button without a link', async () => {
+    const view = tableOf()
+    const { wrapper } = await mountMatchView(PlayerTable, { view, props: { view } })
+    expect(wrapper.find('a.join-call').exists()).toBe(false)
+  })
+})

@@ -143,6 +143,7 @@ const en = {
     'member-not-found': 'That player already left.',
     'settings-invalid': 'Those settings are not allowed.',
     'start-conditions-unmet': 'The village is not ready yet.',
+    'voice-call-invalid': 'That does not look like a secure link. Use an https:// address.',
     'game-not-over': 'The game is still going. Play again once it ends.',
     unreachable: 'We can’t reach the village. Check your connection.'
   }
@@ -293,6 +294,7 @@ const es: typeof en = {
     'member-not-found': 'Ese jugador ya se fue.',
     'settings-invalid': 'Esos ajustes no están permitidos.',
     'start-conditions-unmet': 'La aldea aún no está lista.',
+    'voice-call-invalid': 'Ese no parece un enlace seguro. Usa una dirección https://.',
     'game-not-over': 'El juego sigue en marcha. Vuelvan a jugar cuando termine.',
     unreachable: 'No logramos llegar a la aldea. Revisa tu conexión.'
   }

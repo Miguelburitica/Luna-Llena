@@ -18,12 +18,14 @@ import type { RoomCode } from './RoomCode'
 import type { RoomName } from './RoomName'
 import type { RoomSettings } from './RoomSettings'
 import { evaluateStartReadiness } from './StartReadiness'
+import { VoiceCallUrl } from './VoiceCallUrl'
 
 export interface RoomOpening {
   readonly code: RoomCode
   readonly name: RoomName
   readonly settings: RoomSettings
   readonly narrator: MemberIdentity
+  readonly voiceCall?: VoiceCallUrl | null
 }
 
 export type Departure = 'player-left' | 'room-closed'
@@ -32,19 +34,22 @@ export class Room {
   private readonly seats: Member[]
   private currentStatus: RoomStatus = 'lobby'
   private currentSettings: RoomSettings
+  private currentVoiceCall: VoiceCallUrl | null
 
   private constructor(
     readonly code: RoomCode,
     readonly name: RoomName,
     settings: RoomSettings,
-    narrator: Member
+    narrator: Member,
+    voiceCall: VoiceCallUrl | null
   ) {
     this.currentSettings = settings
+    this.currentVoiceCall = voiceCall
     this.seats = [narrator]
   }
 
-  static open({ code, name, settings, narrator }: RoomOpening): Room {
-    return new Room(code, name, settings, new Member(narrator, true))
+  static open({ code, name, settings, narrator, voiceCall = null }: RoomOpening): Room {
+    return new Room(code, name, settings, new Member(narrator, true), voiceCall)
   }
 
   get status(): RoomStatus {
@@ -53,6 +58,10 @@ export class Room {
 
   get settings(): RoomSettings {
     return this.currentSettings
+  }
+
+  get voiceCall(): VoiceCallUrl | null {
+    return this.currentVoiceCall
   }
 
   get members(): readonly Member[] {
@@ -136,6 +145,16 @@ export class Room {
     const settings = this.currentSettings.apply(input)
     if (!settings.ok) return settings
     this.currentSettings = settings.value
+    return done
+  }
+
+  setVoiceCall(actorId: string, url: unknown): Result<void, RoomError> {
+    const member = this.requireMember(actorId)
+    if (!member.ok) return member
+    if (!member.value.isNarrator) return err(roomError('not-narrator'))
+    const voiceCall = VoiceCallUrl.parse(url)
+    if (!voiceCall.ok) return voiceCall
+    this.currentVoiceCall = voiceCall.value
     return done
   }
 

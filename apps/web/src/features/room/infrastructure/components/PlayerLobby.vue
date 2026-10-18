@@ -3,6 +3,7 @@ import { ROOM_LIMITS, type AvatarId, type RoomSnapshot } from '@luna/contracts'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import JoinCallButton from '@/shared/infrastructure/ui/components/JoinCallButton.vue'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import LunaToggle from '@/shared/infrastructure/ui/components/LunaToggle.vue'
@@ -52,6 +53,9 @@ const leave = async () => {
       </button>
     </header>
     <p v-if="copied" class="t-small lobby-copied" role="status">{{ t('room.lobby.copied') }}</p>
+    <div v-if="snapshot.voiceCallUrl" class="lobby-call">
+      <JoinCallButton :url="snapshot.voiceCallUrl" />
+    </div>
     <div v-if="failure" class="lobby-error"><RoomFailureMessage :failure="failure" /></div>
 
     <section class="card lobby-looks">
@@ -158,6 +162,15 @@ const leave = async () => {
 .lobby-copied {
   margin: 0 16px 8px;
   color: var(--ok);
+}
+
+.lobby-call {
+  display: flex;
+  margin: 0 12px 10px;
+}
+
+.lobby-call .btn {
+  flex: 1;
 }
 
 .lobby-error {

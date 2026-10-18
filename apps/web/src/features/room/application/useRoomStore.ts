@@ -84,6 +84,7 @@ export const useRoomStore = defineStore('room', () => {
     setReady: (ready: boolean) => gateway.setReady(ready),
     updateSettings: (settings: RoomSettingsInput) => gateway.updateSettings(settings),
     kick: (memberId: string) => gateway.kick(memberId),
+    setVoiceCall: (url: string | null) => gateway.setVoiceCall(url),
     start: () => gateway.start(),
     playAgain: () => gateway.playAgain(),
     leave: async () => {

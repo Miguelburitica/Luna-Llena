@@ -80,6 +80,25 @@ describe('room socket handlers', () => {
     expect((await started).status).toBe('in-game')
   })
 
+  it('broadcasts a new voice call link and rejects a player changing it', async () => {
+    const narrator = await newClient()
+    const session = await createRoom(narrator)
+    const caro = await newClient()
+    await join(caro, session.code, 'Caro')
+    const link = 'https://discord.gg/abc123'
+    const seesLink = nextSnapshot(caro, (snapshot) => snapshot.voiceCallUrl === link)
+    unwrap(await narrator.emitWithAck('room:setVoiceCall', { url: link }))
+    expect((await seesLink).voiceCallUrl).toBe(link)
+    expect(await caro.emitWithAck('room:setVoiceCall', { url: null })).toEqual({ ok: false, error: { code: 'not-narrator' } })
+    expect(await narrator.emitWithAck('room:setVoiceCall', { url: 'http://x.org' })).toEqual({
+      ok: false,
+      error: { code: 'voice-call-invalid' }
+    })
+    const cleared = nextSnapshot(caro, (snapshot) => snapshot.voiceCallUrl === null)
+    unwrap(await narrator.emitWithAck('room:setVoiceCall', { url: null }))
+    await cleared
+  })
+
   it('tells a kicked player and stops their seat', async () => {
     const narrator = await newClient()
     const session = await createRoom(narrator)

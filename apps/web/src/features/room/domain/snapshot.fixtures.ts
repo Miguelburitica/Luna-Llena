@@ -14,6 +14,7 @@ export const snapshotOf = (overrides: Partial<RoomSnapshot> = {}): RoomSnapshot 
   code: 'LUNA42',
   name: 'Los Primos · Viernes',
   status: 'lobby',
+  voiceCallUrl: null,
   settings: DEFAULT_ROOM_SETTINGS,
   members: [memberView('Nico', { isNarrator: true }), memberView('Ana'), memberView('Caro')],
   startReadiness: {

@@ -28,6 +28,27 @@ export const sharedMessages = {
       fool: { power: 'Get the village to execute you. Yes, really. Act shifty.', win: 'Win alone if you’re voted out.' },
       drunk: { power: 'You were sure you were the Seer. Your visions were… creative.', win: 'Win when every wolf is gone.' }
     },
+    voiceCall: {
+      join: {
+        discord: 'Join on Discord',
+        meet: 'Join on Google Meet',
+        zoom: 'Join on Zoom',
+        whatsapp: 'Join on WhatsApp',
+        jitsi: 'Join on Jitsi',
+        other: 'Join the call'
+      },
+      title: 'Voice call',
+      optional: 'Voice call (optional)',
+      placeholder: 'https://…',
+      hint: 'Paste a Discord, Meet, Zoom or WhatsApp link. Players join with one tap.',
+      add: 'Add a voice call',
+      change: 'Change the call',
+      save: 'Save',
+      remove: 'Remove',
+      free: 'Create a free call',
+      micsOff: 'Night falls — mics off',
+      micsOffDismiss: 'Got it'
+    },
     teams: { wolves: 'Wolves', village: 'Village', solo: 'Solo' },
     themes: {
       classic: { name: 'Classic', tagline: 'Moonlit storybook village' },
@@ -62,6 +83,27 @@ export const sharedMessages = {
       hunter: { power: 'Si caes, te llevas a otro jugador contigo. Al instante.', win: 'Gana cuando no quede ningún lobo.' },
       fool: { power: 'Haz que la aldea te ejecute. Sí, en serio. Pórtate sospechoso.', win: 'Gana solo si te votan para ejecutarte.' },
       drunk: { power: 'Estabas seguro de ser la Vidente. Tus visiones fueron… creativas.', win: 'Gana cuando no quede ningún lobo.' }
+    },
+    voiceCall: {
+      join: {
+        discord: 'Entrar en Discord',
+        meet: 'Entrar en Google Meet',
+        zoom: 'Entrar en Zoom',
+        whatsapp: 'Entrar en WhatsApp',
+        jitsi: 'Entrar en Jitsi',
+        other: 'Entrar a la llamada'
+      },
+      title: 'Llamada de voz',
+      optional: 'Llamada de voz (opcional)',
+      placeholder: 'https://…',
+      hint: 'Pega un enlace de Discord, Meet, Zoom o WhatsApp. Los jugadores entran con un toque.',
+      add: 'Añadir una llamada de voz',
+      change: 'Cambiar la llamada',
+      save: 'Guardar',
+      remove: 'Quitar',
+      free: 'Crear una llamada gratis',
+      micsOff: 'Cae la noche — micrófonos apagados',
+      micsOffDismiss: 'Entendido'
     },
     teams: { wolves: 'Lobos', village: 'Aldea', solo: 'Solitario' },
     themes: {

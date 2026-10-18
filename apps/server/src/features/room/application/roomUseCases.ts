@@ -10,6 +10,7 @@ import type { GameStarter, RoomCodeGenerator, RoomPublisher, RoomRepository } fr
 import { PlayAgain } from './PlayAgain'
 import { ResumeSession } from './ResumeSession'
 import { SetReady } from './SetReady'
+import { SetVoiceCall } from './SetVoiceCall'
 import { StartGame } from './StartGame'
 import { UpdateSettings } from './UpdateSettings'
 
@@ -31,6 +32,7 @@ export const createRoomUseCases = ({ rooms, codes, ids, publisher, starter }: Ro
     chooseAvatar: new ChooseAvatar(access),
     setReady: new SetReady(access),
     updateSettings: new UpdateSettings(access),
+    setVoiceCall: new SetVoiceCall(access),
     kickPlayer: new KickPlayer(access),
     leaveRoom: new LeaveRoom(access),
     markDisconnected: new MarkDisconnected(access),

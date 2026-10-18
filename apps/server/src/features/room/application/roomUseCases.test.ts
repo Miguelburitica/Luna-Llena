@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { unwrap } from '../domain/Room.fixtures'
+import { RoomCode } from '../domain/RoomCode'
 import { createRoomKit } from './roomUseCases.fixtures'
 
 describe('CreateRoom', () => {
@@ -51,7 +52,8 @@ describe('LookUpRoom', () => {
         playerCount: 1,
         capacity: 15,
         avatarsInUse: ['ana'],
-        acceptingPlayers: true
+        acceptingPlayers: true,
+        voiceCallUrl: null
       }
     })
   })
@@ -232,5 +234,97 @@ describe('Narrator commands', () => {
       ok: false,
       error: { code: 'start-conditions-unmet', unmet: ['not-enough-players', 'deck-mismatch'] }
     })
+  })
+})
+
+describe('Voice call link', () => {
+  const discord = 'https://discord.gg/abc123'
+
+  it('starts without a link', async () => {
+    const { createRoom } = createRoomKit()
+    expect((await createRoom()).session.snapshot.voiceCallUrl).toBeNull()
+  })
+
+  it('shows the link at creation to members and to anyone looking up the code', async () => {
+    const { useCases, createRoom, join } = createRoomKit()
+    const { session } = await createRoom(discord)
+    expect(session.snapshot.voiceCallUrl).toBe(discord)
+    expect((await join(session.code, 'Caro')).session.snapshot.voiceCallUrl).toBe(discord)
+    expect(unwrap(await useCases.lookUpRoom.execute({ code: session.code })).voiceCallUrl).toBe(discord)
+  })
+
+  it('rejects an invalid link at creation without opening a room', async () => {
+    const { useCases, rooms } = createRoomKit()
+    const result = await useCases.createRoom.execute({ roomName: 'Sala', narratorName: 'Nico', voiceCallUrl: 'http://x.org' })
+    expect(result).toEqual({ ok: false, error: { code: 'voice-call-invalid' } })
+    expect(await rooms.find(unwrap(RoomCode.parse('LUNA42')))).toBeUndefined()
+  })
+
+  it('lets the narrator change the link mid-game and tells everyone at once', async () => {
+    const kit = createRoomKit()
+    const { narrator } = await kit.roomReadyToStart(6)
+    unwrap(await kit.useCases.startGame.execute(narrator))
+    const meet = 'https://meet.google.com/new-call'
+    unwrap(await kit.useCases.setVoiceCall.execute(narrator, { url: meet }))
+    expect(kit.publisher.latest).toMatchObject({ status: 'in-game', voiceCallUrl: meet })
+  })
+
+  it('removes the link', async () => {
+    const { useCases, createRoom, publisher } = createRoomKit()
+    const { narrator } = await createRoom(discord)
+    unwrap(await useCases.setVoiceCall.execute(narrator, { url: null }))
+    expect(publisher.latest?.voiceCallUrl).toBeNull()
+  })
+
+  it('removes the link with a blank text', async () => {
+    const { useCases, createRoom, publisher } = createRoomKit()
+    const { narrator } = await createRoom(discord)
+    unwrap(await useCases.setVoiceCall.execute(narrator, { url: '  ' }))
+    expect(publisher.latest?.voiceCallUrl).toBeNull()
+  })
+
+  it('rejects a player and publishes nothing', async () => {
+    const { useCases, createRoom, join, publisher } = createRoomKit()
+    const { session } = await createRoom(discord)
+    const caro = await join(session.code, 'Caro')
+    const published = publisher.snapshots.length
+    expect(await useCases.setVoiceCall.execute(caro.actor, { url: 'https://meet.jit.si/Luna' })).toEqual({
+      ok: false,
+      error: { code: 'not-narrator' }
+    })
+    expect(publisher.snapshots).toHaveLength(published)
+  })
+
+  it('rejects a stranger', async () => {
+    const { useCases, createRoom } = createRoomKit()
+    await createRoom()
+    expect(await useCases.setVoiceCall.execute({ code: 'LUNA42', memberId: 'ghost' }, { url: discord })).toEqual({
+      ok: false,
+      error: { code: 'session-invalid' }
+    })
+  })
+
+  it.each([
+    ['not secure', 'http://meet.example.com/room'],
+    ['not a link', 'our usual discord'],
+    ['hidden credentials', 'https://user:secret@meet.example.com'],
+    ['too long', `https://meet.example.com/${'a'.repeat(300)}`]
+  ])('rejects a link that is %s and keeps the previous one', async (_case, url) => {
+    const { useCases, createRoom, publisher } = createRoomKit()
+    const { narrator } = await createRoom(discord)
+    const published = publisher.snapshots.length
+    expect(await useCases.setVoiceCall.execute(narrator, { url })).toEqual({
+      ok: false,
+      error: { code: 'voice-call-invalid' }
+    })
+    expect(publisher.snapshots).toHaveLength(published)
+    expect(unwrap(await useCases.lookUpRoom.execute({ code: narrator.code })).voiceCallUrl).toBe(discord)
+  })
+
+  it('trims the link before saving it', async () => {
+    const { useCases, createRoom, publisher } = createRoomKit()
+    const { narrator } = await createRoom()
+    unwrap(await useCases.setVoiceCall.execute(narrator, { url: `  ${discord}  ` }))
+    expect(publisher.latest?.voiceCallUrl).toBe(discord)
   })
 })

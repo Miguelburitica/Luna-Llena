@@ -59,8 +59,10 @@ export const createRoomKit = (codes: readonly string[] = ['LUNA42', 'NUBE77']) =
     codes: { next: () => unwrap(RoomCode.parse(codes[codeSequence++ % codes.length])) }
   })
 
-  const createRoom = async () => {
-    const session = unwrap(await useCases.createRoom.execute({ roomName: 'Los Primos', narratorName: 'Nico' }))
+  const createRoom = async (voiceCallUrl?: unknown) => {
+    const session = unwrap(
+      await useCases.createRoom.execute({ roomName: 'Los Primos', narratorName: 'Nico', voiceCallUrl })
+    )
     const narrator: Actor = { code: session.code, memberId: session.memberId }
     return { session, narrator }
   }

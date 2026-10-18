@@ -22,7 +22,8 @@ export const toRoomSnapshot = (room: Room): RoomSnapshot => ({
     deck: room.settings.deck
   },
   members: room.members.map(toMemberView),
-  startReadiness: room.startReadiness
+  startReadiness: room.startReadiness,
+  voiceCallUrl: room.voiceCall?.value ?? null
 })
 
 export const toRoomSummary = (room: Room): RoomSummary => ({
@@ -33,7 +34,8 @@ export const toRoomSummary = (room: Room): RoomSummary => ({
   playerCount: room.players.length,
   capacity: ROOM_LIMITS.maxPlayers,
   avatarsInUse: room.avatarsInUse,
-  acceptingPlayers: room.isAcceptingPlayers
+  acceptingPlayers: room.isAcceptingPlayers,
+  voiceCallUrl: room.voiceCall?.value ?? null
 })
 
 export const toRoomSession = (room: Room, member: Member): RoomSession => ({

@@ -20,6 +20,7 @@ export const summaryOf = (overrides: Partial<RoomSummary> = {}): RoomSummary => 
   capacity: 15,
   avatarsInUse: ['ana', 'juan'],
   acceptingPlayers: true,
+  voiceCallUrl: null,
   ...overrides
 })
 
@@ -71,6 +72,10 @@ export class FakeRoomGateway implements RoomGateway {
 
   kick(memberId: string) {
     return this.respond<undefined>('kick', memberId, ok(undefined))
+  }
+
+  setVoiceCall(url: string | null) {
+    return this.respond<undefined>('setVoiceCall', url, ok(undefined))
   }
 
   leave() {

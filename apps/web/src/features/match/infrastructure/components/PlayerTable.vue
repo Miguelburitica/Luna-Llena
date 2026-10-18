@@ -7,6 +7,7 @@ import ChatSheet from '@/features/chat/infrastructure/components/ChatSheet.vue'
 import LastWordsPrompt from '@/features/chat/infrastructure/components/LastWordsPrompt.vue'
 import LastWordsSpotlight from '@/features/chat/infrastructure/components/LastWordsSpotlight.vue'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
+import JoinCallButton from '@/shared/infrastructure/ui/components/JoinCallButton.vue'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import RoleCard from '@/shared/infrastructure/ui/components/RoleCard.vue'
@@ -17,6 +18,7 @@ import { revengeStanceOf } from '../../domain/voting'
 import DawnAnnouncement from './DawnAnnouncement.vue'
 import FoolWinsCard from './FoolWinsCard.vue'
 import HunterAimsBanner from './HunterAimsBanner.vue'
+import MicsOffReminder from './MicsOffReminder.vue'
 import NightDock from './NightDock.vue'
 import PhaseTimer from './PhaseTimer.vue'
 import RevengeDock from './RevengeDock.vue'
@@ -29,6 +31,7 @@ const props = defineProps<{ view: PlayerMatchView }>()
 const { t } = useI18n()
 const room = useRoomStore()
 const peeking = ref(false)
+const voiceCallUrl = computed(() => room.snapshot?.voiceCallUrl ?? null)
 
 const look = computed(() => phaseLook(props.view.phase))
 const seats = computed(() =>
@@ -51,6 +54,7 @@ const votingOpen = computed(
         <div class="ph-name">{{ t(`match.phases.${view.phase}`) }}</div>
         <div class="ph-sub">{{ t(`match.phaseSub.${view.phase}`, { round: view.round }) }}</div>
       </div>
+      <JoinCallButton v-if="voiceCallUrl" :url="voiceCallUrl" icon-only />
       <button
         type="button"
         class="btn btn-icon btn-secondary table-peek-button"
@@ -65,6 +69,8 @@ const votingOpen = computed(
       </button>
       <PhaseTimer :phase="view.phase" />
     </div>
+
+    <MicsOffReminder v-if="view.phase === 'night' && voiceCallUrl" :key="view.round" :code="view.code" :round="view.round" />
 
     <div class="scene table-scene" :class="{ 'is-dense': dense }">
       <span class="scene-bg" :class="sceneBackgroundOf(view.phase)" />

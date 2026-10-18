@@ -36,6 +36,17 @@ describe('PlayAgain', () => {
     })
   })
 
+  it('keeps the voice call link', async () => {
+    const kit = createRoomKit()
+    const { narrator } = await kit.roomReadyToStart(6)
+    const link = 'https://meet.jit.si/LunaLlena-LUNA42'
+    unwrap(await kit.useCases.setVoiceCall.execute(narrator, { url: link }))
+    unwrap(await kit.useCases.startGame.execute(narrator))
+    kit.starter.over = true
+    unwrap(await kit.useCases.playAgain.execute(narrator))
+    expect(kit.publisher.latest).toMatchObject({ status: 'lobby', voiceCallUrl: link })
+  })
+
   it('accepts new players and readiness again', async () => {
     const { useCases, starter, narrator, players, join, code } = await startedGame()
     starter.over = true

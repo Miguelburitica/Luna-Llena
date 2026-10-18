@@ -34,6 +34,7 @@ export const registerRoomHandlers = (io: LunaServer, useCases: RoomUseCases): vo
     answer(socket, 'room:chooseAvatar', asActor(socket, (actor, payload) => useCases.chooseAvatar.execute(actor, payload)))
     answer(socket, 'room:setReady', asActor(socket, (actor, payload) => useCases.setReady.execute(actor, payload)))
     answer(socket, 'room:updateSettings', asActor(socket, (actor, payload) => useCases.updateSettings.execute(actor, payload)))
+    answer(socket, 'room:setVoiceCall', asActor(socket, (actor, payload) => useCases.setVoiceCall.execute(actor, payload)))
     answer(socket, 'room:kick', asActor(socket, (actor, payload) => useCases.kickPlayer.execute(actor, payload)))
     answer(socket, 'room:start', asActor(socket, (actor) => useCases.startGame.execute(actor)))
     answer(socket, 'room:playAgain', asActor(socket, (actor) => useCases.playAgain.execute(actor)))

@@ -1,3 +1,5 @@
+import { err } from '@luna/contracts'
+import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { narratorViewOf } from '../../application/MatchGateway.fixtures'
 import { matchPlayers, mountMatchView } from '../mountMatchView.fixtures'
@@ -264,5 +266,53 @@ describe('NarratorDashboard', () => {
       const { wrapper } = await mountDashboard()
       expect(wrapper.find('.dashboard-revenge').exists()).toBe(false)
     })
+  })
+})
+
+describe('NarratorDashboard voice call', () => {
+  const mountWithCall = (voiceCallUrl: string | null) => {
+    const view = dashboardOf()
+    return mountMatchView(NarratorDashboard, { view, props: { view }, memberId: 'id-Nico', voiceCallUrl })
+  }
+
+  it('prompts the narrator to add a call when there is none', async () => {
+    const { wrapper } = await mountWithCall(null)
+    expect(wrapper.find('a.join-call').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Add a voice call')
+  })
+
+  it('shows the join button by provider', async () => {
+    const { wrapper } = await mountWithCall('https://zoom.us/j/123')
+    expect(wrapper.find('a.join-call').text()).toBe('Join on Zoom')
+    expect(wrapper.text()).not.toContain('Add a voice call')
+  })
+
+  it('changes the link mid-game through the room store', async () => {
+    const { wrapper, rooms } = await mountWithCall('https://zoom.us/j/123')
+    await wrapper.find('[aria-label="Change the call"]').trigger('click')
+    await wrapper.find('.dashboard-call-panel input').setValue('https://meet.google.com/abc-defg-hij')
+    await wrapper.find('.dashboard-call-panel form').trigger('submit')
+    await flushPromises()
+    expect(rooms.calls.at(-1)).toEqual({ command: 'setVoiceCall', input: 'https://meet.google.com/abc-defg-hij' })
+    expect(wrapper.find('.dashboard-call-panel').exists()).toBe(false)
+  })
+
+  it('adds a free call from the empty state', async () => {
+    const { wrapper, rooms } = await mountWithCall(null)
+    await wrapper.findAll('button').find((button) => button.text() === 'Add a voice call')?.trigger('click')
+    await wrapper.findAll('.dashboard-call-panel button').find((button) => button.text() === 'Create a free call')?.trigger('click')
+    expect((wrapper.find('.dashboard-call-panel input').element as HTMLInputElement).value).toBe('https://meet.jit.si/LunaLlena-LUNA42')
+    await wrapper.find('.dashboard-call-panel form').trigger('submit')
+    expect(rooms.calls.at(-1)).toEqual({ command: 'setVoiceCall', input: 'https://meet.jit.si/LunaLlena-LUNA42' })
+  })
+
+  it('keeps the editor open and explains a rejected link', async () => {
+    const { wrapper, rooms } = await mountWithCall('https://zoom.us/j/123')
+    rooms.answer('setVoiceCall', err({ code: 'voice-call-invalid' }))
+    await wrapper.find('[aria-label="Change the call"]').trigger('click')
+    await wrapper.find('.dashboard-call-panel input').setValue('nope')
+    await wrapper.find('.dashboard-call-panel form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('.dashboard-call-panel [role="alert"]').text()).toContain('secure link')
   })
 })

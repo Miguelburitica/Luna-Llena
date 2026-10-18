@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { PHASES, TIMER_EXTENSION_SECONDS, type NarratorMatchView } from '@luna/contracts'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import NarratorChatMonitor from '@/features/chat/infrastructure/components/NarratorChatMonitor.vue'
+import { useRoomAction } from '@/features/room/application/useRoomAction'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
 import DeskHeader from '@/shared/infrastructure/ui/components/DeskHeader.vue'
+import JoinCallButton from '@/shared/infrastructure/ui/components/JoinCallButton.vue'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
+import VoiceCallForm from '@/shared/infrastructure/ui/components/VoiceCallForm.vue'
 import { PACK_RING, teamClassFor, teamClassOf } from '@/shared/infrastructure/ui/teamClass'
 import { useCountdown } from '../../application/useCountdown'
 import { useMatchStore } from '../../application/useMatchStore'
@@ -21,6 +24,15 @@ const { t } = useI18n()
 const room = useRoomStore()
 const match = useMatchStore()
 const seconds = useCountdown()
+const { failure: callFailure, pending: callPending, run: runCall } = useRoomAction()
+const editingCall = ref(false)
+const voiceCallUrl = computed(() => room.snapshot?.voiceCallUrl ?? null)
+const callFailureText = computed(() => (callFailure.value === null ? null : t(`room.errors.${callFailure.value.code}`)))
+
+const saveCall = async (url: string | null) => {
+  const result = await runCall(() => room.setVoiceCall(url))
+  if (result.ok) editingCall.value = false
+}
 
 const currentIndex = computed(() => PHASES.indexOf(props.view.phase))
 const steps = computed(() =>
@@ -107,6 +119,23 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
         </span>
       </nav>
       <div class="dashboard-controls">
+        <div class="dashboard-call">
+          <template v-if="voiceCallUrl">
+            <JoinCallButton :url="voiceCallUrl" compact />
+            <button
+              type="button"
+              class="btn btn-icon btn-ghost"
+              :aria-label="t('voiceCall.change')"
+              :aria-expanded="editingCall"
+              @click="editingCall = !editingCall"
+            >
+              <LunaIcon name="sliders" />
+            </button>
+          </template>
+          <button v-else type="button" class="btn btn-sm btn-secondary" :aria-expanded="editingCall" @click="editingCall = !editingCall">
+            <LunaIcon name="phone" size="sm" />{{ t('voiceCall.add') }}
+          </button>
+        </div>
         <div class="dashboard-timer">
           <PhaseTimer :phase="view.phase" />
           <button
@@ -126,6 +155,19 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
     </div>
 
     <div class="dashboard-body">
+      <section v-if="editingCall" class="panel dashboard-call-panel">
+        <div class="panel-h">
+          <h2 class="h3 dashboard-heading">{{ voiceCallUrl === null ? t('voiceCall.add') : t('voiceCall.title') }}</h2>
+        </div>
+        <VoiceCallForm
+          :url="voiceCallUrl"
+          :code="view.code"
+          :pending="callPending"
+          :failure-text="callFailureText"
+          @save="saveCall"
+        />
+      </section>
+
       <section class="panel">
         <div class="panel-h">
           <h2 class="h3 dashboard-heading">{{ t('match.dashboard.players') }}</h2>
@@ -346,6 +388,16 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.dashboard-call {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dashboard-call-panel {
+  margin-bottom: 20px;
 }
 
 .dashboard-timer {

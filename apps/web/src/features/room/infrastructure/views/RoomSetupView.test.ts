@@ -27,6 +27,33 @@ describe('RoomSetupView', () => {
     await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/room/LUNA42'))
   })
 
+  it('creates a room with the optional voice call link', async () => {
+    const { wrapper, gateway } = await mountRoomView(RoomSetupView, { path: '/host' })
+    const [roomName, narratorName, voiceCall] = wrapper.findAll('input.input')
+    expect(wrapper.text()).toContain('Voice call (optional)')
+    expect(wrapper.text()).not.toContain('Create a free call')
+    await roomName?.setValue('Los Primos')
+    await narratorName?.setValue('Nico')
+    await voiceCall?.setValue(' https://discord.gg/abc123 ')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(gateway.calls.at(-1)).toMatchObject({
+      command: 'createRoom',
+      input: { roomName: 'Los Primos', narratorName: 'Nico', voiceCallUrl: 'https://discord.gg/abc123' }
+    })
+  })
+
+  it('does not show the voice call field when editing settings', async () => {
+    const { wrapper } = await mountRoomView(RoomSetupView, {
+      path: '/room/LUNA42/settings',
+      seed: async ({ store, gateway: fake }) => {
+        fake.answer('join', ok(sessionFor('id-Nico', snapshotOf({ name: 'Los Primos' }))))
+        await store.join('LUNA42', 'Nico')
+      }
+    })
+    expect(wrapper.text()).not.toContain('Voice call (optional)')
+  })
+
   it('opens from the lobby with the room settings already loaded and saves changes', async () => {
     const { wrapper, gateway, router } = await mountRoomView(RoomSetupView, {
       path: '/room/LUNA42/settings',

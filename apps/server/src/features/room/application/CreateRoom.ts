@@ -6,6 +6,7 @@ import { Room } from '../domain/Room'
 import type { RoomCode } from '../domain/RoomCode'
 import { RoomName } from '../domain/RoomName'
 import { RoomSettings } from '../domain/RoomSettings'
+import { VoiceCallUrl } from '../domain/VoiceCallUrl'
 import type { RoomCodeGenerator, RoomRepository } from './ports'
 import { toRoomSession } from './roomViews'
 
@@ -25,10 +26,13 @@ export class CreateRoom {
     if (!narratorName.ok) return narratorName
     const settings = RoomSettings.fromInput(input.settings)
     if (!settings.ok) return settings
+    const voiceCall = VoiceCallUrl.parse(input.voiceCallUrl)
+    if (!voiceCall.ok) return voiceCall
     const room = Room.open({
       code: await this.freeCode(),
       name: name.value,
       settings: settings.value,
+      voiceCall: voiceCall.value,
       narrator: { id: this.ids.next(), token: this.ids.next(), name: narratorName.value }
     })
     await this.rooms.save(room)

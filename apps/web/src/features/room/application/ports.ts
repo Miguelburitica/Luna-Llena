@@ -23,6 +23,7 @@ export interface RoomGateway {
   setReady(ready: boolean): RoomResult<void>
   updateSettings(settings: RoomSettingsInput): RoomResult<void>
   kick(memberId: string): RoomResult<void>
+  setVoiceCall(url: string | null): RoomResult<void>
   leave(): RoomResult<void>
   start(): RoomResult<void>
   playAgain(): RoomResult<void>

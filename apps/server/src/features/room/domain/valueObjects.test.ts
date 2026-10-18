@@ -1,9 +1,10 @@
-import { ROOM_CODE_ALPHABET } from '@luna/contracts'
+import { ROOM_CODE_ALPHABET, ROOM_LIMITS } from '@luna/contracts'
 import { describe, expect, it } from 'vitest'
 import { DisplayName } from './DisplayName'
 import { unwrap } from './Room.fixtures'
 import { RoomCode } from './RoomCode'
 import { RoomName } from './RoomName'
+import { VoiceCallUrl } from './VoiceCallUrl'
 
 describe('RoomCode', () => {
   it('ignores letter case and surrounding spaces', () => {
@@ -41,5 +42,40 @@ describe('DisplayName', () => {
 describe('RoomName', () => {
   it('rejects a blank room name', () => {
     expect(RoomName.create('  ')).toEqual({ ok: false, error: { code: 'room-name-invalid' } })
+  })
+})
+
+describe('VoiceCallUrl', () => {
+  it.each([null, undefined, '', '   '])('treats %j as no link', (raw) => {
+    expect(VoiceCallUrl.parse(raw)).toEqual({ ok: true, value: null })
+  })
+
+  it('trims the text and stores the normalised address', () => {
+    expect(unwrap(VoiceCallUrl.parse('  https://Discord.gg/abc123 '))?.value).toBe('https://discord.gg/abc123')
+  })
+
+  it('accepts a link of exactly the maximum length', () => {
+    const link = `https://meet.example.com/${'a'.repeat(ROOM_LIMITS.maxVoiceCallUrlLength - 25)}`
+    expect(link).toHaveLength(ROOM_LIMITS.maxVoiceCallUrlLength)
+    expect(unwrap(VoiceCallUrl.parse(`  ${link}  `))?.value).toBe(link)
+  })
+
+  it('rejects a link longer than the maximum', () => {
+    const link = `https://meet.example.com/${'a'.repeat(ROOM_LIMITS.maxVoiceCallUrlLength - 24)}`
+    expect(VoiceCallUrl.parse(link)).toEqual({ ok: false, error: { code: 'voice-call-invalid' } })
+  })
+
+  it.each([
+    'http://meet.example.com/room',
+    'our usual discord',
+    'https://user:secret@meet.example.com',
+    'https://user@meet.example.com',
+    'https://',
+    'ftp://meet.example.com',
+    'javascript:alert(1)',
+    42,
+    {}
+  ])('rejects %j', (raw) => {
+    expect(VoiceCallUrl.parse(raw)).toEqual({ ok: false, error: { code: 'voice-call-invalid' } })
   })
 })

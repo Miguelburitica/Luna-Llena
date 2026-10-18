@@ -46,6 +46,7 @@ const code = computed(() => normalizeRoomCode(String(route.params.code ?? '')))
 const entry = editing ? useRoomEntry(code) : null
 
 const roomName = ref('')
+const voiceCallUrl = ref('')
 const narratorName = ref('')
 const draftOf = (settings: RoomSettingsView) => ({
   theme: settings.theme as ThemeId,
@@ -114,7 +115,12 @@ const submit = async () => {
     return
   }
   const result = await run(() =>
-    store.createRoom({ roomName: roomName.value, narratorName: narratorName.value, settings: settingsInput() })
+    store.createRoom({
+      roomName: roomName.value,
+      narratorName: narratorName.value,
+      settings: settingsInput(),
+      voiceCallUrl: voiceCallUrl.value.trim() || undefined
+    })
   )
   if (result.ok) await router.push({ name: 'lobby', params: { code: result.value.code } })
 }
@@ -154,6 +160,17 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
                 :maxlength="ROOM_LIMITS.maxNameLength"
                 :placeholder="t('room.setup.yourNamePlaceholder')"
                 autocomplete="nickname"
+              >
+            </label>
+            <label class="field">
+              <span class="label">{{ t('voiceCall.optional') }}</span>
+              <input
+                v-model="voiceCallUrl"
+                class="input"
+                inputmode="url"
+                autocomplete="off"
+                :maxlength="ROOM_LIMITS.maxVoiceCallUrlLength"
+                :placeholder="t('voiceCall.placeholder')"
               >
             </label>
           </section>

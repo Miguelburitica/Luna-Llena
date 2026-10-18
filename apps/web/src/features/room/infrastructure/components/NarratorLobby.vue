@@ -13,6 +13,7 @@ import { suggestedDeckFor } from '../../domain/deckAdvice'
 import { cardsInDeck, namesOf, playersOf, readyPlayerCount } from '../../domain/lobby'
 import { useInviteLink } from '../useInviteLink'
 import RoomFailureMessage from './RoomFailureMessage.vue'
+import VoiceCallPanel from './VoiceCallPanel.vue'
 
 const props = defineProps<{ snapshot: RoomSnapshot; memberId: string }>()
 const { t } = useI18n()
@@ -149,6 +150,8 @@ const closeRoom = async () => {
       </section>
 
       <aside class="narrator-aside">
+        <VoiceCallPanel :url="snapshot.voiceCallUrl" :code="snapshot.code" />
+
         <section class="panel" :class="{ 'is-mismatch': !deckMatches }">
           <div class="panel-h">
             <h2 class="h3">{{ t('room.narratorLobby.deckVsPlayers') }}</h2>

@@ -256,6 +256,43 @@ describe('Starting the game', () => {
   })
 })
 
+describe('Voice call', () => {
+  it('has no link unless opened with one', () => {
+    expect(openRoom().voiceCall).toBeNull()
+  })
+
+  it('lets the narrator set and remove the link in any status', () => {
+    const room = readyRoomOf(6)
+    unwrap(room.setVoiceCall('id-Nico', 'https://discord.gg/abc123'))
+    unwrap(room.start('id-Nico'))
+    unwrap(room.setVoiceCall('id-Nico', 'https://meet.jit.si/Luna'))
+    expect(room.voiceCall?.value).toBe('https://meet.jit.si/Luna')
+    unwrap(room.setVoiceCall('id-Nico', null))
+    expect(room.voiceCall).toBeNull()
+  })
+
+  it('rejects players and strangers', () => {
+    const room = roomWith(['Caro'])
+    expect(room.setVoiceCall('id-Caro', 'https://discord.gg/abc123')).toEqual({ ok: false, error: { code: 'not-narrator' } })
+    expect(room.setVoiceCall('ghost', 'https://discord.gg/abc123')).toEqual({ ok: false, error: { code: 'session-invalid' } })
+  })
+
+  it('keeps the previous link when the new one is invalid', () => {
+    const room = openRoom()
+    unwrap(room.setVoiceCall('id-Nico', 'https://discord.gg/abc123'))
+    expect(room.setVoiceCall('id-Nico', 'nope')).toEqual({ ok: false, error: { code: 'voice-call-invalid' } })
+    expect(room.voiceCall?.value).toBe('https://discord.gg/abc123')
+  })
+
+  it('keeps the link after reopening', () => {
+    const room = readyRoomOf(6)
+    unwrap(room.setVoiceCall('id-Nico', 'https://discord.gg/abc123'))
+    unwrap(room.start('id-Nico'))
+    room.reopen()
+    expect(room.voiceCall?.value).toBe('https://discord.gg/abc123')
+  })
+})
+
 describe('Reopening after a game', () => {
   it('goes back to the lobby keeping members and clearing readiness', () => {
     const room = readyRoomOf(6)

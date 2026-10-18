@@ -37,6 +37,10 @@ export class SocketRoomGateway implements RoomGateway {
     return reachOrFail(() => this.socket.emitWithAck('room:kick', { memberId }))
   }
 
+  setVoiceCall(url: string | null) {
+    return reachOrFail(() => this.socket.emitWithAck('room:setVoiceCall', { url }))
+  }
+
   leave() {
     return reachOrFail(() => this.socket.emitWithAck('room:leave', {}))
   }

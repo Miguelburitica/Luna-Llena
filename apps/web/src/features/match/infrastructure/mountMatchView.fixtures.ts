@@ -33,6 +33,7 @@ interface MountOptions {
   readonly props?: Record<string, unknown>
   readonly view?: MatchView
   readonly memberId?: string
+  readonly voiceCallUrl?: string | null
   readonly preload?: boolean
   readonly resume?: boolean
   readonly configure?: (gateways: { matches: FakeMatchGateway; rooms: FakeRoomGateway; chats: FakeChatGateway }) => void
@@ -40,7 +41,7 @@ interface MountOptions {
 
 export const mountMatchView = async (
   component: Component,
-  { path = '/room/LUNA42/game', props = {}, view = playerViewOf(), memberId = 'id-Ana', preload = true, resume = false, configure }: MountOptions = {}
+  { path = '/room/LUNA42/game', props = {}, view = playerViewOf(), memberId = 'id-Ana', voiceCallUrl = null, preload = true, resume = false, configure }: MountOptions = {}
 ) => {
   const rooms = new FakeRoomGateway()
   const matches = new FakeMatchGateway(view)
@@ -54,7 +55,7 @@ export const mountMatchView = async (
   for (const key of Object.getOwnPropertySymbols(provide)) host.provide(key, provide[key])
   const room = host.runWithContext(() => useRoomStore())
   const match = host.runWithContext(() => useMatchStore())
-  const session = sessionFor(memberId, snapshotOf({ status: 'in-game', members: rosterMembers() }))
+  const session = sessionFor(memberId, snapshotOf({ status: 'in-game', voiceCallUrl, members: rosterMembers() }))
   if (resume) {
     sessions.save({ code: session.code, memberId, token: session.token })
     rooms.answer('resume', ok(session))

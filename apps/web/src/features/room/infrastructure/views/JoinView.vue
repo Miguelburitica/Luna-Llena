@@ -3,6 +3,7 @@ import type { RoomSummary } from '@luna/contracts'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import JoinCallButton from '@/shared/infrastructure/ui/components/JoinCallButton.vue'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import type { RoomFailure } from '../../application/ports'
@@ -112,6 +113,7 @@ const join = async () => {
               {{ t('room.join.joined', { count: summary.playerCount, capacity: summary.capacity }) }}
             </span>
           </div>
+          <JoinCallButton v-if="summary.voiceCallUrl" class="join-room-call" :url="summary.voiceCallUrl" compact />
         </div>
       </div>
       <RoomFailureMessage v-if="closedReason" :failure="closedReason" />
@@ -224,6 +226,10 @@ const join = async () => {
 
 .join-room-faces .av {
   margin: 0 0 0 -7px;
+}
+
+.join-room-call {
+  margin-top: 10px;
 }
 
 .join-suggestions {
