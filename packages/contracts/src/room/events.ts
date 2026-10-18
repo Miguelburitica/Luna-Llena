@@ -22,6 +22,7 @@ export interface RoomClientEvents {
   'room:kick': (input: { readonly memberId: string }, ack: RoomAck<void>) => void
   'room:leave': (input: Record<string, never>, ack: RoomAck<void>) => void
   'room:start': (input: Record<string, never>, ack: RoomAck<void>) => void
+  'room:playAgain': (input: Record<string, never>, ack: RoomAck<void>) => void
 }
 
 export interface RoomServerEvents {

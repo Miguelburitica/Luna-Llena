@@ -13,7 +13,8 @@ export const ROOM_ERROR_CODES = [
   'not-a-player',
   'member-not-found',
   'settings-invalid',
-  'start-conditions-unmet'
+  'start-conditions-unmet',
+  'game-not-over'
 ] as const
 export type RoomErrorCode = (typeof ROOM_ERROR_CODES)[number]
 

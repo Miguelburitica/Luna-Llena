@@ -1,5 +1,6 @@
 import type { ChatAccess } from '../chat/views'
 import type { RoleId, TeamId } from '../roles/catalog'
+import type { Award, TimelineEntry } from './endGame'
 import type { DawnReport, NarratorNightView, PlayerNightView, Vision } from './night'
 import type { Phase } from './vocabulary'
 import type { CastVote, RevengeView, Verdict, VotingProgress } from './voting'
@@ -12,6 +13,8 @@ export interface MatchPlayerView {
 
 export interface MatchOutcome {
   readonly winner: TeamId
+  readonly timeline: readonly TimelineEntry[]
+  readonly awards: readonly Award[]
 }
 
 interface MatchViewCommon {
