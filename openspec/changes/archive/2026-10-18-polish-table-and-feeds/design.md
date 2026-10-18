@@ -14,12 +14,15 @@ The scene art is 390×340.
 - **Dawn sun:** rises behind the village at the bottom centre, around the hearth, which is fine.
 
 `seatPositions(count)` moves its ellipse:
-- centre from (50%, 50%) to (50%, 64%);
-- radii from (38%, 36%) to (40%, 22%).
+- centre from (50%, 50%) to (50%, 61%);
+- radii from (38%, 36%) to (40%, 26%).
 
-The top seat then sits at 42% and the upper-right seats at about 45%, below the moon's disc. The constants stay named
+The table scene grows from 330px to 400px, and the hearth moves to the ellipse centre. The top seat then sits at 35%,
+in the middle of the sky clear of the moon and sun, and the upper-right seat sits at about 45%, below the moon's disc.
+A 22% radius on the 330px scene was tried first: it cleared the moon but stacked neighbouring seats on top of each
+other. The constants stay named
 in `phases.ts` (`SEAT_CENTER_X`, `SEAT_CENTER_Y`, `SEAT_RADIUS_X`, `SEAT_RADIUS_Y`). The existing `seatPositions` tests
-are updated to the new numbers, plus a test that every position has `top ≥ 40`.
+are updated to the new numbers, plus a test that every position has `top ≥ 35`.
 
 ### Readable names
 `.av-name` inside `.table-seat` gets a pill:

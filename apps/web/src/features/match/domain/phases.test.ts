@@ -1,6 +1,6 @@
 import { PHASES } from '@luna/contracts'
 import { describe, expect, it } from 'vitest'
-import { clockText, isTimerWarning, nextPhaseOf, sceneBackgroundOf, timerProgress, phaseLook, secondsLeft, seatPositions } from './phases'
+import { clockText, isTimerWarning, nextPhaseOf, sceneBackgroundOf, timerProgress, phaseLook, secondsLeft, seatPositions, stepperOf } from './phases'
 
 describe('phase look', () => {
   it('gives every phase a class and an icon, execution sharing the vote look', () => {
@@ -51,11 +51,11 @@ describe('clock text', () => {
 describe('seat positions', () => {
   it('starts at the top and goes clockwise', () => {
     const seats = seatPositions(4)
-    expect(seats[0]).toEqual({ left: 50, top: 14 })
+    expect(seats[0]).toEqual({ left: 50, top: 35 })
     expect(seats[1]?.left).toBeGreaterThan(50)
-    expect(seats[1]?.top).toBe(50)
+    expect(seats[1]?.top).toBe(61)
     expect(seats[2]?.left).toBe(50)
-    expect(seats[2]?.top).toBe(86)
+    expect(seats[2]?.top).toBe(87)
     expect(seats[3]?.left).toBeLessThan(50)
   })
 
@@ -65,8 +65,28 @@ describe('seat positions', () => {
     expect(new Set(seats.map((seat) => `${seat.left},${seat.top}`)).size).toBe(15)
   })
 
+  it('keeps every seat below the sky for any table size', () => {
+    for (let count = 6; count <= 15; count += 1) {
+      expect(seatPositions(count).every((seat) => seat.top >= 35)).toBe(true)
+    }
+  })
+
   it('has no seats for nobody', () => {
     expect(seatPositions(0)).toEqual([])
+  })
+})
+
+describe('stepper', () => {
+  it('labels every phase with the round and marks done, now and next', () => {
+    const steps = stepperOf({ phase: 'vote', round: 2 })
+    expect(steps.map((step) => step.phase)).toEqual([...PHASES])
+    expect(steps.every((step) => step.round === 2)).toBe(true)
+    expect(steps.map((step) => step.labelKey)).toEqual(PHASES.map((phase) => `match.phases.${phase}`))
+    expect(steps.map((step) => step.state)).toEqual(['done', 'done', 'done', 'now', 'next'])
+  })
+
+  it('starts with every later phase still to come', () => {
+    expect(stepperOf({ phase: 'night', round: 1 }).map((step) => step.state)).toEqual(['now', 'next', 'next', 'next', 'next'])
   })
 })
 

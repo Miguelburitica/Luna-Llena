@@ -74,6 +74,30 @@ describe('Refreshing the ghost view', () => {
   })
 })
 
+describe('The narrator haunt history', () => {
+  it('lists every haunt in order on the narrator view and survives a reload', async () => {
+    const { haunt, publisher, useCases, narrator } = await ghostKit()
+    expect(asNarrator(publisher.latestFor(NARRATOR_ID)).haunts).toEqual([])
+    unwrap(await haunt(JUAN, { kind: 'whisper', targetId: MARTA, word: 'bakery' }))
+    unwrap(await haunt(ANA, { kind: 'flicker' }))
+    const expected = [
+      { round: 1, ghostId: JUAN, haunt: 'whisper', targetId: MARTA, word: 'bakery' },
+      { round: 1, ghostId: ANA, haunt: 'flicker', targetId: null, word: null }
+    ]
+    expect(asNarrator(publisher.latestFor(NARRATOR_ID)).haunts).toEqual(expected)
+    expect(asNarrator(unwrap(await useCases.syncMatch.execute(narrator))).haunts).toEqual(expected)
+  })
+
+  it('never puts the history on a player view', async () => {
+    const { haunt, publisher, useCases, actorOf } = await ghostKit()
+    unwrap(await haunt(JUAN, { kind: 'whisper', targetId: MARTA, word: 'bakery' }))
+    for (const memberId of PLAYER_IDS.slice(0, 7)) {
+      expect(publisher.latestFor(memberId)).not.toHaveProperty('haunts')
+      expect(unwrap(await useCases.syncMatch.execute(actorOf(memberId)))).not.toHaveProperty('haunts')
+    }
+  })
+})
+
 describe('Rejected haunts deliver nothing', () => {
   it('reports the domain error and leaves the publisher silent', async () => {
     const { haunt, publisher } = await ghostKit()

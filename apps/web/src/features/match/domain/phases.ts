@@ -5,6 +5,15 @@ export interface PhaseLook {
   readonly icon: string
 }
 
+export type StepState = 'done' | 'now' | 'next'
+
+export interface PhaseStep {
+  readonly phase: Phase
+  readonly labelKey: string
+  readonly round: number
+  readonly state: StepState
+}
+
 export interface SeatPosition {
   readonly left: number
   readonly top: number
@@ -18,9 +27,10 @@ const PHASE_LOOKS: Readonly<Record<Phase, PhaseLook>> = {
   execution: { phaseClass: 'ph-vote', icon: 'pitchfork' }
 }
 
-const SEAT_CENTER = 50
-const SEAT_RADIUS_X = 38
-const SEAT_RADIUS_Y = 36
+const SEAT_CENTER_X = 50
+const SEAT_CENTER_Y = 61
+const SEAT_RADIUS_X = 40
+const SEAT_RADIUS_Y = 26
 const FULL_TURN = Math.PI * 2
 const MILLISECONDS_PER_SECOND = 1000
 const WARNING_SECONDS = 10
@@ -47,10 +57,20 @@ export const seatPositions = (count: number): SeatPosition[] =>
   Array.from({ length: count }, (_, index) => {
     const angle = -Math.PI / 2 + (FULL_TURN * index) / count
     return {
-      left: hundredth(SEAT_CENTER + SEAT_RADIUS_X * Math.cos(angle)),
-      top: hundredth(SEAT_CENTER + SEAT_RADIUS_Y * Math.sin(angle))
+      left: hundredth(SEAT_CENTER_X + SEAT_RADIUS_X * Math.cos(angle)),
+      top: hundredth(SEAT_CENTER_Y + SEAT_RADIUS_Y * Math.sin(angle))
     }
   })
+
+export const stepperOf = (view: { readonly phase: Phase; readonly round: number }): PhaseStep[] => {
+  const currentIndex = PHASES.indexOf(view.phase)
+  return PHASES.map((phase, index) => {
+    let state: StepState = 'next'
+    if (index === currentIndex) state = 'now'
+    else if (index < currentIndex) state = 'done'
+    return { phase, labelKey: `match.phases.${phase}`, round: view.round, state }
+  })
+}
 
 export const clockText = (seconds: number): string =>
   `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`

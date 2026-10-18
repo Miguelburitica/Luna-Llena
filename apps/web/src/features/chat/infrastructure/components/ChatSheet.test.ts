@@ -69,7 +69,7 @@ describe('chat bar and sheet', () => {
     expect((wrapper.find('.composer .input').element as HTMLInputElement).value).toBe('hello')
   })
 
-  it('shows a count on the Wolves tab when the pack talks while you read the village', async () => {
+  it('opens a living wolf on the Wolves tab with a composer, then counts wolf messages while the village tab is read', async () => {
     const view = tableOf({
       phase: 'night',
       you: youOf({ role: 'werewolf', team: 'wolves', packIds: ['id-Tato'] }),
@@ -78,6 +78,9 @@ describe('chat bar and sheet', () => {
     const { wrapper, chats } = await mountChat(view)
     await openSheet(wrapper)
     expect(wrapper.findAll('.tab').map((tab) => tab.text())).toEqual(['Village', 'Wolves'])
+    expect(tabNamed(wrapper, 'Wolves')?.classes()).toContain('is-on')
+    expect(wrapper.find('.composer').exists()).toBe(true)
+    await tabNamed(wrapper, 'Village')?.trigger('click')
     expect(tabNamed(wrapper, 'Village')?.classes()).toContain('is-on')
     expect(tabNamed(wrapper, 'Wolves')?.find('.count').exists()).toBe(false)
     chats.pushMessage(messageOf({ channel: 'wolves', authorId: 'id-Tato', text: 'him. he is too smart.' }))

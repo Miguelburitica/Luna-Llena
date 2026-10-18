@@ -108,6 +108,20 @@ describe('chat store', () => {
     expect(chat.currentTab).toBe('village')
   })
 
+  it('opens a living wolf on the wolves at night until another tab is picked', async () => {
+    const { chat, matches } = await startChat(
+      playerViewOf({ phase: 'dawn', chat: accessOf({ read: ['village', 'wolves'], write: ['village'] }) })
+    )
+    expect(chat.currentTab).toBe('village')
+    matches.pushView(playerViewOf({ phase: 'night', chat: accessOf({ read: ['village', 'wolves'], write: ['wolves'] }) }))
+    chat.openSheet()
+    expect(chat.currentTab).toBe('wolves')
+    chat.selectTab('village')
+    chat.closeSheet()
+    chat.openSheet()
+    expect(chat.currentTab).toBe('village')
+  })
+
   it('fetches the history again when a channel becomes readable', async () => {
     const { chat, chats, matches } = await startChat(playerViewOf())
     const gossip = messageOf({ channel: 'ghosts', authorId: 'id-Juan', text: 'boo' })

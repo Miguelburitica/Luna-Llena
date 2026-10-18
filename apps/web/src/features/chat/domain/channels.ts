@@ -17,8 +17,9 @@ export const visibleTabs = (access: ChatAccess): ChatChannel[] =>
 export const isDead = (access: ChatAccess): boolean => access.read.includes('ghosts')
 
 export const defaultTab = (access: ChatAccess): ChatChannel => {
+  if (access.write.includes('wolves')) return 'wolves'
   if (isDead(access)) return 'ghosts'
-  return visibleTabs(access)[0] ?? 'village'
+  return 'village'
 }
 
 export const monitorChannels = (tab: MonitorTab): readonly ChatChannel[] => (tab === 'all' ? CHAT_CHANNELS : [tab])

@@ -82,6 +82,7 @@ const en = {
     whispered: 'A ghost whispers to you: “{word}”',
     feed: {
       title: 'Hauntings',
+      round: 'Round {round}',
       flicker: '{ghost}’s ghost flickered the lights.',
       whisper: '{ghost}’s ghost whispered “{word}” to {target}.'
     }
@@ -96,7 +97,7 @@ const en = {
     game: 'Game',
     lobby: 'Lobby',
     stepperLabel: 'Phase',
-    nightRound: 'Night {round}',
+    phaseRound: '{phase} {round}',
     addTime: '+{seconds}s',
     addTimeLabel: 'Add {seconds} seconds',
     next: 'Next: {phase}',
@@ -414,6 +415,7 @@ const es: typeof en = {
     whispered: 'Un fantasma te susurra: “{word}”',
     feed: {
       title: 'Apariciones',
+      round: 'Ronda {round}',
       flicker: 'El fantasma de {ghost} hizo parpadear las luces.',
       whisper: 'El fantasma de {ghost} le susurró “{word}” a {target}.'
     }
@@ -428,7 +430,7 @@ const es: typeof en = {
     game: 'Juego',
     lobby: 'Sala',
     stepperLabel: 'Fase',
-    nightRound: 'Noche {round}',
+    phaseRound: '{phase} {round}',
     addTime: '+{seconds}s',
     addTimeLabel: 'Añadir {seconds} segundos',
     next: 'Siguiente: {phase}',

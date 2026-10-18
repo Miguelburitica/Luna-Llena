@@ -17,6 +17,11 @@ describe('chat tabs', () => {
     expect(defaultTab(accessOf({ read: [] }))).toBe('village')
   })
 
+  it('opens on the wolves for a wolf who may write there', () => {
+    expect(defaultTab(accessOf({ read: ['village', 'wolves'], write: ['wolves'] }))).toBe('wolves')
+    expect(defaultTab(accessOf({ read: ['village', 'wolves'], write: ['village'] }))).toBe('village')
+  })
+
   it('gives the narrator an all tab ahead of the channels', () => {
     expect(MONITOR_TABS).toEqual(['all', 'village', 'wolves', 'ghosts'])
     expect(monitorChannels('all')).toEqual(['village', 'wolves', 'ghosts'])

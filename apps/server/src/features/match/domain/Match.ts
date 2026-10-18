@@ -13,6 +13,7 @@ import {
   type CastVote,
   type DawnReport,
   type HauntKind,
+  type HauntRecord,
   type MatchError,
   type MatchOutcome,
   type NightAction,
@@ -134,6 +135,14 @@ export class Match {
 
   get timeline(): readonly TimelineEntry[] {
     return this.entries
+  }
+
+  get haunts(): readonly HauntRecord[] {
+    return this.entries.flatMap((entry) =>
+      entry.kind === 'haunt'
+        ? [{ round: entry.round, ghostId: entry.ghostId, haunt: entry.haunt, targetId: entry.targetId, word: entry.word }]
+        : []
+    )
   }
 
   get soloWinnerIds(): readonly string[] {

@@ -1,4 +1,4 @@
-import { GHOST_LIMITS, type HauntEffect } from '@luna/contracts'
+import { GHOST_LIMITS, type HauntEffect, type HauntRecord } from '@luna/contracts'
 import type { Target } from './night'
 import type { Seat } from './seating'
 
@@ -24,10 +24,16 @@ export const whisperProblem = (word: string): WhisperProblem | null => {
   return null
 }
 
-export const hauntLine = (effect: HauntEffect, nameOf: (memberId: string | null) => string): HauntLine => ({
+export const hauntLine = (
+  effect: Pick<HauntEffect, 'kind' | 'word' | 'ghostId' | 'targetId'>,
+  nameOf: (memberId: string | null) => string
+): HauntLine => ({
   key: `match.ghost.feed.${effect.kind}`,
   params: { ghost: nameOf(effect.ghostId), target: nameOf(effect.targetId), word: effect.word ?? '' }
 })
+
+export const hauntRecordLine = (record: HauntRecord, nameOf: (memberId: string | null) => string): HauntLine =>
+  hauntLine({ kind: record.haunt, word: record.word, ghostId: record.ghostId, targetId: record.targetId }, nameOf)
 
 export const whisperTargetsFor = (seats: readonly Seat[]): Target[] =>
   seats.filter((seat) => seat.alive && !seat.isYou).map((seat) => ({ seat, blocked: null }))

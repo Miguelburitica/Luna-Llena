@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PHASES, TIMER_EXTENSION_SECONDS, type NarratorMatchView } from '@luna/contracts'
+import { TIMER_EXTENSION_SECONDS, type NarratorMatchView } from '@luna/contracts'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import NarratorChatMonitor from '@/features/chat/infrastructure/components/NarratorChatMonitor.vue'
@@ -14,7 +14,7 @@ import { PACK_RING, teamClassFor, teamClassOf } from '@/shared/infrastructure/ui
 import { useCountdown } from '../../application/useCountdown'
 import { useMatchStore } from '../../application/useMatchStore'
 import { actionLineOf } from '../../domain/night'
-import { nextPhaseOf, phaseLook } from '../../domain/phases'
+import { nextPhaseOf, phaseLook, stepperOf } from '../../domain/phases'
 import { seatsOf, trueRoleOf } from '../../domain/seating'
 import { tallyBars, verdictOutcomeOf, voteLinesOf, voteProgressOf } from '../../domain/voting'
 import NarratorHauntFeed from './NarratorHauntFeed.vue'
@@ -35,17 +35,11 @@ const saveCall = async (url: string | null) => {
   if (result.ok) editingCall.value = false
 }
 
-const currentIndex = computed(() => PHASES.indexOf(props.view.phase))
 const steps = computed(() =>
-  PHASES.map((phase, index) => ({
-    phase,
-    icon: phaseLook(phase).icon,
-    current: index === currentIndex.value,
-    done: index < currentIndex.value,
-    label:
-      phase === 'night' && index === currentIndex.value
-        ? t('match.dashboard.nightRound', { round: props.view.round })
-        : t(`match.phases.${phase}`)
+  stepperOf(props.view).map((step) => ({
+    ...step,
+    icon: phaseLook(step.phase).icon,
+    label: t('match.dashboard.phaseRound', { phase: t(step.labelKey), round: step.round })
   }))
 )
 const upcoming = computed(() => nextPhaseOf(props.view.phase))
@@ -113,8 +107,8 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
           v-for="step in steps"
           :key="step.phase"
           class="step"
-          :class="{ 'is-now': step.current, 'is-done': step.done }"
-          :aria-current="step.current ? 'step' : undefined"
+          :class="{ 'is-now': step.state === 'now', 'is-done': step.state === 'done' }"
+          :aria-current="step.state === 'now' ? 'step' : undefined"
         >
           <LunaIcon :name="step.icon" size="sm" />{{ step.label }}
         </span>
@@ -328,7 +322,7 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
         </div>
       </section>
 
-      <NarratorHauntFeed :seats="seats" />
+      <NarratorHauntFeed :seats="seats" :haunts="view.haunts" />
 
       <NarratorChatMonitor class="dashboard-panel" />
     </div>

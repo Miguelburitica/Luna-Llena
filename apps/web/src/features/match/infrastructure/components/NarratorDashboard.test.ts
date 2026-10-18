@@ -34,6 +34,13 @@ describe('NarratorDashboard', () => {
     expect(wrapper.findAll('.stepper .step')).toHaveLength(6)
   })
 
+  it('shows the round on every step of the stepper', async () => {
+    const { wrapper } = await mountDashboard({ phase: 'vote', round: 2 })
+    const steps = wrapper.findAll('.stepper .step').slice(1)
+    expect(steps.map((step) => step.text())).toEqual(['Night 2', 'Dawn 2', 'Day 2', 'Vote 2', 'Execution 2'])
+    expect(wrapper.findAll('.stepper .is-now').map((step) => step.text())).toEqual(['Vote 2'])
+  })
+
   it('shows every true role, the Drunk included', async () => {
     const { wrapper } = await mountDashboard()
     const rows = wrapper.findAll('.prow')

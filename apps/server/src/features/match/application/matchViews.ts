@@ -128,7 +128,8 @@ const toNarratorView = (match: Match, now: number): NarratorMatchView => ({
   roles: Object.fromEntries(match.seats.map((seat) => [seat.memberId, seat.role])),
   pendingWinner: match.pendingWinner,
   night: toNarratorNight(match),
-  votes: toNarratorVotes(match)
+  votes: toNarratorVotes(match),
+  haunts: match.haunts
 })
 
 const packOf = (match: Match, seat: Seat): string[] =>

@@ -64,6 +64,7 @@ export const narratorViewOf = (overrides: Partial<NarratorMatchView> = {}): Narr
   pendingWinner: null,
   night: null,
   votes: null,
+  haunts: [],
   ...overrides
 })
 

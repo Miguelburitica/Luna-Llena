@@ -145,6 +145,13 @@ const votingOpen = computed(
 
 .table-scene {
   margin-top: 8px;
+  height: 400px;
+}
+
+.table-scene .hearth {
+  left: 50%;
+  top: 61%;
+  transform: translate(-50%, -50%);
 }
 
 .table-firefly-a {
@@ -166,6 +173,20 @@ const votingOpen = computed(
   margin-top: 4px;
   font-size: 9px;
   padding: 2px 7px;
+}
+
+.table-seat .av-name {
+  background: var(--surface);
+  padding: 2px 8px;
+  border-radius: 99px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink);
+}
+
+.table-seat .is-dead + .av-name {
+  color: var(--ink);
+  text-decoration: line-through;
+  opacity: 0.8;
 }
 
 .is-dense .table-seat {
