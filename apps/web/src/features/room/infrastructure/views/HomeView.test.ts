@@ -45,4 +45,12 @@ describe('HomeView', () => {
     await flushPromises()
     expect(wrapper.find('.home-return').exists()).toBe(false)
   })
+
+  it('opens on the dripping wordmark under the gross moon', async () => {
+    const { wrapper } = await mountRoomView(HomeView, { stubs })
+    expect(wrapper.find('h1').text()).toBe('Luna Llena')
+    expect(wrapper.find('h1 .wordmark-drips').exists()).toBe(true)
+    expect(wrapper.find('.home-moon').attributes('role')).toBe('img')
+    expect(wrapper.find('.home-moon').classes()).toContain('f-logo')
+  })
 })

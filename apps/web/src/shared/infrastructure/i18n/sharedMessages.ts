@@ -18,6 +18,16 @@ export const sharedMessages = {
       fool: 'Fool',
       drunk: 'Drunk'
     },
+    roleStickers: {
+      werewolf: 'Wolfgang Drool',
+      villager: 'Snotty Otto',
+      seer: 'Goo-Eyed Gail',
+      doctor: 'Doc Wartson',
+      witch: 'Brewella Ooze',
+      hunter: 'Hank the Stank',
+      fool: 'Fly-Brain Freddy',
+      drunk: 'Hiccup Hugo'
+    },
     roleCards: {
       werewolf: { power: 'Each night, pick a victim with your pack in the wolf chat.', win: 'Win when wolves equal the village.' },
       villager: { power: 'No night power — just sharp eyes and a loud opinion.', win: 'Win when every wolf is gone.' },
@@ -51,7 +61,7 @@ export const sharedMessages = {
     },
     teams: { wolves: 'Wolves', village: 'Village', solo: 'Solo' },
     themes: {
-      classic: { name: 'Classic', tagline: 'Moonlit storybook village' },
+      classic: { name: 'Classic', tagline: 'Slime town, gross-out stickers' },
       colombia: { name: 'Modo Colombia', tagline: 'La Patasola, El Mohán…' }
     }
   },
@@ -73,6 +83,16 @@ export const sharedMessages = {
       hunter: 'Cazador',
       fool: 'Bufón',
       drunk: 'Borracho'
+    },
+    roleStickers: {
+      werewolf: 'Lobo Baboso',
+      villager: 'Otto Mocoso',
+      seer: 'Clara Legañas',
+      doctor: 'Doctora Verrugas',
+      witch: 'Bruja Burbuja',
+      hunter: 'Cazador Pecueca',
+      fool: 'Bufón Moscón',
+      drunk: 'Hipólito Hipo'
     },
     roleCards: {
       werewolf: { power: 'Cada noche, elige una víctima con tu manada en el chat de lobos.', win: 'Gana cuando los lobos igualen a la aldea.' },
@@ -107,7 +127,7 @@ export const sharedMessages = {
     },
     teams: { wolves: 'Lobos', village: 'Aldea', solo: 'Solitario' },
     themes: {
-      classic: { name: 'Clásico', tagline: 'Una aldea de cuento bajo la luna' },
+      classic: { name: 'Clásico', tagline: 'Pueblo baboso, stickers asquerosos' },
       colombia: { name: 'Modo Colombia', tagline: 'La Patasola, El Mohán…' }
     }
   }

@@ -70,7 +70,7 @@ watch(
 }
 
 .msg-narr .av {
-  --ring: #f4ebc8;
+  --ring: var(--sticker);
 }
 
 .msg-last .bubble {

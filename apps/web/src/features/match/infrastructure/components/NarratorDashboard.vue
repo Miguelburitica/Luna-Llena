@@ -382,8 +382,8 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
   gap: 16px;
   padding: 14px 32px;
   flex-wrap: wrap;
-  background: #0e1130;
-  border-bottom: 1px solid rgba(233, 230, 255, 0.1);
+  background: #1a0d2b;
+  border-bottom: 3px solid var(--outline);
 }
 
 .dashboard-controls {
@@ -515,7 +515,7 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
 }
 
 .act.is-wait {
-  color: #f2a541;
+  color: var(--lantern);
 }
 
 .dashboard-role {
@@ -526,5 +526,25 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
 
 .dashboard-alive {
   color: var(--ok);
+}
+
+@media (max-width: 640px) {
+  .dashboard-bar {
+    padding: 12px 16px;
+  }
+
+  .dashboard-body {
+    padding: 16px 12px 32px;
+  }
+
+  .dashboard-players .prow,
+  .dashboard-players.has-actions .prow {
+    grid-template-columns: 44px minmax(0, 1fr) auto auto;
+  }
+
+  .dashboard-players .act {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
 }
 </style>

@@ -14,7 +14,7 @@ const CONFETTI = [
   { left: 40, top: 90, color: '#ffe27a', delay: 0 },
   { left: 320, top: 120, color: '#5fb3a1', delay: 0.4 },
   { left: 80, top: 300, color: '#e0565b', delay: 0.8 },
-  { left: 300, top: 340, color: '#f2a541', delay: 0.2 },
+  { left: 300, top: 340, color: '#8fe34b', delay: 0.2 },
   { left: 190, top: 60, color: '#d9a8f2', delay: 1 },
   { left: 350, top: 230, color: '#ffe27a', delay: 0.6 }
 ]

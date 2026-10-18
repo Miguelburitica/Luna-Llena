@@ -74,7 +74,7 @@ describe('PlayerTable', () => {
     const peek = wrapper.find('[aria-label="Hold to peek at your role"]')
     expect(wrapper.find('.rcard-mini').exists()).toBe(false)
     await peek.trigger('pointerdown')
-    expect(wrapper.find('.rcard-mini').text()).toBe('Seer')
+    expect(wrapper.find('.rcard-mini small').text()).toBe('Seer')
     await peek.trigger('pointerup')
     expect(wrapper.find('.rcard-mini').exists()).toBe(false)
     await peek.trigger('pointerdown')
@@ -91,7 +91,7 @@ describe('PlayerTable', () => {
     const { wrapper } = await mountMatchView(PlayerTable, { view, props: { view } })
     expect(wrapper.text()).toContain('Juan didn’t wake up')
     expect(wrapper.find('.dawn-death .av').classes()).toEqual(expect.arrayContaining(['is-dead', 'a-drop']))
-    expect(wrapper.find('.dawn-death .rcard-mini').text()).toBe('Doctor')
+    expect(wrapper.find('.dawn-death .rcard-mini small').text()).toBe('Doctor')
   })
 
   it('announces that nobody died', async () => {

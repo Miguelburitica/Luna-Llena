@@ -38,6 +38,8 @@ describe('GameView', () => {
     await wrapper.find('[aria-label="Reveal your role"]').trigger('click')
     expect(wrapper.text()).toContain('Seer')
     expect(wrapper.text()).not.toContain('Drunk')
+    expect(wrapper.find('.rcard-sticker').text()).toBe('Goo-Eyed Gail')
+    expect(wrapper.text()).not.toContain('Hiccup Hugo')
   })
 
   it('goes straight to the table when this tab already saw the role', async () => {
@@ -66,7 +68,7 @@ describe('GameView', () => {
     expect(matches.commands()).toEqual(['sync'])
     expect(wrapper.find('.ph-sub').text()).toContain('Night 2')
     await wrapper.find('[aria-label="Hold to peek at your role"]').trigger('pointerdown')
-    expect(wrapper.find('.rcard-mini').text()).toBe('Seer')
+    expect(wrapper.find('.rcard-mini small').text()).toBe('Seer')
   })
 
   it('shows the narrator the dashboard without a role reveal', async () => {

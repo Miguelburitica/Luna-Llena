@@ -16,12 +16,16 @@ const teamClass = computed(() => teamClassFor(teamId.value))
   <span v-if="variant === 'back'" class="rcard-back f-cardback" :class="{ 'is-large': large }" />
   <span v-else-if="variant === 'mini'" class="rcard-mini" :class="teamClass">
     <span class="rcard-art" :class="roleArtClassOf(role)" role="img" :aria-label="t(`roles.${role}`)" />
-    <b>{{ t(`roles.${role}`) }}</b>
+    <b>{{ t(`roleStickers.${role}`) }}</b>
+    <small>{{ t(`roles.${role}`) }}</small>
   </span>
   <div v-else class="rcard a-flip" :class="[teamClass, { 'is-large': large }]">
     <span class="rcard-art" :class="roleArtClassOf(role)" role="img" :aria-label="t(`roles.${role}`)" />
-    <span class="tbadge"><LunaIcon :name="teamIconFor(teamId)" size="sm" />{{ t(`teams.${teamId}`) }}</span>
-    <span class="rcard-name">{{ t(`roles.${role}`) }}</span>
+    <span class="rcard-sticker">{{ t(`roleStickers.${role}`) }}</span>
+    <span class="rcard-tags">
+      <span class="rcard-name">{{ t(`roles.${role}`) }}</span>
+      <span class="tbadge"><LunaIcon :name="teamIconFor(teamId)" size="sm" />{{ t(`teams.${teamId}`) }}</span>
+    </span>
     <span class="rcard-power">{{ t(`roleCards.${role}.power`) }}</span>
     <span class="rcard-win"><LunaIcon name="trophy" size="sm" />{{ t(`roleCards.${role}.win`) }}</span>
   </div>
@@ -47,15 +51,15 @@ const teamClass = computed(() => teamClassFor(teamId.value))
 }
 
 .is-large .rcard-art {
-  width: 164px;
-  height: 154px;
+  width: 150px;
+  height: 124px;
 }
 
-.is-large .rcard-name {
-  font-size: 30px;
+.is-large .rcard-sticker {
+  font-size: 21px;
 }
 
 .is-large .rcard-power {
-  font-size: 14px;
+  font-size: 13px;
 }
 </style>

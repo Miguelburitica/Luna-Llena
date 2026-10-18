@@ -114,8 +114,8 @@ const factsFor = (chapter: Chapter): Fact[] => chapter.entries.flatMap((entry) =
 }
 
 .story-night .tl-dot {
-  background: #1c1f4a;
-  color: #f2a541;
+  background: var(--ink-800);
+  color: var(--slime);
 }
 
 .story-day .tl-dot {

@@ -64,7 +64,7 @@ const pick = async (id: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #f4ebc8;
+  color: var(--moon);
 }
 
 .suspect-title {

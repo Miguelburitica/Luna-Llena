@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import SlimeWordmark from './SlimeWordmark.vue'
+
 defineProps<{ trail: string }>()
 </script>
 
 <template>
   <header class="desk-header">
     <span class="art f-logo desk-logo" aria-hidden="true" />
-    <b class="t-display desk-brand">Luna Llena</b>
+    <SlimeWordmark tag="b" size="desk" class="desk-brand" />
     <span class="t-muted desk-trail">/ {{ trail }}</span>
     <div class="desk-actions"><slot /></div>
   </header>
@@ -17,18 +19,18 @@ defineProps<{ trail: string }>()
   align-items: center;
   gap: 14px;
   padding: 16px 32px;
-  border-bottom: 1px solid rgba(233, 230, 255, 0.1);
+  border-bottom: 3px solid var(--outline);
+  box-shadow: 0 3px 0 rgba(255, 251, 239, 0.12);
   flex-wrap: wrap;
 }
 
 .desk-logo {
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
 }
 
 .desk-brand {
-  font-size: 22px;
-  color: var(--moon);
+  margin-bottom: 6px;
 }
 
 .desk-trail {

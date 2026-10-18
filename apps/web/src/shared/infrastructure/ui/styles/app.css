@@ -3,8 +3,9 @@ body {
   margin: 0;
   min-height: 100%;
   background: var(--ink-950);
-  color: #eeebff;
+  color: #fff7ec;
   font-family: var(--font-ui);
+  font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -25,9 +26,9 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--ink-600);
-  color: var(--moon);
-  font: 800 13px var(--font-ui);
+  background: var(--bubblegum);
+  color: var(--outline);
+  font: 900 14px var(--font-display);
 }
 
 .av-xs .face.is-initials,
@@ -50,6 +51,6 @@ input {
 }
 
 :focus-visible {
-  outline: 3px solid var(--lantern);
-  outline-offset: 2px;
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }

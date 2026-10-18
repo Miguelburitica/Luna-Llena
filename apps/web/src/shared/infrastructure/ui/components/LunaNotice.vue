@@ -23,8 +23,9 @@ defineProps<{ icon: string; title: string; tone?: 'warn' }>()
 
 .notice {
   border-radius: 26px;
-  background: linear-gradient(180deg, #14173a, #1f2350);
-  box-shadow: inset 0 0 0 1px rgba(233, 230, 255, 0.12);
+  background: linear-gradient(180deg, var(--ink-800), var(--ink-700));
+  border: 3px solid var(--outline);
+  box-shadow: 0 0 0 3px var(--edge), var(--shadow-2);
   padding: 24px 20px;
   display: flex;
   flex-direction: column;

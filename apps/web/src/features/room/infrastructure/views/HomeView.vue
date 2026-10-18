@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import SettingsOverlay from '@/features/atmosphere/infrastructure/components/SettingsOverlay.vue'
 import LanguageSwitch from '@/shared/infrastructure/ui/components/LanguageSwitch.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
+import SlimeWordmark from '@/shared/infrastructure/ui/components/SlimeWordmark.vue'
 import { useRoomAction } from '../../application/useRoomAction'
 import { useRoomStore } from '../../application/useRoomStore'
 import RoomFailureMessage from '../components/RoomFailureMessage.vue'
@@ -26,8 +27,8 @@ const returnToSeat = async () => {
       <SettingsOverlay />
     </header>
     <section class="home-hero">
-      <span class="art f-logo a-bob home-moon" role="img" :aria-label="t('room.home.moon')" />
-      <h1 class="t-display home-title">Luna<br>Llena</h1>
+      <span class="art f-logo a-wobble home-moon" role="img" :aria-label="t('room.home.moon')" />
+      <SlimeWordmark class="home-title" />
       <p class="t-story home-tagline">{{ t('room.home.tagline') }}</p>
     </section>
     <div class="home-scene" aria-hidden="true">
@@ -83,18 +84,12 @@ const returnToSeat = async () => {
 }
 
 .home-title {
-  margin: 0;
-  font-size: 58px;
-  font-weight: 900;
-  color: var(--moon);
-  text-align: center;
-  line-height: 0.95;
+  margin-top: -6px;
 }
 
 .home-tagline {
-  margin: 8px 0 0;
-  font-size: 19px;
-  font-style: italic;
+  margin: 22px 0 0;
+  font-size: 22px;
   color: var(--muted);
   text-align: center;
   max-width: 280px;
@@ -141,9 +136,5 @@ const returnToSeat = async () => {
 
 .home-return-code {
   margin-left: auto;
-}
-
-.home-join {
-  background: rgba(14, 18, 48, 0.85);
 }
 </style>
