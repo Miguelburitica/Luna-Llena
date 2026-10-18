@@ -1,4 +1,5 @@
 import type { Result } from '../result'
+import type { HauntEffect, HauntInput } from './ghosts'
 import type { NightActionInput } from './night'
 import type { MatchView } from './views'
 import type { MatchError } from './vocabulary'
@@ -19,8 +20,10 @@ export interface MatchClientEvents {
   'match:lockVote': (input: NoInput, ack: MatchAck<void>) => void
   'match:avenge': (input: { readonly targetId: string }, ack: MatchAck<void>) => void
   'match:skipRevenge': (input: NoInput, ack: MatchAck<void>) => void
+  'match:haunt': (input: HauntInput, ack: MatchAck<void>) => void
 }
 
 export interface MatchServerEvents {
   'match:view': (view: MatchView) => void
+  'match:haunted': (effect: HauntEffect) => void
 }

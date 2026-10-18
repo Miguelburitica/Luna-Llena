@@ -2,6 +2,7 @@ import type { ChatAccess } from '../chat/views'
 import type { RoleId, TeamId } from '../roles/catalog'
 import type { Award, TimelineEntry } from './endGame'
 import type { DawnReport, NarratorNightView, PlayerNightView, Vision } from './night'
+import type { GhostPowerView } from './ghosts'
 import type { Phase } from './vocabulary'
 import type { CastVote, RevengeView, Verdict, VotingProgress } from './voting'
 
@@ -42,6 +43,7 @@ export interface PlayerMatchView extends MatchViewCommon {
     readonly night: PlayerNightView | null
     readonly visions: readonly Vision[]
     readonly vote: CastVote | null
+    readonly haunt: GhostPowerView | null
   }
 }
 

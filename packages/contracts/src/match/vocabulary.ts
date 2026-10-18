@@ -25,7 +25,11 @@ export const MATCH_ERROR_CODES = [
   'not-vote',
   'vote-locked',
   'revenge-pending',
-  'no-revenge'
+  'no-revenge',
+  'not-a-ghost',
+  'haunt-used',
+  'ghost-powers-off',
+  'whisper-invalid'
 ] as const
 export type MatchErrorCode = (typeof MATCH_ERROR_CODES)[number]
 

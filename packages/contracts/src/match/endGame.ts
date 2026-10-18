@@ -1,3 +1,4 @@
+import type { HauntKind } from './ghosts'
 import type { Verdict } from './voting'
 
 export interface TimelineVision {
@@ -21,6 +22,14 @@ export type TimelineEntry =
   | { readonly kind: 'vote'; readonly round: number; readonly verdict: Verdict }
   | { readonly kind: 'revenge'; readonly round: number; readonly hunterId: string; readonly targetId: string | null }
   | { readonly kind: 'narrator'; readonly round: number; readonly memberId: string; readonly alive: boolean }
+  | {
+      readonly kind: 'haunt'
+      readonly round: number
+      readonly ghostId: string
+      readonly haunt: HauntKind
+      readonly targetId: string | null
+      readonly word: string | null
+    }
 
 export const SERVER_AWARD_IDS = ['most-suspicious', 'worst-liar', 'betrayed-own-team', 'silent-assassin'] as const
 export const AWARD_IDS = [...SERVER_AWARD_IDS, 'chatterbox'] as const
