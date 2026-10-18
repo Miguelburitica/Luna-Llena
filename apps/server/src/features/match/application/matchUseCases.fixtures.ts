@@ -1,17 +1,22 @@
 import { DEFAULT_ROOM_SETTINGS, type MatchView, type NarratorMatchView, type PlayerMatchView, type RoleId } from '@luna/contracts'
-import { FixedClock, SeededRandom } from '../../../shared/application/clockAndRandom.fixtures'
+import { FixedClock, SeededRandom, SequentialIds } from '../../../shared/application/clockAndRandom.fixtures'
 import { InMemoryMatchRepository } from '../infrastructure/InMemoryMatchRepository'
 import { NARRATOR_ID, START_TIME, unwrap } from '../domain/Match.fixtures'
 import { createMatchUseCases } from './matchUseCases'
-import type { Actor, MatchOpening, MatchPublisher, MemberMatchView } from './ports'
+import type { Actor, HauntDelivery, MatchOpening, MatchPublisher, MemberMatchView } from './ports'
 
 export { NARRATOR_ID, START_TIME, unwrap }
 
 export class RecordingMatchPublisher implements MatchPublisher {
   readonly batches: Array<{ code: string; views: readonly MemberMatchView[] }> = []
+  readonly haunts: Array<{ code: string; deliveries: readonly HauntDelivery[] }> = []
 
   publish(code: string, views: readonly MemberMatchView[]): void {
     this.batches.push({ code, views })
+  }
+
+  haunt(code: string, deliveries: readonly HauntDelivery[]): void {
+    this.haunts.push({ code, deliveries })
   }
 
   get latest(): readonly MemberMatchView[] {
@@ -61,6 +66,7 @@ export const openingOf = (overrides: Partial<MatchOpening> = {}): MatchOpening =
   revealRoleOnDeath: true,
   anonymousVotes: false,
   lastWords: false,
+  ghostPowers: true,
   ...overrides
 })
 
@@ -68,7 +74,7 @@ export const createMatchKit = (seed = 11) => {
   const matches = new InMemoryMatchRepository()
   const publisher = new RecordingMatchPublisher()
   const clock = new FixedClock(START_TIME)
-  const useCases = createMatchUseCases({ matches, publisher, clock, random: new SeededRandom(seed) })
+  const useCases = createMatchUseCases({ matches, publisher, clock, random: new SeededRandom(seed), ids: new SequentialIds() })
 
   const narrator: Actor = { code: 'LUNA42', memberId: NARRATOR_ID }
   const actorOf = (memberId: string): Actor => ({ code: 'LUNA42', memberId })

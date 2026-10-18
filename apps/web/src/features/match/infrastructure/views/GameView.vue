@@ -10,9 +10,11 @@ import { readStored, writeStored } from '@/shared/infrastructure/storage/deviceS
 import LunaNotice from '@/shared/infrastructure/ui/components/LunaNotice.vue'
 import { useMatchStore } from '../../application/useMatchStore'
 import { forgetMatchMemory, REVEALED_KEY_PREFIX } from '../matchMemory'
+import FlickerOverlay from '../components/FlickerOverlay.vue'
 import NarratorDashboard from '../components/NarratorDashboard.vue'
 import PlayerTable from '../components/PlayerTable.vue'
 import RoleRevealOverlay from '../components/RoleRevealOverlay.vue'
+import WhisperToast from '../components/WhisperToast.vue'
 import GameOverView from './GameOverView.vue'
 
 const isRevealed = (value: unknown): value is true => value === true
@@ -94,4 +96,8 @@ watch(reopened, (isReopened) => isReopened && backToLobby())
     @done="dismissReveal"
   />
   <PlayerTable v-else :view="view" />
+  <template v-if="view && !view.outcome">
+    <FlickerOverlay />
+    <WhisperToast />
+  </template>
 </template>

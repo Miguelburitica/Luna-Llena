@@ -60,6 +60,32 @@ const en = {
     choose: 'Choose your target',
     take: 'Take {name} down'
   },
+  ghost: {
+    dockTitle: 'Haunt the living',
+    once: 'once per game',
+    flicker: 'Flicker',
+    flickerHint: 'blink every screen',
+    whisper: 'Whisper',
+    whisperHint: 'one word, one player',
+    wordLabel: 'Your one spooky word',
+    to: 'To',
+    flickerNow: 'Flicker the lights',
+    choose: 'Choose a word and a player',
+    send: 'Whisper “{word}” to {name}',
+    spent: 'Your haunting power is spent',
+    problem: {
+      empty: 'Type one word.',
+      'too-long': 'That word is too long.',
+      spaces: 'One word only, no spaces.'
+    },
+    flickered: 'A ghost flickered the lights',
+    whispered: 'A ghost whispers to you: “{word}”',
+    feed: {
+      title: 'Hauntings',
+      flicker: '{ghost}’s ghost flickered the lights.',
+      whisper: '{ghost}’s ghost whispered “{word}” to {target}.'
+    }
+  },
   fool: {
     badge: 'Solo victory',
     wanted: '{name} wanted to be voted out. You all fell for it.',
@@ -247,7 +273,9 @@ const en = {
     hunterShot: 'The Hunter {name} took {other} down.',
     hunterHeld: 'The Hunter {name} held their fire.',
     narratorKilled: 'The narrator took {name} out of the game.',
-    narratorRevived: 'The narrator brought {name} back.'
+    narratorRevived: 'The narrator brought {name} back.',
+    hauntFlicker: '{name}’s ghost flickered the lights.',
+    hauntWhisper: '{name}’s ghost whispered “{word}” to {other}.'
   },
   awards: {
     title: {
@@ -294,6 +322,10 @@ const en = {
     'vote-locked': 'Your vote is locked.',
     'revenge-pending': 'The Hunter’s shot is still pending.',
     'no-revenge': 'There is no shot for you to take.',
+    'not-a-ghost': 'Only ghosts can haunt.',
+    'haunt-used': 'Your haunting power is already spent.',
+    'ghost-powers-off': 'Ghost powers are off in this game.',
+    'whisper-invalid': 'A whisper is one word and a living player.',
     unreachable: 'We can’t reach the village. Check your connection.'
   }
 }
@@ -359,6 +391,32 @@ const es: typeof en = {
     dockTitle: 'Llévate a alguien contigo',
     choose: 'Elige tu objetivo',
     take: 'Llevarse a {name}'
+  },
+  ghost: {
+    dockTitle: 'Acecha a los vivos',
+    once: 'una vez por juego',
+    flicker: 'Parpadeo',
+    flickerHint: 'parpadean todas las pantallas',
+    whisper: 'Susurro',
+    whisperHint: 'una palabra, un jugador',
+    wordLabel: 'Tu única palabra siniestra',
+    to: 'Para',
+    flickerNow: 'Hacer parpadear las luces',
+    choose: 'Elige una palabra y un jugador',
+    send: 'Susurrar “{word}” a {name}',
+    spent: 'Tu poder de acechar ya se gastó',
+    problem: {
+      empty: 'Escribe una palabra.',
+      'too-long': 'Esa palabra es demasiado larga.',
+      spaces: 'Solo una palabra, sin espacios.'
+    },
+    flickered: 'Un fantasma hizo parpadear las luces',
+    whispered: 'Un fantasma te susurra: “{word}”',
+    feed: {
+      title: 'Apariciones',
+      flicker: 'El fantasma de {ghost} hizo parpadear las luces.',
+      whisper: 'El fantasma de {ghost} le susurró “{word}” a {target}.'
+    }
   },
   fool: {
     badge: 'Victoria en solitario',
@@ -547,7 +605,9 @@ const es: typeof en = {
     hunterShot: 'El Cazador {name} se llevó a {other}.',
     hunterHeld: 'El Cazador {name} bajó el arma.',
     narratorKilled: 'El narrador sacó a {name} del juego.',
-    narratorRevived: 'El narrador devolvió a {name} al juego.'
+    narratorRevived: 'El narrador devolvió a {name} al juego.',
+    hauntFlicker: 'El fantasma de {name} hizo parpadear las luces.',
+    hauntWhisper: 'El fantasma de {name} le susurró “{word}” a {other}.'
   },
   awards: {
     title: {
@@ -594,6 +654,10 @@ const es: typeof en = {
     'vote-locked': 'Tu voto ya está fijado.',
     'revenge-pending': 'El disparo del Cazador sigue pendiente.',
     'no-revenge': 'No hay ningún disparo para ti.',
+    'not-a-ghost': 'Solo los fantasmas pueden acechar.',
+    'haunt-used': 'Tu poder de acechar ya se gastó.',
+    'ghost-powers-off': 'Los poderes de fantasma están apagados en este juego.',
+    'whisper-invalid': 'Un susurro es una palabra y un jugador vivo.',
     unreachable: 'No logramos llegar a la aldea. Revisa tu conexión.'
   }
 }

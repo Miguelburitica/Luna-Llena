@@ -36,7 +36,8 @@ describe('Role secrecy', () => {
       packIds: [],
       night: { action: 'suspect', targetId: null },
       visions: [],
-      vote: null
+      vote: null,
+      haunt: null
     })
     expect(view.players.map((player) => player.revealedRole)).toEqual(Array(6).fill(null))
     expect(JSON.stringify(view)).not.toContain('"roles"')
@@ -83,7 +84,8 @@ describe('Role secrecy', () => {
       packIds: [],
       night: { action: 'inspect', targetId: null, vision: null },
       visions: [],
-      vote: null
+      vote: null,
+      haunt: null
     })
   })
 })

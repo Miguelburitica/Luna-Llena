@@ -13,6 +13,7 @@ The match SHALL record a timeline entry for each of these moments, in order:
 - Every vote resolved at execution: the full verdict, including who voted for whom even when votes were anonymous.
 - Every Hunter shot, taken or skipped.
 - Every manual kill or revive by the narrator.
+- Every ghost haunt: the ghost, the power used, and for a whisper the word and its target.
 
 The timeline SHALL be sent to members only once the game is over.
 
@@ -27,6 +28,10 @@ The timeline SHALL be sent to members only once the game is over.
 #### Scenario: Anonymous votes revealed at last
 - **WHEN** votes were anonymous during the game
 - **THEN** the end-of-game timeline shows who voted for whom
+
+#### Scenario: The ghost's secret
+- **WHEN** Juan's ghost whispered "bakery" to Marta on Night 3
+- **THEN** the end-of-game timeline shows Juan's ghost whispered "bakery" to Marta in Night 3
 
 ### Requirement: Awards
 When the game ends, the system SHALL compute these awards. An award with no qualifying player is left out. A tie goes

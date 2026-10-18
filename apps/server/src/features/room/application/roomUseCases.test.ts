@@ -205,7 +205,8 @@ describe('Narrator commands', () => {
         timers: { night: 60, day: 180, vote: 60 },
         revealRoleOnDeath: true,
         anonymousVotes: false,
-        lastWords: true
+        lastWords: true,
+        ghostPowers: true
       }
     ])
   })

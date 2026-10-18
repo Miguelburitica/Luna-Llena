@@ -17,21 +17,32 @@ export interface Fact {
   readonly memberIds: readonly string[]
   readonly count: number
   readonly role: RoleId | null
+  readonly word?: string
 }
 
-const fact = (key: string, memberIds: readonly string[] = [], count = 0, role: RoleId | null = null): Fact => ({
+const fact = (
+  key: string,
+  memberIds: readonly string[] = [],
+  count = 0,
+  role: RoleId | null = null,
+  word?: string
+): Fact => ({
   key,
   memberIds,
   count,
-  role
+  role,
+  ...(word === undefined ? {} : { word })
 })
 
 export const timelineChapters = (outcome: MatchOutcome): Chapter[] => {
   const votedRounds = new Set<number>()
+  const resolvedRounds = new Set<number>()
   const chapters = new Map<string, { period: 'night' | 'day'; round: number; entries: TimelineEntry[] }>()
   for (const entry of outcome.timeline) {
-    const isDay = entry.kind === 'vote' || votedRounds.has(entry.round)
+    const isDay =
+      entry.kind === 'vote' || votedRounds.has(entry.round) || (entry.kind === 'haunt' && resolvedRounds.has(entry.round))
     if (entry.kind === 'vote') votedRounds.add(entry.round)
+    if (entry.kind === 'night') resolvedRounds.add(entry.round)
     const period = isDay ? 'day' : 'night'
     const id = `${period}-${entry.round}`
     const chapter = chapters.get(id) ?? { period, round: entry.round, entries: [] }
@@ -83,6 +94,19 @@ const voteFacts = (
   ]
 }
 
+const hauntFacts = (entry: Extract<TimelineEntry, { kind: 'haunt' }>): Fact[] => {
+  if (entry.haunt === 'flicker') return [fact('hauntFlicker', [entry.ghostId])]
+  return [
+    fact(
+      'hauntWhisper',
+      entry.targetId === null ? [entry.ghostId] : [entry.ghostId, entry.targetId],
+      0,
+      null,
+      entry.word ?? ''
+    )
+  ]
+}
+
 export const factsOf = (entry: TimelineEntry, roleOf: (memberId: string) => RoleId | null): Fact[] => {
   switch (entry.kind) {
     case 'night':
@@ -93,6 +117,8 @@ export const factsOf = (entry: TimelineEntry, roleOf: (memberId: string) => Role
       return [entry.targetId === null ? fact('hunterHeld', [entry.hunterId]) : fact('hunterShot', [entry.hunterId, entry.targetId])]
     case 'narrator':
       return [fact(entry.alive ? 'narratorRevived' : 'narratorKilled', [entry.memberId])]
+    case 'haunt':
+      return hauntFacts(entry)
   }
 }
 

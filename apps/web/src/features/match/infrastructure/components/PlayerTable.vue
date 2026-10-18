@@ -17,6 +17,7 @@ import { aliveCountOf, seatsOf } from '../../domain/seating'
 import { revengeStanceOf } from '../../domain/voting'
 import DawnAnnouncement from './DawnAnnouncement.vue'
 import FoolWinsCard from './FoolWinsCard.vue'
+import GhostDock from './GhostDock.vue'
 import HunterAimsBanner from './HunterAimsBanner.vue'
 import MicsOffReminder from './MicsOffReminder.vue'
 import NightDock from './NightDock.vue'
@@ -105,6 +106,7 @@ const votingOpen = computed(
     </div>
 
     <RevengeDock v-if="stance === 'shooter'" :view="view" :seats="seats" />
+    <GhostDock v-else-if="view.you.haunt" :view="view" :seats="seats" />
     <NightDock v-if="view.phase === 'night' && view.you.night" :view="view" :seats="seats" />
     <DawnAnnouncement v-else-if="view.phase === 'dawn' && view.dawn" :view="view" :seats="seats" />
     <VoteDock v-else-if="votingOpen" :view="view" :seats="seats" />

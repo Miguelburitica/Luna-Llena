@@ -30,6 +30,16 @@ const revenge = (round: number, targetId: string | null = 'id-Luis'): TimelineEn
 
 const narrator = (round: number, alive: boolean): TimelineEntry => ({ kind: 'narrator', round, memberId: 'id-Juan', alive })
 
+const haunt = (round: number, overrides: Partial<Extract<TimelineEntry, { kind: 'haunt' }>> = {}): TimelineEntry => ({
+  kind: 'haunt',
+  round,
+  ghostId: 'id-Juan',
+  haunt: 'flicker',
+  targetId: null,
+  word: null,
+  ...overrides
+})
+
 const roleOf = (memberId: string) => (memberId === 'id-Luis' ? ('werewolf' as const) : null)
 
 describe('timelineChapters', () => {
@@ -51,6 +61,15 @@ describe('timelineChapters', () => {
     expect(chapters.map((chapter) => chapter.entries.map((entry) => entry.kind))).toEqual([
       ['night'],
       ['vote', 'revenge', 'narrator'],
+      ['night']
+    ])
+  })
+
+  it('files a haunt after the night resolved under the day, and one before it under the night', () => {
+    const outcome = outcomeOf({ timeline: [haunt(1), night(1), haunt(1), vote(1), haunt(1), night(2)] })
+    expect(timelineChapters(outcome).map((chapter) => chapter.entries.map((entry) => entry.kind))).toEqual([
+      ['haunt', 'night'],
+      ['haunt', 'vote', 'haunt'],
       ['night']
     ])
   })
@@ -151,6 +170,19 @@ describe('factsOf', () => {
     expect(factsOf(revenge(1, null), roleOf)[0]?.key).toBe('hunterHeld')
     expect(factsOf(narrator(1, false), roleOf)[0]?.key).toBe('narratorKilled')
     expect(factsOf(narrator(1, true), roleOf)[0]?.key).toBe('narratorRevived')
+  })
+})
+
+describe('factsOf haunts', () => {
+  it('tells a flicker with the ghost', () => {
+    expect(factsOf(haunt(1), roleOf)).toEqual([{ key: 'hauntFlicker', memberIds: ['id-Juan'], count: 0, role: null }])
+  })
+
+  it('tells a whisper with the ghost, the target and the word', () => {
+    const whisper = haunt(1, { haunt: 'whisper', targetId: 'id-Marta', word: 'bakery' })
+    expect(factsOf(whisper, roleOf)).toEqual([
+      { key: 'hauntWhisper', memberIds: ['id-Juan', 'id-Marta'], count: 0, role: null, word: 'bakery' }
+    ])
   })
 })
 

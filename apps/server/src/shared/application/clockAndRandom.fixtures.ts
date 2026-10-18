@@ -1,3 +1,4 @@
+import type { IdGenerator } from './IdGenerator'
 import type { Clock } from './Clock'
 import type { RandomSource } from './RandomSource'
 
@@ -21,5 +22,14 @@ export class SeededRandom implements RandomSource {
     let mixed = Math.imul(this.state ^ (this.state >>> 15), 1 | this.state)
     mixed = (mixed + Math.imul(mixed ^ (mixed >>> 7), 61 | mixed)) ^ mixed
     return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+export class SequentialIds implements IdGenerator {
+  private count = 0
+
+  next(): string {
+    this.count += 1
+    return `id-${String(this.count).padStart(3, '0')}`
   }
 }

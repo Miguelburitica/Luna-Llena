@@ -1,6 +1,7 @@
 import {
   ROLE_CATALOG,
   type ChatAccess,
+  type GhostPowerView,
   type MatchPlayerView,
   type MatchView,
   type NarratorActionView,
@@ -137,6 +138,11 @@ const packOf = (match: Match, seat: Seat): string[] =>
         .map((other) => other.memberId)
     : []
 
+const toGhostPower = (match: Match, seat: Seat): GhostPowerView | null => {
+  const available = match.hauntAvailableTo(seat.memberId)
+  return available === null ? null : { available }
+}
+
 const toSeatView = (match: Match, seat: Seat, now: number): PlayerMatchView => {
   const perceivedRole = ROLE_CATALOG[seat.role].appearsAs
   return {
@@ -148,7 +154,8 @@ const toSeatView = (match: Match, seat: Seat, now: number): PlayerMatchView => {
       packIds: packOf(match, seat),
       night: toPlayerNight(match, seat),
       visions: pastVisionsOf(match, seat),
-      vote: match.phase === 'vote' && seat.alive ? match.voteOf(seat.memberId) : null
+      vote: match.phase === 'vote' && seat.alive ? match.voteOf(seat.memberId) : null,
+      haunt: toGhostPower(match, seat)
     }
   }
 }

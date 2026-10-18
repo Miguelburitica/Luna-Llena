@@ -1,4 +1,4 @@
-import type { MatchView, NightActionInput } from '@luna/contracts'
+import type { HauntEffect, HauntInput, MatchView, NightActionInput } from '@luna/contracts'
 import { reachOrFail, type LunaSocket } from '@/shared/infrastructure/socket/lunaSocket'
 import type { MatchGateway } from '../application/ports'
 
@@ -49,7 +49,15 @@ export class SocketMatchGateway implements MatchGateway {
     return reachOrFail(() => this.socket.emitWithAck('match:skipRevenge', {}))
   }
 
+  haunt(input: HauntInput) {
+    return reachOrFail(() => this.socket.emitWithAck('match:haunt', input))
+  }
+
   onView(listener: (view: MatchView) => void): void {
     this.socket.on('match:view', listener)
+  }
+
+  onHaunted(listener: (effect: HauntEffect) => void): void {
+    this.socket.on('match:haunted', listener)
   }
 }

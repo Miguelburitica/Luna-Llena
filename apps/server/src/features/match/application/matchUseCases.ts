@@ -1,4 +1,5 @@
 import type { Clock } from '../../../shared/application/Clock'
+import type { IdGenerator } from '../../../shared/application/IdGenerator'
 import type { RandomSource } from '../../../shared/application/RandomSource'
 import { ActAtNight } from './ActAtNight'
 import { AdvancePhase } from './AdvancePhase'
@@ -8,6 +9,7 @@ import { DescribeChatAudience } from './DescribeChatAudience'
 import { EndGame } from './EndGame'
 import { ExtendTimer } from './ExtendTimer'
 import { DiscardMatch } from './DiscardMatch'
+import { Haunt } from './Haunt'
 import { IsMatchOver } from './IsMatchOver'
 import { KeepPlaying } from './KeepPlaying'
 import type { MatchPublisher, MatchRepository } from './ports'
@@ -23,9 +25,10 @@ export interface MatchDependencies {
   readonly publisher: MatchPublisher
   readonly clock: Clock
   readonly random: RandomSource
+  readonly ids: IdGenerator
 }
 
-export const createMatchUseCases = ({ matches, publisher, clock, random }: MatchDependencies) => {
+export const createMatchUseCases = ({ matches, publisher, clock, random, ids }: MatchDependencies) => {
   const access = { matches, publisher, clock }
   return {
     startMatch: new StartMatch(access, random),
@@ -41,6 +44,7 @@ export const createMatchUseCases = ({ matches, publisher, clock, random }: Match
     takeRevenge: new TakeRevenge(access),
     skipRevenge: new SkipRevenge(access),
     describeChatAudience: new DescribeChatAudience(matches),
+    haunt: new Haunt(access, ids),
     closeLastWords: new CloseLastWords(access),
     isMatchOver: new IsMatchOver(matches),
     discardMatch: new DiscardMatch(matches)

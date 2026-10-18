@@ -1,4 +1,4 @@
-import type { MatchView, RoleId, TimerPhase } from '@luna/contracts'
+import type { HauntEffect, MatchView, RoleId, TimerPhase } from '@luna/contracts'
 import type { Match } from '../domain/Match'
 
 export interface MatchRepository {
@@ -12,8 +12,14 @@ export interface MemberMatchView {
   readonly view: MatchView
 }
 
+export interface HauntDelivery {
+  readonly memberId: string
+  readonly effect: HauntEffect
+}
+
 export interface MatchPublisher {
   publish(code: string, views: readonly MemberMatchView[]): void
+  haunt(code: string, deliveries: readonly HauntDelivery[]): void
 }
 
 export interface Actor {
@@ -30,4 +36,5 @@ export interface MatchOpening {
   readonly revealRoleOnDeath: boolean
   readonly anonymousVotes: boolean
   readonly lastWords: boolean
+  readonly ghostPowers: boolean
 }

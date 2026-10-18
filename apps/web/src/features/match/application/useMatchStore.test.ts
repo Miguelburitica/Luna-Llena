@@ -1,6 +1,17 @@
+import type { HauntEffect } from '@luna/contracts'
 import { describe, expect, it } from 'vitest'
 import { narratorViewOf, playerViewOf } from './MatchGateway.fixtures'
 import { createMatchTestApp } from './matchApp.fixtures'
+
+const hauntOf = (overrides: Partial<HauntEffect> = {}): HauntEffect => ({
+  id: 'haunt-1',
+  kind: 'flicker',
+  word: null,
+  ghostId: null,
+  targetId: null,
+  sentAt: 1_000,
+  ...overrides
+})
 
 describe('match store', () => {
   it('holds the view it syncs on entry and when it arrived', async () => {
@@ -111,5 +122,40 @@ describe('match store', () => {
     await store.sync()
     expect(store.view).toBeNull()
     expect(store.failure).toEqual({ code: 'match-not-found' })
+  })
+
+  it('sends a haunt through the gateway and keeps its failure', async () => {
+    const { store, matches } = createMatchTestApp()
+    await store.haunt({ kind: 'flicker' })
+    await store.haunt({ kind: 'whisper', targetId: 'id-Marta', word: 'bakery' })
+    expect(matches.calls).toEqual([
+      { command: 'haunt', input: { kind: 'flicker' } },
+      { command: 'haunt', input: { kind: 'whisper', targetId: 'id-Marta', word: 'bakery' } }
+    ])
+    matches.failWith('haunt', 'haunt-used')
+    expect(await store.haunt({ kind: 'flicker' })).toEqual({ ok: false, error: { code: 'haunt-used' } })
+    expect(store.failure).toEqual({ code: 'haunt-used' })
+    matches.responses = {}
+    await store.haunt({ kind: 'flicker' })
+    expect(store.failure).toBeNull()
+  })
+
+  it('collects the haunts it hears about and exposes the latest', () => {
+    const { store, matches } = createMatchTestApp()
+    expect(store.lastHaunt).toBeNull()
+    matches.pushHaunt(hauntOf())
+    matches.pushHaunt(hauntOf({ id: 'haunt-2', kind: 'whisper', word: 'bakery', targetId: 'id-Marta' }))
+    expect(store.hauntEffects.map((effect) => effect.id)).toEqual(['haunt-1', 'haunt-2'])
+    expect(store.lastHaunt?.word).toBe('bakery')
+  })
+
+  it('ignores a haunt it already holds and forgets them on reset', () => {
+    const { store, matches } = createMatchTestApp()
+    matches.pushHaunt(hauntOf())
+    matches.pushHaunt(hauntOf())
+    expect(store.hauntEffects).toHaveLength(1)
+    store.reset()
+    expect(store.hauntEffects).toEqual([])
+    expect(store.lastHaunt).toBeNull()
   })
 })

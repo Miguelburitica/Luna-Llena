@@ -1,4 +1,4 @@
-import type { MatchView, NightActionInput, Result } from '@luna/contracts'
+import type { HauntEffect, HauntInput, MatchView, NightActionInput, Result } from '@luna/contracts'
 import { defineStore } from 'pinia'
 import { computed, inject, ref } from 'vue'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
@@ -16,6 +16,7 @@ export const useMatchStore = defineStore('match', () => {
   const view = ref<MatchView | null>(null)
   const receivedAt = ref(0)
   const failure = ref<MatchFailure | null>(null)
+  const hauntEffects = ref<readonly HauntEffect[]>([])
 
   const adopt = (next: MatchView) => {
     view.value = next
@@ -39,16 +40,23 @@ export const useMatchStore = defineStore('match', () => {
     view.value = null
     receivedAt.value = 0
     failure.value = null
+    hauntEffects.value = []
   }
 
   gateway.onView((next) => {
     if (next.code === room.session?.code) adopt(next)
   })
 
+  gateway.onHaunted((effect) => {
+    if (!hauntEffects.value.some((known) => known.id === effect.id)) hauntEffects.value = [...hauntEffects.value, effect]
+  })
+
   return {
     view,
     receivedAt,
     failure,
+    hauntEffects,
+    lastHaunt: computed(() => hauntEffects.value.at(-1) ?? null),
     isNarrator: computed(() => view.value?.perspective === 'narrator'),
     sync,
     reset,
@@ -61,6 +69,7 @@ export const useMatchStore = defineStore('match', () => {
     vote: (targetId: string | null) => command(() => gateway.vote(targetId)),
     lockVote: () => command(() => gateway.lockVote()),
     avenge: (targetId: string) => command(() => gateway.avenge(targetId)),
-    skipRevenge: () => command(() => gateway.skipRevenge())
+    skipRevenge: () => command(() => gateway.skipRevenge()),
+    haunt: (input: HauntInput) => command(() => gateway.haunt(input))
   }
 })

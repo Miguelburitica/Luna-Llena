@@ -1,4 +1,4 @@
-import { ROLE_IDS, type MatchView, type NarratorMatchView, type PlayerMatchView, type RoomSession } from '@luna/contracts'
+import { ROLE_IDS, type HauntEffect, type MatchView, type NarratorMatchView, type PlayerMatchView, type RoomSession } from '@luna/contracts'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { FixedClock, SeededRandom } from '../../../shared/application/clockAndRandom.fixtures'
 import { createSocketKit, type Client } from '../../../shared/infrastructure/socketTestKit.fixtures'
@@ -284,5 +284,102 @@ describe('match socket handlers', () => {
     unwrap(await narrator.client.emitWithAck('match:advance', {}))
     expect(await narrator.client.emitWithAck('match:skipRevenge', {})).toEqual({ ok: false, error: { code: 'no-revenge' } })
   })
-})
 
+  describe('ghost powers', () => {
+    const watchHaunts = (members: readonly Seated[]) => {
+      const received = new Map<Seated, HauntEffect[]>()
+      for (const member of members) {
+        const effects: HauntEffect[] = []
+        member.client.on('match:haunted', (effect) => effects.push(effect))
+        received.set(member, effects)
+      }
+      const settle = () => new Promise((resolve) => setTimeout(resolve, 80))
+      return { received, settle }
+    }
+
+    const ghostGame = async () => {
+      const game = await seatedGame()
+      const [ghost, target, other] = game.players as [Seated, Seated, Seated]
+      unwrap(await game.narrator.client.emitWithAck('match:setAlive', { memberId: ghost.session.memberId, alive: false }))
+      await nextView(ghost.views, (view) => view.perspective === 'player' && view.you.haunt?.available === true)
+      const watching = watchHaunts([game.narrator, ...game.players])
+      return { ...game, ghost, target, other, ...watching }
+    }
+
+    it('flickers every screen and names the ghost only to the narrator', async () => {
+      const { narrator, players, ghost, received, settle } = await ghostGame()
+      unwrap(await ghost.client.emitWithAck('match:haunt', { kind: 'flicker' }))
+      await settle()
+      const plain = { kind: 'flicker', word: null, ghostId: null, targetId: null, sentAt: START_TIME }
+      for (const member of [narrator, ...players]) {
+        expect(received.get(member)).toEqual([
+          { ...plain, id: expect.any(String), ghostId: member === narrator ? ghost.session.memberId : null }
+        ])
+      }
+      const spent = await nextView(ghost.views, (view) => view.perspective === 'player' && view.you.haunt?.available === false)
+      expect(spent.perspective).toBe('player')
+      expect(await ghost.client.emitWithAck('match:haunt', { kind: 'flicker' })).toEqual({
+        ok: false,
+        error: { code: 'haunt-used' }
+      })
+    })
+
+    it('whispers only to the target and the narrator', async () => {
+      const { narrator, players, ghost, target, received, settle } = await ghostGame()
+      const targetId = target.session.memberId
+      unwrap(await ghost.client.emitWithAck('match:haunt', { kind: 'whisper', targetId, word: 'bakery' }))
+      await settle()
+      const toTarget = received.get(target) ?? []
+      const toNarrator = received.get(narrator) ?? []
+      expect(toTarget).toEqual([
+        { id: expect.any(String), kind: 'whisper', word: 'bakery', ghostId: null, targetId, sentAt: START_TIME }
+      ])
+      expect(toNarrator).toEqual([{ ...toTarget[0], ghostId: ghost.session.memberId }])
+      for (const member of players.filter((player) => player !== target)) expect(received.get(member)).toEqual([])
+    })
+
+    it('rejects bad haunts without delivering anything', async () => {
+      const { players, ghost, target, other, received, settle } = await ghostGame()
+      expect(await target.client.emitWithAck('match:haunt', { kind: 'flicker' })).toEqual({
+        ok: false,
+        error: { code: 'not-a-ghost' }
+      })
+      expect(
+        await ghost.client.emitWithAck('match:haunt', { kind: 'whisper', targetId: other.session.memberId, word: 'it was Tato' })
+      ).toEqual({ ok: false, error: { code: 'whisper-invalid' } })
+      expect(
+        await ghost.client.emitWithAck('match:haunt', {
+          kind: 'whisper',
+          targetId: ghost.session.memberId,
+          word: 'bakery'
+        })
+      ).toEqual({ ok: false, error: { code: 'target-invalid' } })
+      await settle()
+      for (const member of players) expect(received.get(member)).toEqual([])
+    })
+
+    it('rejects haunts when the house rule is off', async () => {
+      const narratorClient = await kit.newClient()
+      const session = unwrap(await narratorClient.emitWithAck('room:create', { roomName: 'Los Primos', narratorName: 'Nico' }))
+      unwrap(await narratorClient.emitWithAck('room:updateSettings', { settings: { deck: DECK, houseRules: { ghostPowers: false } } }))
+      const joined: Seated[] = []
+      for (const name of NAMES) {
+        const client = await kit.newClient()
+        const views = watchViews(client)
+        const seat = unwrap(await client.emitWithAck('room:join', { code: session.code, name }))
+        unwrap(await client.emitWithAck('room:setReady', { ready: true }))
+        joined.push({ client, session: seat, views })
+      }
+      unwrap(await narratorClient.emitWithAck('room:start', {}))
+      const [ghost] = joined as [Seated]
+      await nextView(ghost.views, () => true)
+      unwrap(await narratorClient.emitWithAck('match:setAlive', { memberId: ghost.session.memberId, alive: false }))
+      const view = await nextView(ghost.views, (candidate) => candidate.players.some((seat) => !seat.alive))
+      expect((view as PlayerMatchView).you.haunt).toBeNull()
+      expect(await ghost.client.emitWithAck('match:haunt', { kind: 'flicker' })).toEqual({
+        ok: false,
+        error: { code: 'ghost-powers-off' }
+      })
+    })
+  })
+})

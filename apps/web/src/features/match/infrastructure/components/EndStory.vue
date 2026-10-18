@@ -34,6 +34,7 @@ const sentenceOf = (fact: Fact): string =>
       names: listOf(fact.memberIds),
       voters: listOf(fact.memberIds.slice(1)),
       count: fact.count,
+      word: fact.word ?? '',
       role: fact.role === null ? '' : t(`roles.${fact.role}`)
     },
     fact.count

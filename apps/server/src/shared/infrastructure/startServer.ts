@@ -46,7 +46,8 @@ export const startServer = ({
     matches: new InMemoryMatchRepository(),
     publisher: new SocketMatchPublisher(io),
     clock,
-    random
+    random,
+    ids: new CryptoIdGenerator()
   })
 
   const chatUseCases = createChatUseCases({

@@ -1,6 +1,8 @@
 import {
   err,
   ok,
+  type HauntEffect,
+  type HauntInput,
   type MatchOutcome,
   type MatchView,
   type NightActionInput,
@@ -12,6 +14,7 @@ import { accessOf } from '@/features/chat/application/ChatGateway.fixtures'
 import type { MatchFailure, MatchGateway } from './ports'
 
 type Listener = (view: MatchView) => void
+type HauntListener = (effect: HauntEffect) => void
 
 const baseView = {
   code: 'LUNA42',
@@ -43,6 +46,7 @@ export const youOf = (overrides: Partial<PlayerMatchView['you']> = {}): PlayerMa
   night: null,
   visions: [],
   vote: null,
+  haunt: null,
   ...overrides
 })
 
@@ -67,6 +71,7 @@ export class FakeMatchGateway implements MatchGateway {
   readonly calls: Array<{ command: string; input: unknown }> = []
   responses: Partial<Record<string, Result<unknown, MatchFailure>>> = {}
   private readonly viewListeners: Listener[] = []
+  private readonly hauntListeners: HauntListener[] = []
 
   constructor(public syncView: MatchView = playerViewOf()) {}
 
@@ -122,6 +127,18 @@ export class FakeMatchGateway implements MatchGateway {
 
   skipRevenge() {
     return this.respond<undefined>('skipRevenge', undefined, ok(undefined))
+  }
+
+  haunt(input: HauntInput) {
+    return this.respond<undefined>('haunt', input, ok(undefined))
+  }
+
+  onHaunted(listener: HauntListener) {
+    this.hauntListeners.push(listener)
+  }
+
+  pushHaunt(effect: HauntEffect) {
+    for (const listener of this.hauntListeners) listener(effect)
   }
 
   onView(listener: Listener) {

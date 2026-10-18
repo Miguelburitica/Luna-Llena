@@ -1,6 +1,8 @@
 import {
   CHAT_LIMITS,
   done,
+  GHOST_LIMITS,
+  HAUNT_KINDS,
   ROLE_CATALOG,
   err,
   matchError,
@@ -10,6 +12,7 @@ import {
   TIMER_EXTENSION_SECONDS,
   type CastVote,
   type DawnReport,
+  type HauntKind,
   type MatchError,
   type MatchOutcome,
   type NightAction,
@@ -31,6 +34,15 @@ import type { Seat } from './Seat'
 import { verdictOf } from './verdictOf'
 import { winnerOf } from './winnerOf'
 
+export interface HauntOutcome {
+  readonly kind: HauntKind
+  readonly ghostId: string
+  readonly targetId: string | null
+  readonly word: string | null
+}
+
+const HAUNT_KIND_SET: readonly unknown[] = HAUNT_KINDS
+
 interface RandomNumbers {
   next(): number
 }
@@ -43,6 +55,7 @@ export interface MatchOpening {
   readonly revealRoleOnDeath: boolean
   readonly anonymousVotes: boolean
   readonly lastWords: boolean
+  readonly ghostPowers: boolean
   readonly now: number
 }
 
@@ -62,6 +75,7 @@ export class Match {
   private currentRevenge: RevengeView | null = null
   private readonly currentSoloWinnerIds: string[] = []
   private readonly lastWordsWindows = new Map<string, number>()
+  private readonly hauntsUsed = new Set<string>()
   private readonly entries: TimelineEntry[] = []
 
   private constructor(
@@ -72,13 +86,14 @@ export class Match {
     readonly revealRoleOnDeath: boolean,
     private readonly anonymousVotes: boolean,
     private readonly lastWords: boolean,
+    private readonly ghostPowers: boolean,
     now: number
   ) {
     this.currentPhaseEndsAt = this.deadlineFor(this.currentPhase, now)
   }
 
-  static begin({ code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, lastWords, now }: MatchOpening): Match {
-    return new Match(code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, lastWords, now)
+  static begin({ code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, lastWords, ghostPowers, now }: MatchOpening): Match {
+    return new Match(code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, lastWords, ghostPowers, now)
   }
 
   get phase(): Phase {
@@ -128,6 +143,12 @@ export class Match {
   lastWordsUntilOf(memberId: string, now: number): number | null {
     const until = this.lastWordsWindows.get(memberId)
     return until !== undefined && now < until ? until : null
+  }
+
+  hauntAvailableTo(memberId: string): boolean | null {
+    const seat = this.seats.find((candidate) => candidate.memberId === memberId)
+    if (!this.ghostPowers || seat === undefined || seat.alive) return null
+    return !this.hauntsUsed.has(memberId)
   }
 
   hasOpenLastWords(now: number): boolean {
@@ -259,6 +280,28 @@ export class Match {
     return done
   }
 
+  haunt(actorId: string, input: unknown): Result<HauntOutcome, MatchError> {
+    if (this.currentOutcome !== null) return err(matchError('match-over'))
+    if (!this.ghostPowers) return err(matchError('ghost-powers-off'))
+    const ghost = this.seats.find((candidate) => candidate.memberId === actorId)
+    if (ghost === undefined || ghost.alive) return err(matchError('not-a-ghost'))
+    if (this.hauntsUsed.has(actorId)) return err(matchError('haunt-used'))
+    const choice = (typeof input === 'object' && input !== null ? input : {}) as Record<string, unknown>
+    if (!HAUNT_KIND_SET.includes(choice.kind)) return err(matchError('whisper-invalid'))
+    const outcome = choice.kind === 'whisper' ? this.whisper(actorId, choice) : this.flicker(actorId)
+    if (!outcome.ok) return outcome
+    this.hauntsUsed.add(actorId)
+    this.entries.push({
+      kind: 'haunt',
+      round: this.currentRound,
+      ghostId: actorId,
+      haunt: outcome.value.kind,
+      targetId: outcome.value.targetId,
+      word: outcome.value.word
+    })
+    return outcome
+  }
+
   extendTimer(actorId: string): Result<void, MatchError> {
     const authority = this.requireRunningNarrator(actorId)
     if (!authority.ok) return authority
@@ -309,6 +352,20 @@ export class Match {
     if (target === actor && action !== 'protect') return undefined
     if (action === 'hunt' && ROLE_CATALOG[target.role].team === 'wolves') return undefined
     return target
+  }
+
+  private flicker(ghostId: string): Result<HauntOutcome, MatchError> {
+    return ok({ kind: 'flicker', ghostId, targetId: null, word: null })
+  }
+
+  private whisper(ghostId: string, choice: Record<string, unknown>): Result<HauntOutcome, MatchError> {
+    const word = typeof choice.word === 'string' ? choice.word.trim() : ''
+    if (word.length === 0 || word.length > GHOST_LIMITS.maxWhisperLength || /\s/.test(word)) {
+      return err(matchError('whisper-invalid'))
+    }
+    const target = this.livingSeat(choice.targetId)
+    if (target === undefined) return err(matchError('target-invalid'))
+    return ok({ kind: 'whisper', ghostId, targetId: target.memberId, word })
   }
 
   private livingSeat(memberId: unknown): Seat | undefined {

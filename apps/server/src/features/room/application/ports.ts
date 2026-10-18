@@ -32,6 +32,7 @@ export interface GameOpening {
   readonly revealRoleOnDeath: boolean
   readonly anonymousVotes: boolean
   readonly lastWords: boolean
+  readonly ghostPowers: boolean
 }
 
 export interface GameStarter {

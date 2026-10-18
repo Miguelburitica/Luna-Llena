@@ -11,7 +11,8 @@ const openingOf = (room: Room): GameOpening => ({
   timers: room.settings.timers,
   revealRoleOnDeath: room.settings.houseRules.revealRoleOnDeath,
   anonymousVotes: room.settings.houseRules.anonymousVotes,
-  lastWords: room.settings.houseRules.lastWords
+  lastWords: room.settings.houseRules.lastWords,
+  ghostPowers: room.settings.houseRules.ghostPowers
 })
 
 export class StartGame {

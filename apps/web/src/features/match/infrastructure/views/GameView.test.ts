@@ -22,7 +22,7 @@ beforeEach(() => sessionStorage.clear())
 
 describe('GameView', () => {
   it('opens on the face-down card, flips to the role and then shows the table', async () => {
-    const view = playerViewOf({ players: matchPlayers(), you: { role: 'seer', team: 'village', packIds: [], night: null, visions: [], vote: null } })
+    const view = playerViewOf({ players: matchPlayers(), you: { role: 'seer', team: 'village', packIds: [], night: null, visions: [], vote: null, haunt: null } })
     const { wrapper } = await mountMatchView(GameView, { view, preload: false })
     expect(wrapper.find('.rcard-back').exists()).toBe(true)
     await wrapper.find('[aria-label="Reveal your role"]').trigger('click')
@@ -33,7 +33,7 @@ describe('GameView', () => {
   })
 
   it('shows a Drunk the Seer card', async () => {
-    const view = playerViewOf({ players: matchPlayers(), you: { role: 'seer', team: 'village', packIds: [], night: null, visions: [], vote: null } })
+    const view = playerViewOf({ players: matchPlayers(), you: { role: 'seer', team: 'village', packIds: [], night: null, visions: [], vote: null, haunt: null } })
     const { wrapper } = await mountMatchView(GameView, { view, preload: false })
     await wrapper.find('[aria-label="Reveal your role"]').trigger('click')
     expect(wrapper.text()).toContain('Seer')
@@ -60,7 +60,7 @@ describe('GameView', () => {
 
   it('resumes the stored seat after a reload, then syncs the match and keeps the same role', async () => {
     sessionStorage.setItem(REVEALED_KEY, 'true')
-    const view = playerViewOf({ players: matchPlayers(), round: 2, you: { role: 'seer', team: 'village', packIds: [], night: null, visions: [], vote: null } })
+    const view = playerViewOf({ players: matchPlayers(), round: 2, you: { role: 'seer', team: 'village', packIds: [], night: null, visions: [], vote: null, haunt: null } })
     const { wrapper, rooms, matches } = await mountMatchView(GameView, { view, resume: true, preload: false })
     expect(rooms.commands()).toEqual(['resume'])
     expect(matches.commands()).toEqual(['sync'])

@@ -17,6 +17,7 @@ import { actionLineOf } from '../../domain/night'
 import { nextPhaseOf, phaseLook } from '../../domain/phases'
 import { seatsOf, trueRoleOf } from '../../domain/seating'
 import { tallyBars, verdictOutcomeOf, voteLinesOf, voteProgressOf } from '../../domain/voting'
+import NarratorHauntFeed from './NarratorHauntFeed.vue'
 import PhaseTimer from './PhaseTimer.vue'
 
 const props = defineProps<{ view: NarratorMatchView }>()
@@ -326,6 +327,8 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
           </span>
         </div>
       </section>
+
+      <NarratorHauntFeed :seats="seats" />
 
       <NarratorChatMonitor class="dashboard-panel" />
     </div>

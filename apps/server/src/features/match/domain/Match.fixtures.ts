@@ -22,6 +22,7 @@ export interface MatchSetup {
   readonly revealRoleOnDeath?: boolean
   readonly anonymousVotes?: boolean
   readonly lastWords?: boolean
+  readonly ghostPowers?: boolean
   readonly now?: number
 }
 
@@ -31,6 +32,7 @@ export const beginMatch = ({
   revealRoleOnDeath = true,
   anonymousVotes = false,
   lastWords = false,
+  ghostPowers = true,
   now = START_TIME
 }: MatchSetup = {}): Match =>
   Match.begin({
@@ -41,6 +43,7 @@ export const beginMatch = ({
     revealRoleOnDeath,
     anonymousVotes,
     lastWords,
+    ghostPowers,
     now
   })
 
