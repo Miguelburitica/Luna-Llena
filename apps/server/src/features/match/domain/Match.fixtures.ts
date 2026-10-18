@@ -37,3 +37,25 @@ export const beginMatch = ({
     revealRoleOnDeath,
     now
   })
+
+export const constantRandom = (value: number) => ({ next: () => value })
+
+export const NIGHT_ROLES: readonly RoleId[] = [
+  'werewolf',
+  'werewolf',
+  'seer',
+  'doctor',
+  'witch',
+  'villager',
+  'drunk',
+  'villager'
+]
+
+export const WOLF_ONE = 'p1'
+export const WOLF_TWO = 'p2'
+export const SEER = 'p3'
+export const DOCTOR = 'p4'
+export const WITCH = 'p5'
+export const VILLAGER = 'p6'
+export const DRUNK = 'p7'
+export const OTHER_VILLAGER = 'p8'

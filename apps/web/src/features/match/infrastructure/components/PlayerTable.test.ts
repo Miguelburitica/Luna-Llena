@@ -81,4 +81,29 @@ describe('PlayerTable', () => {
     await peek.trigger('pointerleave')
     expect(wrapper.find('.rcard-mini').exists()).toBe(false)
   })
+
+  it('announces who did not wake up at dawn, with the revealed role', async () => {
+    const view = tableOf({
+      phase: 'dawn',
+      players: matchPlayers({ 'id-Juan': { alive: false, revealedRole: 'doctor' } }),
+      dawn: { round: 1, deaths: ['id-Juan'] }
+    })
+    const { wrapper } = await mountMatchView(PlayerTable, { view, props: { view } })
+    expect(wrapper.text()).toContain('Juan didn’t wake up')
+    expect(wrapper.find('.dawn-death .av').classes()).toEqual(expect.arrayContaining(['is-dead', 'a-drop']))
+    expect(wrapper.find('.dawn-death .rcard-mini').text()).toBe('Doctor')
+  })
+
+  it('announces that nobody died', async () => {
+    const view = tableOf({ phase: 'dawn', dawn: { round: 1, deaths: [] } })
+    const { wrapper } = await mountMatchView(PlayerTable, { view, props: { view } })
+    expect(wrapper.text()).toContain('Nobody died tonight!')
+    expect(wrapper.find('.f-rooster').exists()).toBe(true)
+  })
+
+  it('shows no announcement before dawn reports', async () => {
+    const view = tableOf({ phase: 'dawn', dawn: null })
+    const { wrapper } = await mountMatchView(PlayerTable, { view, props: { view } })
+    expect(wrapper.find('.dawn-nobody').exists()).toBe(false)
+  })
 })

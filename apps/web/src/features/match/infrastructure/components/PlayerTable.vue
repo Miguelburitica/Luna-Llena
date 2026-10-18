@@ -6,13 +6,14 @@ import { useRoomStore } from '@/features/room/application/useRoomStore'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import RoleCard from '@/shared/infrastructure/ui/components/RoleCard.vue'
-import { teamClassOf } from '@/shared/infrastructure/ui/teamClass'
+import { PACK_RING, teamClassOf } from '@/shared/infrastructure/ui/teamClass'
 import { phaseLook, sceneBackgroundOf, seatPositions } from '../../domain/phases'
 import { aliveCountOf, seatsOf } from '../../domain/seating'
+import DawnAnnouncement from './DawnAnnouncement.vue'
+import NightDock from './NightDock.vue'
 import PhaseTimer from './PhaseTimer.vue'
 
 const DENSE_SEAT_COUNT = 10
-const PACK_RING = '#ff8f94'
 
 const props = defineProps<{ view: PlayerMatchView }>()
 const { t } = useI18n()
@@ -81,6 +82,9 @@ const dense = computed(() => seats.value.length >= DENSE_SEAT_COUNT)
         <RoleCard :role="view.you.role" :team="view.you.team" variant="mini" />
       </div>
     </div>
+
+    <NightDock v-if="view.phase === 'night' && view.you.night" :view="view" :seats="seats" />
+    <DawnAnnouncement v-else-if="view.phase === 'dawn' && view.dawn" :view="view" :seats="seats" />
 
     <p class="t-small t-muted t-center table-alive">
       {{ t('match.table.alive', { alive: aliveCountOf(view), total: view.players.length }) }}

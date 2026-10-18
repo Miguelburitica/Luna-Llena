@@ -1,4 +1,4 @@
-import type { MatchView, Result } from '@luna/contracts'
+import type { MatchView, NightActionInput, Result } from '@luna/contracts'
 import { defineStore } from 'pinia'
 import { computed, inject, ref } from 'vue'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
@@ -49,6 +49,7 @@ export const useMatchStore = defineStore('match', () => {
     extendTimer: () => command(() => gateway.extendTimer()),
     setAlive: (memberId: string, alive: boolean) => command(() => gateway.setAlive(memberId, alive)),
     endGame: () => command(() => gateway.endGame()),
-    keepPlaying: () => command(() => gateway.keepPlaying())
+    keepPlaying: () => command(() => gateway.keepPlaying()),
+    act: (input: NightActionInput) => command(() => gateway.act(input))
   }
 })

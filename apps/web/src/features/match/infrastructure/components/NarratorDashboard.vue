@@ -6,14 +6,13 @@ import { useRoomStore } from '@/features/room/application/useRoomStore'
 import DeskHeader from '@/shared/infrastructure/ui/components/DeskHeader.vue'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
-import { teamClassFor, teamClassOf } from '@/shared/infrastructure/ui/teamClass'
+import { PACK_RING, teamClassFor, teamClassOf } from '@/shared/infrastructure/ui/teamClass'
 import { useCountdown } from '../../application/useCountdown'
 import { useMatchStore } from '../../application/useMatchStore'
+import { actionLineOf } from '../../domain/night'
 import { nextPhaseOf, phaseLook } from '../../domain/phases'
 import { seatsOf, trueRoleOf } from '../../domain/seating'
 import PhaseTimer from './PhaseTimer.vue'
-
-const PACK_RING = '#ff8f94'
 
 const props = defineProps<{ view: NarratorMatchView }>()
 const { t } = useI18n()
@@ -36,9 +35,27 @@ const steps = computed(() =>
 )
 const upcoming = computed(() => nextPhaseOf(props.view.phase))
 const seats = computed(() => seatsOf(props.view, room.snapshot?.members ?? [], room.session?.memberId))
+const nameOf = (id: string | null): string => seats.value.find((seat) => seat.id === id)?.name ?? ''
 const rows = computed(() =>
-  seats.value.map((seat) => ({ ...seat, role: trueRoleOf(props.view, seat.id) }))
+  seats.value.map((seat) => {
+    const action = props.view.night?.actions[seat.id]
+    const line = action ? actionLineOf(action) : null
+    return {
+      ...seat,
+      role: trueRoleOf(props.view, seat.id),
+      line,
+      lineText: line
+        ? t(`match.night.line.${line.key}`, {
+            name: nameOf(line.targetId),
+            result: line.outcome ? t(`match.night.line.${line.outcome}`) : ''
+          })
+        : ''
+    }
+  })
 )
+const preview = computed(() => props.view.night?.preview ?? null)
+const waitingNames = computed(() => (props.view.night?.waitingOn ?? []).map(nameOf).join(', '))
+const outcomeNames = computed(() => (preview.value?.deaths ?? []).map(nameOf).join(', '))
 </script>
 
 <template>
@@ -102,7 +119,7 @@ const rows = computed(() =>
         <span v-if="match.failure" class="err" role="alert">
           <LunaIcon name="info" size="sm" />{{ t(`match.errors.${match.failure.code}`) }}
         </span>
-        <ul class="dashboard-players">
+        <ul class="dashboard-players" :class="{ 'has-actions': view.night }">
           <li v-for="row in rows" :key="row.id" class="prow" :class="{ 'is-dead': !row.alive }">
             <LunaAvatar
               :avatar="row.avatar"
@@ -117,6 +134,9 @@ const rows = computed(() =>
                 {{ t(`roles.${row.role}`) }}
               </span>
             </div>
+            <span v-if="row.line" class="act" :class="{ 'is-wait': row.line.waiting }">
+              <LunaIcon :name="row.line.icon" size="sm" />{{ row.lineText }}
+            </span>
             <span class="t-small" :class="row.alive ? 'dashboard-alive' : 't-muted'">
               {{ row.alive ? t('match.dashboard.alive') : t('match.dashboard.dead') }}
             </span>
@@ -140,6 +160,50 @@ const rows = computed(() =>
             </button>
           </li>
         </ul>
+      </section>
+
+      <section v-if="view.night && preview" class="panel dashboard-dawn">
+        <div class="panel-h">
+          <h2 class="h3 dashboard-heading">{{ t('match.night.preview.title') }}</h2>
+          <span v-if="view.night.waitingOn.length" class="sbadge is-warn">
+            <LunaIcon name="hourglass" size="sm" />{{ t('match.night.preview.waitingOn', { names: waitingNames }) }}
+          </span>
+        </div>
+        <div class="dashboard-chain">
+          <span class="sbadge dashboard-step">
+            <LunaIcon name="paw" size="sm" class="dashboard-wolf-icon" />{{
+              preview.victimId
+                ? t('match.night.preview.wolvesChose', { name: nameOf(preview.victimId) })
+                : t('match.night.preview.wolvesUndecided')
+            }}
+          </span>
+          <LunaIcon name="arrow-right" class="t-muted" />
+          <span class="sbadge dashboard-step">
+            <LunaIcon name="shield" size="sm" />{{
+              preview.protectedId
+                ? t('match.night.preview.protected', { name: nameOf(preview.protectedId) })
+                : t('match.night.preview.unprotected')
+            }}
+          </span>
+          <LunaIcon name="arrow-right" class="t-muted" />
+          <span class="sbadge dashboard-step">
+            <LunaIcon name="flask" size="sm" />{{
+              t(preview.healing ? 'match.night.preview.healing' : 'match.night.preview.notHealing')
+            }}
+          </span>
+          <template v-if="preview.poisonTargetId">
+            <LunaIcon name="arrow-right" class="t-muted" />
+            <span class="sbadge dashboard-step">
+              <LunaIcon name="flask" size="sm" />{{ t('match.night.preview.poisoning', { name: nameOf(preview.poisonTargetId) }) }}
+            </span>
+          </template>
+          <LunaIcon name="arrow-right" class="t-muted" />
+          <span class="sbadge dashboard-step dashboard-deaths">
+            <LunaIcon name="x" size="sm" />{{
+              t('match.night.preview.deaths', { names: outcomeNames }, preview.deaths.length)
+            }}
+          </span>
+        </div>
       </section>
     </div>
   </div>
@@ -240,8 +304,51 @@ const rows = computed(() =>
   grid-template-columns: 44px minmax(120px, 1fr) auto auto;
 }
 
+.dashboard-players.has-actions .prow {
+  grid-template-columns: 44px minmax(120px, 1fr) minmax(160px, 1.3fr) auto auto;
+}
+
 .dashboard-players .av {
   margin: 0;
+}
+
+.dashboard-dawn {
+  margin-top: 20px;
+}
+
+.dashboard-chain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font: 600 15px var(--font-ui);
+}
+
+.dashboard-step {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.dashboard-wolf-icon {
+  color: #ff8f94;
+}
+
+.dashboard-deaths {
+  background: rgba(255, 107, 94, 0.18);
+  color: #ffb3ab;
+}
+
+.act {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 13px var(--font-ui);
+  color: #d9d6f5;
+  min-width: 0;
+}
+
+.act.is-wait {
+  color: #f2a541;
 }
 
 .dashboard-role {

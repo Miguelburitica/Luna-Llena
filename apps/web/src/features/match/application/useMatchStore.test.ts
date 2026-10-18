@@ -44,6 +44,22 @@ describe('match store', () => {
     ])
   })
 
+  it('sends a night action through the gateway and keeps its failure', async () => {
+    const { store, matches } = createMatchTestApp()
+    await store.act({ kind: 'hunt', targetId: 'id-Juan' })
+    await store.act({ kind: 'potions', heal: false, poisonTargetId: null })
+    expect(matches.calls).toEqual([
+      { command: 'act', input: { kind: 'hunt', targetId: 'id-Juan' } },
+      { command: 'act', input: { kind: 'potions', heal: false, poisonTargetId: null } }
+    ])
+    matches.failWith('act', 'not-night')
+    expect(await store.act({ kind: 'suspect', targetId: 'id-Juan' })).toEqual({ ok: false, error: { code: 'not-night' } })
+    expect(store.failure).toEqual({ code: 'not-night' })
+    matches.responses = {}
+    await store.act({ kind: 'suspect', targetId: 'id-Juan' })
+    expect(store.failure).toBeNull()
+  })
+
   it('keeps a command failure for the view and clears it on success', async () => {
     const { store, matches } = createMatchTestApp(narratorViewOf())
     matches.failWith('advance', 'match-over')

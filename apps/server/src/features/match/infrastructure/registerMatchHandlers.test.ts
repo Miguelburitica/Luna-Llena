@@ -30,15 +30,15 @@ const nextView = async (views: MatchView[], matches: (view: MatchView) => boolea
   throw new Error('The expected match view never arrived')
 }
 
-const seatedGame = async () => {
+const seatedGame = async (deck: Record<string, number> = DECK, names: readonly string[] = NAMES) => {
   const narratorClient = await kit.newClient()
   const narratorSession = unwrap(
     await narratorClient.emitWithAck('room:create', { roomName: 'Los Primos', narratorName: 'Nico' })
   )
   const narrator: Seated = { client: narratorClient, session: narratorSession, views: watchViews(narratorClient) }
-  unwrap(await narratorClient.emitWithAck('room:updateSettings', { settings: { deck: DECK } }))
+  unwrap(await narratorClient.emitWithAck('room:updateSettings', { settings: { deck } }))
   const players: Seated[] = []
-  for (const name of NAMES) {
+  for (const name of names) {
     const client = await kit.newClient()
     const views = watchViews(client)
     const session = unwrap(await client.emitWithAck('room:join', { code: narratorSession.code, name }))
@@ -51,7 +51,7 @@ const seatedGame = async () => {
   const roles = (narrator.views[0] as NarratorMatchView).roles
   const holdersOf = (role: string) => players.filter((player) => roles[player.session.memberId] === role)
   const first = players[0] as Seated
-  const caro = players[5] as Seated
+  const caro = players[names.length - 1] as Seated
   return { narrator, players, first, caro, roles, holdersOf }
 }
 
@@ -62,6 +62,8 @@ beforeEach(async () => {
 afterEach(async () => {
   await kit.stop()
 })
+
+const NIGHT_DECK = { werewolf: 2, seer: 1, villager: 2, doctor: 1, witch: 1, hunter: 0, fool: 0, drunk: 0 }
 
 describe('match socket handlers', () => {
   it('sends every player a private view when the room starts', async () => {
@@ -142,5 +144,57 @@ describe('match socket handlers', () => {
       ok: false,
       error: { code: 'game-already-started' }
     })
+  })
+
+  it('plays a full night and tells every member the dawn result', async () => {
+    const { narrator, players, holdersOf } = await seatedGame(NIGHT_DECK, FRIENDS.slice(0, 7))
+    const [luis, tato] = holdersOf('werewolf') as [Seated, Seated]
+    const [ana, pipe] = holdersOf('villager') as [Seated, Seated]
+    const [marta] = holdersOf('seer') as [Seated]
+    const [doctor] = holdersOf('doctor') as [Seated]
+    const [witch] = holdersOf('witch') as [Seated]
+    const idOf = (player: Seated) => player.session.memberId
+    const act = (player: Seated, input: Parameters<Client['emitWithAck']>[1]) =>
+      player.client.emitWithAck('match:act', input as never)
+
+    unwrap(await act(luis, { kind: 'hunt', targetId: idOf(ana) }))
+    unwrap(await act(tato, { kind: 'hunt', targetId: idOf(ana) }))
+    unwrap(await act(doctor, { kind: 'protect', targetId: idOf(pipe) }))
+    unwrap(await act(marta, { kind: 'inspect', targetId: idOf(luis) }))
+    unwrap(await act(witch, { kind: 'potions', heal: false, poisonTargetId: idOf(pipe) }))
+    unwrap(await act(ana, { kind: 'suspect', targetId: idOf(tato) }))
+    unwrap(await act(pipe, { kind: 'suspect', targetId: idOf(ana) }))
+    expect(await act(marta, { kind: 'inspect', targetId: idOf(tato) })).toEqual({
+      ok: false,
+      error: { code: 'already-inspected' }
+    })
+    expect(await act(ana, { kind: 'hunt', targetId: idOf(pipe) })).toEqual({
+      ok: false,
+      error: { code: 'not-your-action' }
+    })
+
+    const seerNight = await nextView(marta.views, (view) => JSON.stringify(view).includes('"isWolf":true'))
+    expect((seerNight as PlayerMatchView).you.night).toMatchObject({ vision: { targetId: idOf(luis), isWolf: true } })
+    const wolfNight = await nextView(luis.views, (view) => JSON.stringify(view).includes('"packVictimId":"'))
+    expect((wolfNight as PlayerMatchView).you.night).toMatchObject({ packVictimId: idOf(ana) })
+    const preview = await nextView(narrator.views, (view) => view.perspective === 'narrator' && view.night?.waitingOn.length === 0)
+    expect((preview as NarratorMatchView).night?.preview.deaths).toEqual([idOf(ana), idOf(pipe)])
+
+    const others = players.filter((player) => player !== marta)
+    for (const player of others) {
+      const views = JSON.stringify(player.views)
+      expect(views).not.toContain('isWolf')
+      if (player !== luis && player !== tato) expect(views).not.toContain('packPicks')
+    }
+
+    unwrap(await narrator.client.emitWithAck('match:advance', {}))
+    for (const member of [narrator, ...players]) {
+      const dawn = await nextView(member.views, (view) => view.phase === 'dawn')
+      expect(dawn.dawn).toEqual({ round: 1, deaths: [idOf(ana), idOf(pipe)] })
+      expect(dawn.players.filter((seat) => !seat.alive).map((seat) => seat.id)).toEqual([idOf(ana), idOf(pipe)])
+    }
+    const afterDawn = (await nextView(marta.views, (view) => view.phase === 'dawn')) as PlayerMatchView
+    expect(afterDawn.you.night).toBeNull()
+    expect(afterDawn.you.visions).toEqual([{ round: 1, targetId: idOf(luis), isWolf: true }])
   })
 })

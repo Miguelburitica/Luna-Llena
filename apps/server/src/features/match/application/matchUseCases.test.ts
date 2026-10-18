@@ -30,7 +30,13 @@ describe('Role secrecy', () => {
     })
     const ana = holderOf('villager')
     const view = asPlayer(publisher.latestFor(ana))
-    expect(view.you).toEqual({ role: 'villager', team: 'village', packIds: [] })
+    expect(view.you).toEqual({
+      role: 'villager',
+      team: 'village',
+      packIds: [],
+      night: { action: 'suspect', targetId: null },
+      visions: []
+    })
     expect(view.players.map((player) => player.revealedRole)).toEqual(Array(6).fill(null))
     expect(JSON.stringify(view)).not.toContain('"roles"')
   })
@@ -39,8 +45,8 @@ describe('Role secrecy', () => {
     const { publisher, startMatch } = createMatchKit()
     const { holdersOf, holderOf } = await startMatch()
     const [luis, tato] = holdersOf('werewolf') as [string, string]
-    expect(asPlayer(publisher.latestFor(luis)).you).toEqual({ role: 'werewolf', team: 'wolves', packIds: [tato] })
-    expect(asPlayer(publisher.latestFor(tato)).you).toEqual({ role: 'werewolf', team: 'wolves', packIds: [luis] })
+    expect(asPlayer(publisher.latestFor(luis)).you).toMatchObject({ role: 'werewolf', team: 'wolves', packIds: [tato] })
+    expect(asPlayer(publisher.latestFor(tato)).you).toMatchObject({ role: 'werewolf', team: 'wolves', packIds: [luis] })
     expect(asPlayer(publisher.latestFor(holderOf('seer'))).you.packIds).toEqual([])
   })
 
@@ -70,7 +76,13 @@ describe('Role secrecy', () => {
       deck: deckOf({ werewolf: 1, drunk: 1, villager: 4 })
     })
     const caro = holderOf('drunk')
-    expect(asPlayer(publisher.latestFor(caro)).you).toEqual({ role: 'seer', team: 'village', packIds: [] })
+    expect(asPlayer(publisher.latestFor(caro)).you).toEqual({
+      role: 'seer',
+      team: 'village',
+      packIds: [],
+      night: { action: 'inspect', targetId: null, vision: null },
+      visions: []
+    })
   })
 })
 

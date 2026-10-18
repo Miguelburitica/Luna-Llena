@@ -2,8 +2,12 @@ import {
   ROLE_CATALOG,
   type MatchPlayerView,
   type MatchView,
+  type NarratorActionView,
   type NarratorMatchView,
-  type PlayerMatchView
+  type NarratorNightView,
+  type PlayerMatchView,
+  type PlayerNightView,
+  type Vision
 } from '@luna/contracts'
 import type { Match } from '../domain/Match'
 import type { Seat } from '../domain/Seat'
@@ -22,14 +26,87 @@ const commonOf = (match: Match, now: number) => ({
   phaseEndsAt: match.phaseEndsAt,
   serverNow: now,
   players: match.seats.map((seat) => toPlayerView(match, seat)),
-  outcome: match.outcome
+  outcome: match.outcome,
+  dawn: match.dawn
 })
+
+const toNarratorAction = (match: Match, seat: Seat): NarratorActionView => {
+  const action = ROLE_CATALOG[seat.role].nightAction
+  const { night } = match
+  const inspection = night.inspections.get(seat.memberId)
+  const potions = night.potions.get(seat.memberId)
+  return {
+    action,
+    acted: night.hasActed(seat.memberId, action),
+    targetId: night.targetOf(seat.memberId, action),
+    visionIsWolf: inspection?.isWolf ?? null,
+    fromDrunk: inspection?.fromDrunk ?? false,
+    heal: potions?.heal ?? false,
+    poisonTargetId: potions?.poisonTargetId ?? null
+  }
+}
+
+const toNarratorNight = (match: Match): NarratorNightView | null => {
+  if (match.phase !== 'night') return null
+  const living = match.seats.filter((seat) => seat.alive)
+  const actions = Object.fromEntries(living.map((seat) => [seat.memberId, toNarratorAction(match, seat)]))
+  const { deaths, victimId, protectedId, healing, poisonTargetId } = match.previewDawn()
+  return {
+    actions,
+    waitingOn: living.filter((seat) => actions[seat.memberId]?.acted === false).map((seat) => seat.memberId),
+    preview: { victimId, protectedId, healing, poisonTargetId, deaths }
+  }
+}
+
+const toPlayerNight = (match: Match, seat: Seat): PlayerNightView | null => {
+  if (match.phase !== 'night' || !seat.alive) return null
+  const action = ROLE_CATALOG[seat.role].nightAction
+  const { night } = match
+  const targetId = night.targetOf(seat.memberId, action)
+  switch (action) {
+    case 'hunt':
+      return {
+        action,
+        targetId,
+        packPicks: Object.fromEntries(night.huntPicks.map((pick) => [pick.wolfId, pick.targetId])),
+        packVictimId: match.packVictim()
+      }
+    case 'inspect': {
+      const inspection = night.inspections.get(seat.memberId)
+      const vision = inspection && { round: inspection.round, targetId: inspection.targetId, isWolf: inspection.isWolf }
+      return { action, targetId, vision: vision ?? null }
+    }
+    case 'protect':
+      return { action, targetId, blockedTargetId: match.blockedPatientOf(seat.memberId) }
+    case 'potions': {
+      const choice = night.potions.get(seat.memberId)
+      const spent = match.potionsSpentBy(seat.memberId)
+      return {
+        action,
+        acted: choice !== undefined,
+        victimId: match.packVictim(),
+        heal: choice?.heal ?? false,
+        poisonTargetId: choice?.poisonTargetId ?? null,
+        healAvailable: !spent.heal,
+        poisonAvailable: !spent.poison
+      }
+    }
+    case 'suspect':
+      return { action, targetId }
+  }
+}
+
+const pastVisionsOf = (match: Match, seat: Seat): readonly Vision[] =>
+  match
+    .visionsOf(seat.memberId)
+    .filter((vision) => match.phase !== 'night' || vision.round !== match.round)
 
 const toNarratorView = (match: Match, now: number): NarratorMatchView => ({
   ...commonOf(match, now),
   perspective: 'narrator',
   roles: Object.fromEntries(match.seats.map((seat) => [seat.memberId, seat.role])),
-  pendingWinner: match.pendingWinner
+  pendingWinner: match.pendingWinner,
+  night: toNarratorNight(match)
 })
 
 const packOf = (match: Match, seat: Seat): string[] =>
@@ -44,7 +121,13 @@ const toSeatView = (match: Match, seat: Seat, now: number): PlayerMatchView => {
   return {
     ...commonOf(match, now),
     perspective: 'player',
-    you: { role: perceivedRole, team: ROLE_CATALOG[perceivedRole].team, packIds: packOf(match, seat) }
+    you: {
+      role: perceivedRole,
+      team: ROLE_CATALOG[perceivedRole].team,
+      packIds: packOf(match, seat),
+      night: toPlayerNight(match, seat),
+      visions: pastVisionsOf(match, seat)
+    }
   }
 }
 

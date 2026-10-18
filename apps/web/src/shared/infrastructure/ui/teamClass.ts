@@ -1,5 +1,7 @@
 import { ROLE_TEAMS, type RoleId, type TeamId } from '@luna/contracts'
 
+export const PACK_RING = '#ff8f94'
+
 const TEAM_CLASSES: Readonly<Record<TeamId, string>> = {
   wolves: 'team-wolf',
   village: 'team-village',

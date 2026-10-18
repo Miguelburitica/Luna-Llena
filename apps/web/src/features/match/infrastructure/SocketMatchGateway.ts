@@ -1,4 +1,4 @@
-import type { MatchView } from '@luna/contracts'
+import type { MatchView, NightActionInput } from '@luna/contracts'
 import { reachOrFail, type LunaSocket } from '@/shared/infrastructure/socket/lunaSocket'
 import type { MatchGateway } from '../application/ports'
 
@@ -27,6 +27,10 @@ export class SocketMatchGateway implements MatchGateway {
 
   keepPlaying() {
     return reachOrFail(() => this.socket.emitWithAck('match:keepPlaying', {}))
+  }
+
+  act(input: NightActionInput) {
+    return reachOrFail(() => this.socket.emitWithAck('match:act', input))
   }
 
   onView(listener: (view: MatchView) => void): void {

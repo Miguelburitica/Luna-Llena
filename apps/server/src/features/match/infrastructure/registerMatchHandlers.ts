@@ -15,6 +15,7 @@ export const registerMatchHandlers = (io: LunaServer, useCases: MatchUseCases): 
     answer(socket, 'match:extendTimer', asActor(socket, (actor) => useCases.extendTimer.execute(actor)))
     answer(socket, 'match:setAlive', asActor(socket, (actor, payload) => useCases.setAlive.execute(actor, payload)))
     answer(socket, 'match:endGame', asActor(socket, (actor) => useCases.endGame.execute(actor)))
+    answer(socket, 'match:act', asActor(socket, (actor, payload) => useCases.actAtNight.execute(actor, payload)))
     answer(socket, 'match:keepPlaying', asActor(socket, (actor) => useCases.keepPlaying.execute(actor)))
   })
 }

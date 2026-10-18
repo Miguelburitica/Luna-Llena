@@ -1,5 +1,6 @@
 import type { Clock } from '../../../shared/application/Clock'
 import type { RandomSource } from '../../../shared/application/RandomSource'
+import { ActAtNight } from './ActAtNight'
 import { AdvancePhase } from './AdvancePhase'
 import { EndGame } from './EndGame'
 import { ExtendTimer } from './ExtendTimer'
@@ -25,7 +26,8 @@ export const createMatchUseCases = ({ matches, publisher, clock, random }: Match
     extendTimer: new ExtendTimer(access),
     setAlive: new SetAlive(access),
     endGame: new EndGame(access),
-    keepPlaying: new KeepPlaying(access)
+    keepPlaying: new KeepPlaying(access),
+    actAtNight: new ActAtNight(access, random)
   }
 }
 

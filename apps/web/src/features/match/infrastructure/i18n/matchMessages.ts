@@ -46,6 +46,92 @@ const en = {
     keepPlaying: 'Keep playing',
     endGame: 'End game'
   },
+  night: {
+    why: { self: 'you', dead: 'dead', wolf: 'wolf', 'last-night': 'last night' },
+    hunt: {
+      title: 'Choose tonight’s victim',
+      withPack: 'with your pack',
+      pickedBy: '{name} picked {target}',
+      agrees: 'Pack agrees on {name}. You can still change until dawn.',
+      split: 'Pack is split. Agree on one victim before dawn.',
+      waiting: 'Pick a victim. Your pack sees your choice.'
+    },
+    inspect: {
+      title: 'Who do you inspect?',
+      vision: 'Your vision',
+      onlyYou: 'Only you',
+      says: 'The crystal ball says…',
+      isWolf: '{name} is a Werewolf',
+      isNotWolf: '{name} is not a Werewolf',
+      past: 'Past visions',
+      pastEntry: 'Night {round} · {name}',
+      wolfTag: 'Werewolf',
+      notWolfTag: 'not a Werewolf',
+      hint: 'One peek per night. Choose carefully.',
+      done: 'One peek per night. Use it wisely at dawn.'
+    },
+    protect: {
+      title: 'Who do you protect tonight?',
+      protected: '{name} is protected. Change anytime until dawn.',
+      blocked: 'You protected {name} last night. The Doctor can’t pick the same player twice in a row.'
+    },
+    potions: {
+      coming: 'The wolves are coming for…',
+      nobody: 'The wolves haven’t chosen yet',
+      heal: 'Heal',
+      healReady: 'Save the wolves’ victim',
+      healSpent: 'Already used',
+      healNoVictim: 'No victim yet',
+      healing: 'Healing {name}',
+      poison: 'Poison…',
+      poisonReady: '1 left · then pick a target',
+      poisonSpent: 'Already used',
+      poisoning: 'Poisoning {name}',
+      poisonTitle: 'Who do you poison?',
+      nothing: 'Do nothing tonight',
+      chosenNothing: 'You chose to do nothing tonight. Change anytime until dawn.'
+    },
+    suspect: {
+      title: 'Who do you suspect?',
+      done: 'Done — the village sleeps…',
+      doneHint: 'Night ends when the narrator calls dawn. Keep a straight face on the call.',
+      suspecting: 'You suspect {name}',
+      change: 'Change my pick'
+    },
+    line: {
+      idle: 'Hasn’t acted yet',
+      deciding: 'Deciding',
+      picked: 'Picked {name}',
+      inspected: 'Inspected {name} → {result}',
+      drunkInspected: '“Inspected” {name} → told {result}',
+      protecting: 'Protecting {name}',
+      healAndPoison: 'Heal + poison {name}',
+      heal: 'Heal',
+      poison: 'Poison {name}',
+      nothing: 'Does nothing tonight',
+      suspects: 'Suspects {name} · decoy',
+      wolf: 'Wolf',
+      notWolf: 'Not a wolf'
+    },
+    preview: {
+      title: 'What happens at dawn',
+      waitingOn: 'Waiting on {names}',
+      wolvesChose: 'Wolves chose {name}',
+      wolvesUndecided: 'Wolves haven’t chosen',
+      protected: 'Doctor protected {name}',
+      unprotected: 'Nobody protected',
+      healing: 'Witch heals',
+      notHealing: 'Witch does not heal',
+      poisoning: 'Witch poisons {name}',
+      deaths: 'Nobody dies | {names} dies | {names} die'
+    }
+  },
+  dawn: {
+    died: '{name} didn’t wake up',
+    wasThe: 'They were the…',
+    nobody: 'Nobody died tonight!',
+    nobodyHint: 'The village lets out one big sigh of relief. Somebody’s plan didn’t work…'
+  },
   win: {
     village: 'Village wins!',
     wolves: 'Wolves win!',
@@ -76,6 +162,13 @@ const en = {
     'timer-not-running': 'This phase has no timer to extend.',
     'no-winner-yet': 'No team has won yet.',
     'match-over': 'The game is over.',
+    'not-night': 'That can only be done at night.',
+    'player-dead': 'The dead can’t act.',
+    'not-your-action': 'That isn’t your night action.',
+    'target-invalid': 'You can’t pick that player.',
+    'already-inspected': 'You already peeked tonight.',
+    'protected-last-night': 'You protected that player last night.',
+    'potion-used': 'That potion is already used.',
     unreachable: 'We can’t reach the village. Check your connection.'
   }
 }
@@ -128,6 +221,92 @@ const es: typeof en = {
     keepPlaying: 'Seguir jugando',
     endGame: 'Terminar juego'
   },
+  night: {
+    why: { self: 'tú', dead: 'muerto', wolf: 'lobo', 'last-night': 'anoche' },
+    hunt: {
+      title: 'Elige a la víctima de esta noche',
+      withPack: 'con tu manada',
+      pickedBy: '{name} eligió a {target}',
+      agrees: 'La manada coincide en {name}. Puedes cambiar hasta el amanecer.',
+      split: 'La manada está dividida. Pónganse de acuerdo en una víctima antes del amanecer.',
+      waiting: 'Elige una víctima. Tu manada ve tu elección.'
+    },
+    inspect: {
+      title: '¿A quién inspeccionas?',
+      vision: 'Tu visión',
+      onlyYou: 'Solo tú',
+      says: 'La bola de cristal dice…',
+      isWolf: '{name} es un hombre lobo',
+      isNotWolf: '{name} no es un hombre lobo',
+      past: 'Visiones pasadas',
+      pastEntry: 'Noche {round} · {name}',
+      wolfTag: 'hombre lobo',
+      notWolfTag: 'no es hombre lobo',
+      hint: 'Un vistazo por noche. Elige con cuidado.',
+      done: 'Un vistazo por noche. Úsalo con cabeza al amanecer.'
+    },
+    protect: {
+      title: '¿A quién proteges esta noche?',
+      protected: '{name} está protegido. Cambia cuando quieras hasta el amanecer.',
+      blocked: 'Anoche protegiste a {name}. El Doctor no puede elegir al mismo jugador dos noches seguidas.'
+    },
+    potions: {
+      coming: 'Los lobos van por…',
+      nobody: 'Los lobos todavía no han elegido',
+      heal: 'Curar',
+      healReady: 'Salva a la víctima de los lobos',
+      healSpent: 'Ya la usaste',
+      healNoVictim: 'Aún no hay víctima',
+      healing: 'Curando a {name}',
+      poison: 'Envenenar…',
+      poisonReady: 'Queda 1 · luego elige objetivo',
+      poisonSpent: 'Ya la usaste',
+      poisoning: 'Envenenando a {name}',
+      poisonTitle: '¿A quién envenenas?',
+      nothing: 'No hacer nada esta noche',
+      chosenNothing: 'Elegiste no hacer nada esta noche. Cambia cuando quieras hasta el amanecer.'
+    },
+    suspect: {
+      title: '¿De quién sospechas?',
+      done: 'Listo — la aldea duerme…',
+      doneHint: 'La noche termina cuando el narrador anuncia el amanecer. Pon cara de póker.',
+      suspecting: 'Sospechas de {name}',
+      change: 'Cambiar mi elección'
+    },
+    line: {
+      idle: 'Aún no actúa',
+      deciding: 'Decidiendo',
+      picked: 'Eligió a {name}',
+      inspected: 'Inspeccionó a {name} → {result}',
+      drunkInspected: '“Inspeccionó” a {name} → le dijo {result}',
+      protecting: 'Protege a {name}',
+      healAndPoison: 'Cura + envenena a {name}',
+      heal: 'Cura',
+      poison: 'Envenena a {name}',
+      nothing: 'No hace nada esta noche',
+      suspects: 'Sospecha de {name} · señuelo',
+      wolf: 'Lobo',
+      notWolf: 'No es lobo'
+    },
+    preview: {
+      title: 'Qué pasa al amanecer',
+      waitingOn: 'Esperando a {names}',
+      wolvesChose: 'Los lobos eligieron a {name}',
+      wolvesUndecided: 'Los lobos no han elegido',
+      protected: 'El Doctor protegió a {name}',
+      unprotected: 'Nadie protegido',
+      healing: 'La Bruja cura',
+      notHealing: 'La Bruja no cura',
+      poisoning: 'La Bruja envenena a {name}',
+      deaths: 'Nadie muere | {names} muere | {names} mueren'
+    }
+  },
+  dawn: {
+    died: '{name} no despertó',
+    wasThe: 'Era…',
+    nobody: '¡Anoche no murió nadie!',
+    nobodyHint: 'La aldea suelta un gran suspiro de alivio. El plan de alguien falló…'
+  },
   win: {
     village: '¡Gana la aldea!',
     wolves: '¡Ganan los lobos!',
@@ -158,6 +337,13 @@ const es: typeof en = {
     'timer-not-running': 'Esta fase no tiene un temporizador que ampliar.',
     'no-winner-yet': 'Todavía no ha ganado ningún equipo.',
     'match-over': 'El juego terminó.',
+    'not-night': 'Eso solo se puede hacer de noche.',
+    'player-dead': 'Los muertos no pueden actuar.',
+    'not-your-action': 'Esa no es tu acción nocturna.',
+    'target-invalid': 'No puedes elegir a ese jugador.',
+    'already-inspected': 'Ya espiaste esta noche.',
+    'protected-last-night': 'Anoche protegiste a ese jugador.',
+    'potion-used': 'Esa poción ya se usó.',
     unreachable: 'No logramos llegar a la aldea. Revisa tu conexión.'
   }
 }
