@@ -19,3 +19,11 @@ export interface HauntEffect {
 export interface GhostPowerView {
   readonly available: boolean
 }
+
+export interface HauntRecord {
+  readonly round: number
+  readonly ghostId: string
+  readonly haunt: HauntKind
+  readonly targetId: string | null
+  readonly word: string | null
+}

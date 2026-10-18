@@ -2,7 +2,7 @@ import type { ChatAccess } from '../chat/views'
 import type { RoleId, TeamId } from '../roles/catalog'
 import type { Award, TimelineEntry } from './endGame'
 import type { DawnReport, NarratorNightView, PlayerNightView, Vision } from './night'
-import type { GhostPowerView } from './ghosts'
+import type { GhostPowerView, HauntRecord } from './ghosts'
 import type { Phase } from './vocabulary'
 import type { CastVote, RevengeView, Verdict, VotingProgress } from './voting'
 
@@ -53,6 +53,7 @@ export interface NarratorMatchView extends MatchViewCommon {
   readonly pendingWinner: TeamId | null
   readonly night: NarratorNightView | null
   readonly votes: Readonly<Record<string, CastVote>> | null
+  readonly haunts: readonly HauntRecord[]
 }
 
 export type MatchView = PlayerMatchView | NarratorMatchView
