@@ -29,7 +29,8 @@ export const MATCH_ERROR_CODES = [
   'not-a-ghost',
   'haunt-used',
   'ghost-powers-off',
-  'whisper-invalid'
+  'whisper-invalid',
+  'cue-invalid'
 ] as const
 export type MatchErrorCode = (typeof MATCH_ERROR_CODES)[number]
 
