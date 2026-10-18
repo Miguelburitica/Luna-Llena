@@ -21,7 +21,11 @@ export const MATCH_ERROR_CODES = [
   'target-invalid',
   'already-inspected',
   'protected-last-night',
-  'potion-used'
+  'potion-used',
+  'not-vote',
+  'vote-locked',
+  'revenge-pending',
+  'no-revenge'
 ] as const
 export type MatchErrorCode = (typeof MATCH_ERROR_CODES)[number]
 

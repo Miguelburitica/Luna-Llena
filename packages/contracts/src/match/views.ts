@@ -1,6 +1,7 @@
 import type { RoleId, TeamId } from '../roles/catalog'
 import type { DawnReport, NarratorNightView, PlayerNightView, Vision } from './night'
 import type { Phase } from './vocabulary'
+import type { CastVote, RevengeView, Verdict, VotingProgress } from './voting'
 
 export interface MatchPlayerView {
   readonly id: string
@@ -21,6 +22,10 @@ interface MatchViewCommon {
   readonly players: readonly MatchPlayerView[]
   readonly outcome: MatchOutcome | null
   readonly dawn: DawnReport | null
+  readonly voting: VotingProgress | null
+  readonly verdict: Verdict | null
+  readonly revenge: RevengeView | null
+  readonly soloWinnerIds: readonly string[]
 }
 
 export interface PlayerMatchView extends MatchViewCommon {
@@ -31,6 +36,7 @@ export interface PlayerMatchView extends MatchViewCommon {
     readonly packIds: readonly string[]
     readonly night: PlayerNightView | null
     readonly visions: readonly Vision[]
+    readonly vote: CastVote | null
   }
 }
 
@@ -39,6 +45,7 @@ export interface NarratorMatchView extends MatchViewCommon {
   readonly roles: Readonly<Record<string, RoleId>>
   readonly pendingWinner: TeamId | null
   readonly night: NarratorNightView | null
+  readonly votes: Readonly<Record<string, CastVote>> | null
 }
 
 export type MatchView = PlayerMatchView | NarratorMatchView

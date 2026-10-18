@@ -15,6 +15,10 @@ export interface MatchClientEvents {
   'match:endGame': (input: NoInput, ack: MatchAck<void>) => void
   'match:keepPlaying': (input: NoInput, ack: MatchAck<void>) => void
   'match:act': (input: NightActionInput, ack: MatchAck<void>) => void
+  'match:vote': (input: { readonly targetId: string | null }, ack: MatchAck<void>) => void
+  'match:lockVote': (input: NoInput, ack: MatchAck<void>) => void
+  'match:avenge': (input: { readonly targetId: string }, ack: MatchAck<void>) => void
+  'match:skipRevenge': (input: NoInput, ack: MatchAck<void>) => void
 }
 
 export interface MatchServerEvents {
