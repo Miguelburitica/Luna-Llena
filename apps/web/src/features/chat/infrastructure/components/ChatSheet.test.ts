@@ -1,6 +1,8 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import type { ChatMessage, PlayerMatchView } from '@luna/contracts'
 import { flushPromises } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { accessOf, messageOf } from '../../application/ChatGateway.fixtures'
 import { playerViewOf, youOf } from '@/features/match/application/MatchGateway.fixtures'
 import PlayerTable from '@/features/match/infrastructure/components/PlayerTable.vue'
@@ -24,6 +26,110 @@ const openSheet = async (wrapper: Awaited<ReturnType<typeof mountChat>>['wrapper
 
 const tabNamed = (wrapper: Awaited<ReturnType<typeof mountChat>>['wrapper'], name: string) =>
   wrapper.findAll('.tab').find((tab) => tab.text().startsWith(name))
+
+type ChatWrapper = Awaited<ReturnType<typeof mountChat>>['wrapper']
+
+const pointerAt = (type: string, clientY: number): MouseEvent => {
+  const event = new MouseEvent(type, { clientY, bubbles: true })
+  Object.defineProperty(event, 'pointerId', { value: 1 })
+  return event
+}
+
+const dragHandle = async (wrapper: ChatWrapper, steps: ReadonlyArray<{ y: number; at: number }>) => {
+  const sheet = wrapper.find('.sheet').element as HTMLElement
+  vi.spyOn(sheet, 'getBoundingClientRect').mockReturnValue({ height: 600 } as DOMRect)
+  const handle = wrapper.find('.chat-sheet-handle').element
+  const clock = vi.spyOn(performance, 'now')
+  const [first, ...rest] = steps
+  if (first === undefined) return
+  clock.mockReturnValue(first.at)
+  handle.dispatchEvent(pointerAt('pointerdown', first.y))
+  for (const step of rest) {
+    clock.mockReturnValue(step.at)
+    handle.dispatchEvent(pointerAt('pointermove', step.y))
+  }
+  handle.dispatchEvent(pointerAt('pointerup', rest.at(-1)?.y ?? first.y))
+  await flushPromises()
+}
+
+const dayChat = () => tableOf({ phase: 'day', chat: accessOf({ read: ['village', 'wolves'], write: ['village'] }) })
+
+describe('chat sheet motion', () => {
+  HTMLElement.prototype.setPointerCapture = () => undefined
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('slides the sheet in and out through its transition', async () => {
+    const { wrapper } = await mountChat(dayChat())
+    await openSheet(wrapper)
+    expect(wrapper.find('transition-stub[name="chat-sheet"]').exists()).toBe(true)
+    expect(wrapper.find('.sheet').attributes('style')).toContain('--chat-sheet-drag: 0px')
+  })
+
+  it('closes when the grabber is dragged past a third of the sheet', async () => {
+    const { wrapper } = await mountChat(dayChat())
+    await openSheet(wrapper)
+    await dragHandle(wrapper, [
+      { y: 100, at: 0 },
+      { y: 200, at: 400 },
+      { y: 320, at: 800 }
+    ])
+    expect(wrapper.find('.sheet').exists()).toBe(false)
+    expect(wrapper.find('.chatbar').exists()).toBe(true)
+  })
+
+  it('closes on a quick downward flick of the tab row', async () => {
+    const { wrapper } = await mountChat(dayChat())
+    await openSheet(wrapper)
+    await dragHandle(wrapper, [
+      { y: 100, at: 0 },
+      { y: 110, at: 10 },
+      { y: 150, at: 40 }
+    ])
+    expect(wrapper.find('.sheet').exists()).toBe(false)
+  })
+
+  it('springs back after a short, slow drag and keeps the tab', async () => {
+    const { wrapper } = await mountChat(dayChat())
+    await openSheet(wrapper)
+    await tabNamed(wrapper, 'Wolves')?.trigger('click')
+    await dragHandle(wrapper, [
+      { y: 100, at: 0 },
+      { y: 120, at: 500 },
+      { y: 140, at: 1000 }
+    ])
+    const sheet = wrapper.find('.sheet')
+    expect(sheet.exists()).toBe(true)
+    expect(sheet.attributes('style')).toContain('--chat-sheet-drag: 0px')
+    expect(sheet.classes()).not.toContain('is-dragging')
+    expect(tabNamed(wrapper, 'Wolves')?.classes()).toContain('is-on')
+  })
+
+  it('does not treat the end of a drag as a tap on the grabber', async () => {
+    const { wrapper } = await mountChat(dayChat())
+    await openSheet(wrapper)
+    await dragHandle(wrapper, [
+      { y: 100, at: 0 },
+      { y: 140, at: 1000 }
+    ])
+    await wrapper.find('.grabber').trigger('click')
+    expect(wrapper.find('.sheet').exists()).toBe(true)
+    await wrapper.find('.grabber').trigger('click')
+    expect(wrapper.find('.sheet').exists()).toBe(false)
+  })
+
+  it('drops the slide when motion is reduced', () => {
+    const designSystem = readFileSync(
+      join(process.cwd(), 'src/shared/infrastructure/ui/styles/design-system.css'),
+      'utf8'
+    )
+    const compact = designSystem.replace(/\s+/g, '')
+    expect(compact).toContain('.reduced*,.reduced*::before,.reduced*::after{animation:none!important;transition:none!important}')
+    expect(compact).toContain('@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}')
+  })
+})
 
 describe('chat bar and sheet', () => {
   it('shows the night note on the bar and instead of a composer', async () => {
