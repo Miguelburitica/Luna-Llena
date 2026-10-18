@@ -1,4 +1,5 @@
-import type { AvatarId, HouseRuleId, RoleId, RoomStatus, StartCondition, ThemeId, TimerPhase } from './vocabulary'
+import type { RoleId } from '../roles/catalog'
+import type { AvatarId, HouseRuleId, RoomStatus, StartCondition, ThemeId, TimerPhase } from './vocabulary'
 
 export interface RoomSettingsView {
   readonly theme: ThemeId

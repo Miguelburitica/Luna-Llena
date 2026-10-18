@@ -1,20 +1,3 @@
-export const ROLE_IDS = ['werewolf', 'villager', 'seer', 'doctor', 'witch', 'hunter', 'fool', 'drunk'] as const
-export type RoleId = (typeof ROLE_IDS)[number]
-
-export const TEAM_IDS = ['wolves', 'village', 'solo'] as const
-export type TeamId = (typeof TEAM_IDS)[number]
-
-export const ROLE_TEAMS: Readonly<Record<RoleId, TeamId>> = {
-  werewolf: 'wolves',
-  villager: 'village',
-  seer: 'village',
-  doctor: 'village',
-  witch: 'village',
-  hunter: 'village',
-  fool: 'solo',
-  drunk: 'village'
-}
-
 export const AVATAR_IDS = ['ana', 'caro', 'juan', 'luis', 'marta', 'nico', 'pipe', 'sofi', 'tato', 'vale'] as const
 export type AvatarId = (typeof AVATAR_IDS)[number]
 
@@ -36,7 +19,7 @@ export type HouseRuleId = (typeof HOUSE_RULE_IDS)[number]
 export const ROOM_STATUSES = ['lobby', 'in-game'] as const
 export type RoomStatus = (typeof ROOM_STATUSES)[number]
 
-export const START_CONDITIONS = ['not-enough-players', 'deck-mismatch', 'players-not-ready'] as const
+export const START_CONDITIONS = ['not-enough-players', 'deck-mismatch', 'no-wolves', 'players-not-ready'] as const
 export type StartCondition = (typeof START_CONDITIONS)[number]
 
 export const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
