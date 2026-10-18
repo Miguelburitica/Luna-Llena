@@ -9,9 +9,15 @@ import RoleCard from '@/shared/infrastructure/ui/components/RoleCard.vue'
 import { PACK_RING, teamClassOf } from '@/shared/infrastructure/ui/teamClass'
 import { phaseLook, sceneBackgroundOf, seatPositions } from '../../domain/phases'
 import { aliveCountOf, seatsOf } from '../../domain/seating'
+import { revengeStanceOf } from '../../domain/voting'
 import DawnAnnouncement from './DawnAnnouncement.vue'
+import FoolWinsCard from './FoolWinsCard.vue'
+import HunterAimsBanner from './HunterAimsBanner.vue'
 import NightDock from './NightDock.vue'
 import PhaseTimer from './PhaseTimer.vue'
+import RevengeDock from './RevengeDock.vue'
+import VerdictReveal from './VerdictReveal.vue'
+import VoteDock from './VoteDock.vue'
 
 const DENSE_SEAT_COUNT = 10
 
@@ -26,10 +32,15 @@ const seats = computed(() =>
 )
 const positions = computed(() => seatPositions(seats.value.length))
 const dense = computed(() => seats.value.length >= DENSE_SEAT_COUNT)
+const stance = computed(() => revengeStanceOf(props.view, seats.value))
+const votingOpen = computed(
+  () => props.view.phase === 'vote' && props.view.voting !== null && seats.value.some((seat) => seat.isYou && seat.alive)
+)
 </script>
 
 <template>
   <main class="phone table" :class="look.phaseClass">
+    <HunterAimsBanner v-if="stance === 'watcher' || stance === 'settled'" :view="view" :seats="seats" />
     <div class="banner">
       <span class="ph-badge"><LunaIcon :name="look.icon" /></span>
       <div class="table-phase">
@@ -83,12 +94,23 @@ const dense = computed(() => seats.value.length >= DENSE_SEAT_COUNT)
       </div>
     </div>
 
+    <RevengeDock v-if="stance === 'shooter'" :view="view" :seats="seats" />
     <NightDock v-if="view.phase === 'night' && view.you.night" :view="view" :seats="seats" />
     <DawnAnnouncement v-else-if="view.phase === 'dawn' && view.dawn" :view="view" :seats="seats" />
+    <VoteDock v-else-if="votingOpen" :view="view" :seats="seats" />
+    <VerdictReveal v-else-if="view.phase === 'execution' && view.verdict" :view="view" :seats="seats" />
 
     <p class="t-small t-muted t-center table-alive">
       {{ t('match.table.alive', { alive: aliveCountOf(view), total: view.players.length }) }}
     </p>
+
+    <FoolWinsCard
+      v-if="view.verdict?.foolWins"
+      :key="view.verdict.round"
+      :code="view.code"
+      :verdict="view.verdict"
+      :seats="seats"
+    />
   </main>
 </template>
 

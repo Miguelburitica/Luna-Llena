@@ -4,7 +4,7 @@ import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import type { Target } from '../../domain/night'
 
-defineProps<{ targets: readonly Target[]; selectedId: string | null }>()
+defineProps<{ targets: readonly Target[]; selectedId: string | null; disabled?: boolean }>()
 const emit = defineEmits<{ pick: [id: string] }>()
 const { t } = useI18n()
 </script>
@@ -17,7 +17,7 @@ const { t } = useI18n()
       type="button"
       class="pick"
       :class="{ 'is-sel': target.seat.id === selectedId }"
-      :disabled="target.blocked !== null"
+      :disabled="disabled || target.blocked !== null"
       :aria-pressed="target.seat.id === selectedId"
       @click="emit('pick', target.seat.id)"
     >

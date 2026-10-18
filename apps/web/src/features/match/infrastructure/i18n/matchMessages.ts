@@ -27,6 +27,45 @@ const en = {
     you: 'You',
     alive: '{alive} of {total} alive'
   },
+  vote: {
+    title: 'Tap a suspect',
+    progress: '{voted} of {voters} voted',
+    lock: 'Lock vote',
+    lockOn: 'Lock vote on {name}',
+    locked: 'Locked on {name}',
+    clear: 'Clear my vote',
+    hint: 'Nobody sees your pick until the narrator reveals the votes.'
+  },
+  verdict: {
+    leaves: '{name} leaves the village',
+    spoken: 'The village has spoken. Loudly.',
+    was: '{name} was…',
+    roleHidden: 'Their role stays a secret.',
+    tie: 'It’s a tie!',
+    noExecution: 'No execution today',
+    tieHint: 'The village couldn’t agree, so the pitchforks go back in the shed.',
+    nobody: 'Nobody voted',
+    nobodyHint: 'Silence in the village. The pitchforks stay put.',
+    votes: '{n} vote | {n} votes',
+    anonymous: 'Votes are anonymous in this room.'
+  },
+  revenge: {
+    everyoneSees: 'Everyone sees: The Hunter takes aim…',
+    aims: 'The Hunter takes aim…',
+    took: 'The Hunter took {name} down',
+    held: 'The Hunter held their fire',
+    youWere: 'You were the Hunter.',
+    lastShot: 'You get one last shot.',
+    dockTitle: 'Take someone down with you',
+    choose: 'Choose your target',
+    take: 'Take {name} down'
+  },
+  fool: {
+    badge: 'Solo victory',
+    wanted: '{name} wanted to be voted out. You all fell for it.',
+    continues: 'The game continues — wolves and village still have a score to settle.',
+    back: 'Back to the village'
+  },
   dashboard: {
     game: 'Game',
     lobby: 'Lobby',
@@ -44,7 +83,29 @@ const en = {
     killLabel: 'Kill {name}',
     reviveLabel: 'Revive {name}',
     keepPlaying: 'Keep playing',
-    endGame: 'End game'
+    endGame: 'End game',
+    votes: {
+      title: 'Votes',
+      progress: '{voted} of {voters} voted · {locked} locked',
+      pending: 'Hasn’t voted',
+      for: '→ {name}',
+      lockedLabel: 'Locked'
+    },
+    verdict: {
+      title: 'Verdict',
+      executed: '{name} is executed',
+      tie: 'Tie: nobody is executed',
+      nobody: 'Nobody voted: nobody is executed',
+      tallyLine: '{name}: {votes}',
+      by: 'by {names}'
+    },
+    revenge: {
+      title: 'Hunter’s revenge',
+      pending: '{name} is taking aim. The game waits for the shot.',
+      took: '{name} took {target} down',
+      held: '{name} held their fire',
+      skip: 'Skip the shot'
+    }
   },
   night: {
     why: { self: 'you', dead: 'dead', wolf: 'wolf', 'last-night': 'last night' },
@@ -142,7 +203,8 @@ const en = {
   },
   over: {
     eyebrow: 'Game over',
-    roles: 'Everyone’s true role'
+    roles: 'Everyone’s true role',
+    soloAlso: 'The {role} also won'
   },
   lost: {
     seatLostTitle: 'Your seat is gone',
@@ -169,6 +231,10 @@ const en = {
     'already-inspected': 'You already peeked tonight.',
     'protected-last-night': 'You protected that player last night.',
     'potion-used': 'That potion is already used.',
+    'not-vote': 'Voting is not open.',
+    'vote-locked': 'Your vote is locked.',
+    'revenge-pending': 'The Hunter’s shot is still pending.',
+    'no-revenge': 'There is no shot for you to take.',
     unreachable: 'We can’t reach the village. Check your connection.'
   }
 }
@@ -202,6 +268,45 @@ const es: typeof en = {
     you: 'Tú',
     alive: '{alive} de {total} con vida'
   },
+  vote: {
+    title: 'Toca a un sospechoso',
+    progress: '{voted} de {voters} votaron',
+    lock: 'Fijar voto',
+    lockOn: 'Fijar voto por {name}',
+    locked: 'Voto fijado por {name}',
+    clear: 'Quitar mi voto',
+    hint: 'Nadie ve tu elección hasta que el narrador revele los votos.'
+  },
+  verdict: {
+    leaves: '{name} deja la aldea',
+    spoken: 'La aldea ha hablado. Y a gritos.',
+    was: '{name} era…',
+    roleHidden: 'Su rol sigue siendo un secreto.',
+    tie: '¡Empate!',
+    noExecution: 'Hoy no hay ejecución',
+    tieHint: 'La aldea no logró ponerse de acuerdo, así que las horcas vuelven al cobertizo.',
+    nobody: 'Nadie votó',
+    nobodyHint: 'Silencio en la aldea. Las horcas se quedan quietas.',
+    votes: '{n} voto | {n} votos',
+    anonymous: 'Los votos son anónimos en esta sala.'
+  },
+  revenge: {
+    everyoneSees: 'Todos ven: El Cazador apunta…',
+    aims: 'El Cazador apunta…',
+    took: 'El Cazador se llevó a {name}',
+    held: 'El Cazador bajó el arma',
+    youWere: 'Eras el Cazador.',
+    lastShot: 'Tienes un último disparo.',
+    dockTitle: 'Llévate a alguien contigo',
+    choose: 'Elige tu objetivo',
+    take: 'Llevarse a {name}'
+  },
+  fool: {
+    badge: 'Victoria en solitario',
+    wanted: '{name} quería que lo votaran. Todos cayeron.',
+    continues: 'El juego continúa: lobos y aldea aún tienen cuentas pendientes.',
+    back: 'Volver a la aldea'
+  },
   dashboard: {
     game: 'Juego',
     lobby: 'Sala',
@@ -219,7 +324,29 @@ const es: typeof en = {
     killLabel: 'Matar a {name}',
     reviveLabel: 'Revivir a {name}',
     keepPlaying: 'Seguir jugando',
-    endGame: 'Terminar juego'
+    endGame: 'Terminar juego',
+    votes: {
+      title: 'Votos',
+      progress: '{voted} de {voters} votaron · {locked} fijados',
+      pending: 'Aún no vota',
+      for: '→ {name}',
+      lockedLabel: 'Fijado'
+    },
+    verdict: {
+      title: 'Veredicto',
+      executed: '{name} es ejecutado',
+      tie: 'Empate: nadie es ejecutado',
+      nobody: 'Nadie votó: nadie es ejecutado',
+      tallyLine: '{name}: {votes}',
+      by: 'por {names}'
+    },
+    revenge: {
+      title: 'Venganza del Cazador',
+      pending: '{name} está apuntando. El juego espera el disparo.',
+      took: '{name} se llevó a {target}',
+      held: '{name} bajó el arma',
+      skip: 'Saltar el disparo'
+    }
   },
   night: {
     why: { self: 'tú', dead: 'muerto', wolf: 'lobo', 'last-night': 'anoche' },
@@ -317,7 +444,8 @@ const es: typeof en = {
   },
   over: {
     eyebrow: 'Fin del juego',
-    roles: 'El verdadero rol de cada quien'
+    roles: 'El verdadero rol de cada quien',
+    soloAlso: 'El {role} también ganó'
   },
   lost: {
     seatLostTitle: 'Tu puesto ya no está',
@@ -344,6 +472,10 @@ const es: typeof en = {
     'already-inspected': 'Ya espiaste esta noche.',
     'protected-last-night': 'Anoche protegiste a ese jugador.',
     'potion-used': 'Esa poción ya se usó.',
+    'not-vote': 'La votación no está abierta.',
+    'vote-locked': 'Tu voto ya está fijado.',
+    'revenge-pending': 'El disparo del Cazador sigue pendiente.',
+    'no-revenge': 'No hay ningún disparo para ti.',
     unreachable: 'No logramos llegar a la aldea. Revisa tu conexión.'
   }
 }

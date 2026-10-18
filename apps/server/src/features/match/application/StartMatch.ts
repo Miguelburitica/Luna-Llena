@@ -17,6 +17,7 @@ export class StartMatch {
       seats: dealRoles(opening.deck, opening.playerIds, this.random),
       timers: opening.timers,
       revealRoleOnDeath: opening.revealRoleOnDeath,
+      anonymousVotes: opening.anonymousVotes,
       now: this.access.clock.now()
     })
     await saveAndPublish(this.access, match)

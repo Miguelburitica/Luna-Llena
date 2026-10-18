@@ -174,4 +174,95 @@ describe('NarratorDashboard', () => {
       expect(wrapper.find('.dashboard-dawn').exists()).toBe(false)
     })
   })
+
+  describe('during the vote', () => {
+    const voting = { voted: 2, locked: 1, voters: 8 }
+    const votes = {
+      'id-Ana': { targetId: 'id-Tato', locked: true },
+      'id-Luis': { targetId: 'id-Marta', locked: false }
+    }
+
+    it('shows every living voter’s target and lock live', async () => {
+      const { wrapper } = await mountDashboard({ phase: 'vote', voting, votes })
+      const panel = wrapper.find('.dashboard-votes')
+      expect(panel.find('.panel-h .sbadge').text()).toBe('2 of 8 voted · 1 locked')
+      const lines = panel.findAll('.dashboard-vote')
+      expect(lines).toHaveLength(8)
+      expect(lines[0]?.text()).toContain('Ana')
+      expect(lines[0]?.text()).toContain('→ Tato')
+      expect(lines[0]?.text()).toContain('Locked')
+      expect(lines[3]?.text()).toContain('→ Marta')
+      expect(lines[3]?.text()).not.toContain('Locked')
+      expect(lines[1]?.text()).toContain('Hasn’t voted')
+    })
+
+    it('has no votes panel outside the vote', async () => {
+      const { wrapper } = await mountDashboard({ phase: 'day' })
+      expect(wrapper.find('.dashboard-votes').exists()).toBe(false)
+    })
+  })
+
+  describe('after the vote', () => {
+    const verdict = {
+      round: 2,
+      tally: [
+        { targetId: 'id-Luis', votes: 2, voterIds: ['id-Ana', 'id-Juan'] },
+        { targetId: 'id-Tato', votes: 1, voterIds: ['id-Marta'] }
+      ],
+      executedId: 'id-Luis',
+      tie: false,
+      foolWins: false
+    }
+
+    it('summarises the tally and who is executed', async () => {
+      const { wrapper } = await mountDashboard({ phase: 'execution', verdict })
+      const panel = wrapper.find('.dashboard-verdict')
+      expect(panel.text()).toContain('Luis: 2 votes')
+      expect(panel.text()).toContain('by Ana, Juan')
+      expect(panel.text()).toContain('Tato: 1 vote')
+      expect(panel.text()).toContain('Luis is executed')
+    })
+
+    it('summarises a tie, nobody voting and the Fool’s win', async () => {
+      const tie = await mountDashboard({ phase: 'execution', verdict: { ...verdict, executedId: null, tie: true } })
+      expect(tie.wrapper.find('.dashboard-verdict').text()).toContain('Tie: nobody is executed')
+      const nobody = await mountDashboard({ phase: 'execution', verdict: { ...verdict, tally: [], executedId: null } })
+      expect(nobody.wrapper.find('.dashboard-verdict').text()).toContain('Nobody voted: nobody is executed')
+      const fool = await mountDashboard({ phase: 'execution', verdict: { ...verdict, foolWins: true } })
+      expect(fool.wrapper.find('.dashboard-verdict .team-solo').text()).toBe('The Fool wins!')
+    })
+  })
+
+  describe('with a Hunter’s shot', () => {
+    const pending = { hunterId: 'id-Sofi', targetId: null, pending: true }
+
+    it('names the Hunter, skips the shot and blocks Next while it is pending', async () => {
+      const { wrapper, matches } = await mountDashboard({ phase: 'dawn', revenge: pending })
+      const panel = wrapper.find('.dashboard-revenge')
+      expect(panel.text()).toContain('Sofi is taking aim')
+      const next = wrapper.findAll('button').find((button) => button.text().includes('Next:'))
+      expect(next?.attributes('disabled')).toBeDefined()
+      await panel.findAll('button').find((button) => button.text() === 'Skip the shot')?.trigger('click')
+      expect(matches.commands()).toEqual(['skipRevenge'])
+    })
+
+    it('lets the narrator advance once the shot is resolved and shows the result', async () => {
+      const { wrapper } = await mountDashboard({ phase: 'dawn', revenge: { ...pending, targetId: 'id-Tato', pending: false } })
+      const panel = wrapper.find('.dashboard-revenge')
+      expect(panel.text()).toContain('Sofi took Tato down')
+      expect(panel.find('button').exists()).toBe(false)
+      const next = wrapper.findAll('button').find((button) => button.text().includes('Next:'))
+      expect(next?.attributes('disabled')).toBeUndefined()
+    })
+
+    it('says the Hunter held their fire after a skip', async () => {
+      const { wrapper } = await mountDashboard({ phase: 'dawn', revenge: { ...pending, pending: false } })
+      expect(wrapper.find('.dashboard-revenge').text()).toContain('Sofi held their fire')
+    })
+
+    it('has no revenge panel without a shot', async () => {
+      const { wrapper } = await mountDashboard()
+      expect(wrapper.find('.dashboard-revenge').exists()).toBe(false)
+    })
+  })
 })

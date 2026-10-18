@@ -59,6 +59,7 @@ export const openingOf = (overrides: Partial<MatchOpening> = {}): MatchOpening =
   deck: SEVEN_CARD_DECK,
   timers: DEFAULT_ROOM_SETTINGS.timers,
   revealRoleOnDeath: true,
+  anonymousVotes: false,
   ...overrides
 })
 

@@ -2,13 +2,17 @@ import type { Clock } from '../../../shared/application/Clock'
 import type { RandomSource } from '../../../shared/application/RandomSource'
 import { ActAtNight } from './ActAtNight'
 import { AdvancePhase } from './AdvancePhase'
+import { CastVote } from './CastVote'
 import { EndGame } from './EndGame'
 import { ExtendTimer } from './ExtendTimer'
 import { KeepPlaying } from './KeepPlaying'
 import type { MatchPublisher, MatchRepository } from './ports'
+import { LockVote } from './LockVote'
 import { SetAlive } from './SetAlive'
+import { SkipRevenge } from './SkipRevenge'
 import { StartMatch } from './StartMatch'
 import { SyncMatch } from './SyncMatch'
+import { TakeRevenge } from './TakeRevenge'
 
 export interface MatchDependencies {
   readonly matches: MatchRepository
@@ -27,7 +31,11 @@ export const createMatchUseCases = ({ matches, publisher, clock, random }: Match
     setAlive: new SetAlive(access),
     endGame: new EndGame(access),
     keepPlaying: new KeepPlaying(access),
-    actAtNight: new ActAtNight(access, random)
+    actAtNight: new ActAtNight(access, random),
+    castVote: new CastVote(access),
+    lockVote: new LockVote(access),
+    takeRevenge: new TakeRevenge(access),
+    skipRevenge: new SkipRevenge(access)
   }
 }
 

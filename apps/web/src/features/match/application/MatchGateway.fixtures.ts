@@ -19,7 +19,11 @@ const baseView = {
   serverNow: 1_000_000,
   players: [],
   outcome: null,
-  dawn: null
+  dawn: null,
+  voting: null,
+  verdict: null,
+  revenge: null,
+  soloWinnerIds: []
 } as const
 
 export const youOf = (overrides: Partial<PlayerMatchView['you']> = {}): PlayerMatchView['you'] => ({
@@ -28,6 +32,7 @@ export const youOf = (overrides: Partial<PlayerMatchView['you']> = {}): PlayerMa
   packIds: [],
   night: null,
   visions: [],
+  vote: null,
   ...overrides
 })
 
@@ -44,6 +49,7 @@ export const narratorViewOf = (overrides: Partial<NarratorMatchView> = {}): Narr
   roles: {},
   pendingWinner: null,
   night: null,
+  votes: null,
   ...overrides
 })
 
@@ -90,6 +96,22 @@ export class FakeMatchGateway implements MatchGateway {
 
   act(input: NightActionInput) {
     return this.respond<undefined>('act', input, ok(undefined))
+  }
+
+  vote(targetId: string | null) {
+    return this.respond<undefined>('vote', { targetId }, ok(undefined))
+  }
+
+  lockVote() {
+    return this.respond<undefined>('lockVote', undefined, ok(undefined))
+  }
+
+  avenge(targetId: string) {
+    return this.respond<undefined>('avenge', { targetId }, ok(undefined))
+  }
+
+  skipRevenge() {
+    return this.respond<undefined>('skipRevenge', undefined, ok(undefined))
   }
 
   onView(listener: Listener) {

@@ -13,6 +13,12 @@ const props = defineProps<{ view: MatchView; outcome: MatchOutcome }>()
 const { t } = useI18n()
 const room = useRoomStore()
 
+const soloWinners = computed(() =>
+  seatsOf(props.view, room.snapshot?.members ?? [], room.session?.memberId)
+    .filter((seat) => props.view.soloWinnerIds.includes(seat.id))
+    .map((seat) => ({ ...seat, role: trueRoleOf(props.view, seat.id) }))
+)
+
 const rows = computed(() =>
   seatsOf(props.view, room.snapshot?.members ?? [], room.session?.memberId).map((seat) => ({
     ...seat,
@@ -29,6 +35,15 @@ const rows = computed(() =>
         <LunaIcon name="trophy" size="xl" class="over-trophy" />
         <h1 class="h1">{{ t(`match.win.${outcome.winner}`) }}</h1>
       </div>
+      <ul v-if="soloWinners.length" class="over-solo">
+        <li v-for="winner in soloWinners" :key="winner.id" class="over-solo-winner team-solo">
+          <LunaAvatar :avatar="winner.avatar" :name="winner.name" size="md" :you="winner.isYou" />
+          <b>{{ winner.name }}</b>
+          <span v-if="winner.role" class="tbadge">
+            <LunaIcon name="sparkles" size="sm" />{{ t('match.over.soloAlso', { role: t(`roles.${winner.role}`) }) }}
+          </span>
+        </li>
+      </ul>
     </header>
 
     <section class="over-roles">
@@ -66,6 +81,33 @@ const rows = computed(() =>
 
 .over-trophy {
   color: #fff;
+}
+
+.over-solo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.over-solo-winner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px var(--team);
+}
+
+.over-solo-winner .av {
+  margin: 0;
+}
+
+.over-solo-winner .tbadge {
+  margin-left: auto;
 }
 
 .over-roles {

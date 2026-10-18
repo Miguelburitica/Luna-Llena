@@ -30,6 +30,7 @@ export interface GameOpening {
   readonly deck: Readonly<Record<RoleId, number>>
   readonly timers: Readonly<Record<TimerPhase, number>>
   readonly revealRoleOnDeath: boolean
+  readonly anonymousVotes: boolean
 }
 
 export interface GameStarter {

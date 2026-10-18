@@ -63,6 +63,8 @@ afterEach(async () => {
   await kit.stop()
 })
 
+const HUNTER_DECK = { werewolf: 2, seer: 0, villager: 3, doctor: 0, witch: 0, hunter: 1, fool: 0, drunk: 0 }
+
 const NIGHT_DECK = { werewolf: 2, seer: 1, villager: 2, doctor: 1, witch: 1, hunter: 0, fool: 0, drunk: 0 }
 
 describe('match socket handlers', () => {
@@ -197,4 +199,90 @@ describe('match socket handlers', () => {
     expect(afterDawn.you.night).toBeNull()
     expect(afterDawn.you.visions).toEqual([{ round: 1, targetId: idOf(luis), isWolf: true }])
   })
+
+  it('plays a vote, an execution and the Hunter revenge, telling each member only what they may know', async () => {
+    const { narrator, players, holdersOf } = await seatedGame(HUNTER_DECK)
+    const [hunter] = holdersOf('hunter') as [Seated]
+    const [luis] = holdersOf('werewolf') as [Seated]
+    const idOf = (player: Seated) => player.session.memberId
+    const everyone = [narrator, ...players]
+    for (let step = 0; step < 3; step += 1) unwrap(await narrator.client.emitWithAck('match:advance', {}))
+    await nextView(hunter.views, (view) => view.phase === 'vote')
+
+    expect(await luis.client.emitWithAck('match:vote', { targetId: idOf(luis) })).toEqual({
+      ok: false,
+      error: { code: 'target-invalid' }
+    })
+    const voters = players.filter((player) => player !== hunter)
+    for (const voter of voters) unwrap(await voter.client.emitWithAck('match:vote', { targetId: idOf(hunter) }))
+    unwrap(await luis.client.emitWithAck('match:lockVote', {}))
+    expect(await luis.client.emitWithAck('match:vote', { targetId: null })).toEqual({
+      ok: false,
+      error: { code: 'vote-locked' }
+    })
+
+    const progress = await nextView(hunter.views, (view) => view.voting?.locked === 1 && view.voting.voted === voters.length)
+    expect(progress.voting).toEqual({ voters: 6, voted: 5, locked: 1 })
+    for (const player of players) {
+      const open = await nextView(player.views, (view) => view.voting?.locked === 1 && view.voting.voted === voters.length)
+      expect(open).not.toHaveProperty('votes')
+      expect((open as PlayerMatchView).you.vote).toEqual(
+        player === hunter
+          ? { targetId: null, locked: false }
+          : { targetId: idOf(hunter), locked: player === luis }
+      )
+    }
+    const watched = (await nextView(narrator.views, (view) => view.voting?.locked === 1 && view.voting.voted === voters.length)) as NarratorMatchView
+    expect(watched.votes?.[idOf(luis)]).toEqual({ targetId: idOf(hunter), locked: true })
+
+    unwrap(await narrator.client.emitWithAck('match:advance', {}))
+    for (const member of everyone) {
+      const executed = await nextView(member.views, (view) => view.phase === 'execution' && view.revenge !== null)
+      expect(executed.verdict).toMatchObject({ executedId: idOf(hunter), tie: false, foolWins: false })
+      expect(executed.verdict?.tally).toEqual([
+        { targetId: idOf(hunter), votes: voters.length, voterIds: expect.arrayContaining(voters.map(idOf)) }
+      ])
+      expect(executed.revenge).toEqual({ hunterId: idOf(hunter), targetId: null, pending: true })
+      expect(executed.voting).toBeNull()
+      expect(executed.players.find((seat) => seat.id === idOf(hunter))).toEqual({
+        id: idOf(hunter),
+        alive: false,
+        revealedRole: 'hunter'
+      })
+    }
+    expect(await narrator.client.emitWithAck('match:advance', {})).toEqual({
+      ok: false,
+      error: { code: 'revenge-pending' }
+    })
+    expect(await luis.client.emitWithAck('match:avenge', { targetId: idOf(luis) })).toEqual({
+      ok: false,
+      error: { code: 'no-revenge' }
+    })
+    expect(await hunter.client.emitWithAck('match:avenge', { targetId: idOf(hunter) })).toEqual({
+      ok: false,
+      error: { code: 'target-invalid' }
+    })
+
+    unwrap(await hunter.client.emitWithAck('match:avenge', { targetId: idOf(luis) }))
+    for (const member of everyone) {
+      const avenged = await nextView(member.views, (view) => view.revenge?.pending === false)
+      expect(avenged.revenge).toEqual({ hunterId: idOf(hunter), targetId: idOf(luis), pending: false })
+      expect(avenged.players.find((seat) => seat.id === idOf(luis))).toMatchObject({ alive: false, revealedRole: 'werewolf' })
+    }
+    unwrap(await narrator.client.emitWithAck('match:advance', {}))
+    const night = await nextView(narrator.views, (view) => view.phase === 'night' && view.round === 2)
+    expect(night).toMatchObject({ verdict: null, revenge: null })
+  })
+
+  it('lets the narrator skip a pending shot', async () => {
+    const { narrator, holdersOf } = await seatedGame(HUNTER_DECK)
+    const [hunter] = holdersOf('hunter') as [Seated]
+    unwrap(await narrator.client.emitWithAck('match:setAlive', { memberId: hunter.session.memberId, alive: false }))
+    await nextView(narrator.views, (view) => view.revenge?.pending === true)
+    unwrap(await narrator.client.emitWithAck('match:skipRevenge', {}))
+    await nextView(narrator.views, (view) => view.revenge?.pending === false)
+    unwrap(await narrator.client.emitWithAck('match:advance', {}))
+    expect(await narrator.client.emitWithAck('match:skipRevenge', {})).toEqual({ ok: false, error: { code: 'no-revenge' } })
+  })
 })
+

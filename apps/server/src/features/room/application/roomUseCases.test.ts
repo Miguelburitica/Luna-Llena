@@ -201,7 +201,8 @@ describe('Narrator commands', () => {
         playerIds: players.map((player) => player.actor.memberId),
         deck: { werewolf: 1, villager: 5, seer: 0, doctor: 0, witch: 0, hunter: 0, fool: 0, drunk: 0 },
         timers: { night: 60, day: 180, vote: 60 },
-        revealRoleOnDeath: true
+        revealRoleOnDeath: true,
+        anonymousVotes: false
       }
     ])
   })

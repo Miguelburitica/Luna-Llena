@@ -20,6 +20,7 @@ export interface MatchSetup {
   readonly roles?: readonly RoleId[]
   readonly timers?: Partial<Record<TimerPhase, number>>
   readonly revealRoleOnDeath?: boolean
+  readonly anonymousVotes?: boolean
   readonly now?: number
 }
 
@@ -27,6 +28,7 @@ export const beginMatch = ({
   roles = SEVEN_ROLES,
   timers = {},
   revealRoleOnDeath = true,
+  anonymousVotes = false,
   now = START_TIME
 }: MatchSetup = {}): Match =>
   Match.begin({
@@ -35,6 +37,7 @@ export const beginMatch = ({
     seats: seatsOf(roles),
     timers: { ...DEFAULT_ROOM_SETTINGS.timers, ...timers },
     revealRoleOnDeath,
+    anonymousVotes,
     now
   })
 

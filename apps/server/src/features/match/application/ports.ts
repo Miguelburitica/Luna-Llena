@@ -27,4 +27,5 @@ export interface MatchOpening {
   readonly deck: Readonly<Record<RoleId, number>>
   readonly timers: Readonly<Record<TimerPhase, number>>
   readonly revealRoleOnDeath: boolean
+  readonly anonymousVotes: boolean
 }

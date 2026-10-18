@@ -9,7 +9,8 @@ const openingOf = (room: Room): GameOpening => ({
   playerIds: room.players.map((player) => player.id),
   deck: room.settings.deck,
   timers: room.settings.timers,
-  revealRoleOnDeath: room.settings.houseRules.revealRoleOnDeath
+  revealRoleOnDeath: room.settings.houseRules.revealRoleOnDeath,
+  anonymousVotes: room.settings.houseRules.anonymousVotes
 })
 
 export class StartGame {

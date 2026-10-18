@@ -33,7 +33,7 @@ describe('targetsFor', () => {
   it('blocks the dead, yourself and your pack when hunting', () => {
     const view = playerViewOf({
       players,
-      you: { role: 'werewolf', team: 'wolves', packIds: ['id-Luis'], night: { action: 'hunt', targetId: null, packPicks: {}, packVictimId: null }, visions: [] }
+      you: { role: 'werewolf', team: 'wolves', packIds: ['id-Luis'], night: { action: 'hunt', targetId: null, packPicks: {}, packVictimId: null }, visions: [], vote: null }
     })
     expect(reasons(view, ['id-Luis'])).toEqual({ Ana: 'self', Juan: 'dead', Luis: 'wolf', Tato: null })
   })
@@ -43,7 +43,7 @@ describe('targetsFor', () => {
     const suspect = { action: 'suspect', targetId: null } as const
     const potions = { action: 'potions', acted: false, victimId: null, heal: false, poisonTargetId: null, healAvailable: true, poisonAvailable: true } as const
     for (const night of [inspect, suspect, potions]) {
-      const view = playerViewOf({ players, you: { role: 'seer', team: 'village', packIds: [], night, visions: [] } })
+      const view = playerViewOf({ players, you: { role: 'seer', team: 'village', packIds: [], night, visions: [], vote: null } })
       expect(reasons(view)).toEqual({ Ana: 'self', Juan: 'dead', Luis: null, Tato: null })
     }
   })
@@ -51,7 +51,7 @@ describe('targetsFor', () => {
   it('lets the Doctor protect themselves but not last night’s patient', () => {
     const view = playerViewOf({
       players,
-      you: { role: 'doctor', team: 'village', packIds: [], night: { action: 'protect', targetId: null, blockedTargetId: 'id-Luis' }, visions: [] }
+      you: { role: 'doctor', team: 'village', packIds: [], night: { action: 'protect', targetId: null, blockedTargetId: 'id-Luis' }, visions: [], vote: null }
     })
     expect(reasons(view)).toEqual({ Ana: null, Juan: 'dead', Luis: 'last-night', Tato: null })
   })
@@ -59,7 +59,7 @@ describe('targetsFor', () => {
   it('offers only the seats a player can pick or see explained', () => {
     const view = playerViewOf({
       players,
-      you: { role: 'doctor', team: 'village', packIds: [], night: { action: 'protect', targetId: null, blockedTargetId: 'id-Luis' }, visions: [] }
+      you: { role: 'doctor', team: 'village', packIds: [], night: { action: 'protect', targetId: null, blockedTargetId: 'id-Luis' }, visions: [], vote: null }
     })
     expect(offeredTargetsFor(view, seatsFor()).map((target) => target.seat.name)).toEqual(['Ana', 'Luis', 'Tato'])
   })

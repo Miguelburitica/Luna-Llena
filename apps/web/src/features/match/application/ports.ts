@@ -13,6 +13,10 @@ export interface MatchGateway {
   endGame(): MatchResult<void>
   keepPlaying(): MatchResult<void>
   act(input: NightActionInput): MatchResult<void>
+  vote(targetId: string | null): MatchResult<void>
+  lockVote(): MatchResult<void>
+  avenge(targetId: string): MatchResult<void>
+  skipRevenge(): MatchResult<void>
   onView(listener: (view: MatchView) => void): void
 }
 

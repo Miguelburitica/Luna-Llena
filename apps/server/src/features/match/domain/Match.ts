@@ -3,22 +3,29 @@ import {
   ROLE_CATALOG,
   err,
   matchError,
+  ok,
   PHASE_TIMERS,
   PHASES,
   TIMER_EXTENSION_SECONDS,
+  type CastVote,
   type DawnReport,
   type MatchError,
   type MatchOutcome,
   type NightAction,
   type Phase,
   type Result,
+  type RevengeView,
   type TeamId,
   type TimerPhase,
-  type Vision
+  type Verdict,
+  type Vision,
+  type VotingProgress
 } from '@luna/contracts'
+import { Ballot } from './Ballot'
 import { Night } from './Night'
 import { livingPackVictimOf, NO_SPENT_POTIONS, resolveDawn, type DawnResolution, type SpentPotions } from './resolveDawn'
 import type { Seat } from './Seat'
+import { verdictOf } from './verdictOf'
 import { winnerOf } from './winnerOf'
 
 interface RandomNumbers {
@@ -31,6 +38,7 @@ export interface MatchOpening {
   readonly seats: readonly Seat[]
   readonly timers: Readonly<Record<TimerPhase, number>>
   readonly revealRoleOnDeath: boolean
+  readonly anonymousVotes: boolean
   readonly now: number
 }
 
@@ -45,6 +53,10 @@ export class Match {
   private readonly visionsBySeer = new Map<string, Vision[]>()
   private readonly blockedPatients = new Map<string, string>()
   private readonly spentPotions = new Map<string, SpentPotions>()
+  private currentBallot = new Ballot()
+  private currentVerdict: Verdict | null = null
+  private currentRevenge: RevengeView | null = null
+  private readonly currentSoloWinnerIds: string[] = []
 
   private constructor(
     readonly code: string,
@@ -52,13 +64,14 @@ export class Match {
     readonly seats: readonly Seat[],
     private readonly timers: Readonly<Record<TimerPhase, number>>,
     readonly revealRoleOnDeath: boolean,
+    private readonly anonymousVotes: boolean,
     now: number
   ) {
     this.currentPhaseEndsAt = this.deadlineFor(this.currentPhase, now)
   }
 
-  static begin({ code, narratorId, seats, timers, revealRoleOnDeath, now }: MatchOpening): Match {
-    return new Match(code, narratorId, seats, timers, revealRoleOnDeath, now)
+  static begin({ code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, now }: MatchOpening): Match {
+    return new Match(code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, now)
   }
 
   get phase(): Phase {
@@ -89,6 +102,32 @@ export class Match {
     return this.currentDawn
   }
 
+  get verdict(): Verdict | null {
+    return this.currentVerdict
+  }
+
+  get revenge(): RevengeView | null {
+    return this.currentRevenge
+  }
+
+  get soloWinnerIds(): readonly string[] {
+    return this.currentSoloWinnerIds
+  }
+
+  voteOf(memberId: string): CastVote {
+    return this.currentBallot.voteOf(memberId)
+  }
+
+  votingProgress(): VotingProgress | null {
+    if (this.currentPhase !== 'vote') return null
+    const votes = this.seats.filter((seat) => seat.alive).map((seat) => this.voteOf(seat.memberId))
+    return {
+      voters: votes.length,
+      voted: votes.filter((vote) => vote.targetId !== null).length,
+      locked: votes.filter((vote) => vote.locked).length
+    }
+  }
+
   visionsOf(memberId: string): readonly Vision[] {
     return this.visionsBySeer.get(memberId) ?? []
   }
@@ -116,11 +155,15 @@ export class Match {
   advance(actorId: string, now: number): Result<void, MatchError> {
     const authority = this.requireRunningNarrator(actorId)
     if (!authority.ok) return authority
+    if (this.revengePending) return err(matchError('revenge-pending'))
+    this.currentRevenge = null
     const index = PHASES.indexOf(this.currentPhase)
     if (this.currentPhase === 'night') this.resolveNight()
+    if (this.currentPhase === 'vote') this.executeVerdict()
     if (index === PHASES.length - 1) this.currentRound += 1
     this.currentPhase = PHASES[(index + 1) % PHASES.length] ?? PHASES[0]
     if (this.currentPhase === 'night') this.beginNight()
+    if (this.currentPhase === 'vote') this.currentBallot = new Ballot()
     this.currentPhaseEndsAt = this.deadlineFor(this.currentPhase, now)
     return done
   }
@@ -153,6 +196,42 @@ export class Match {
     }
   }
 
+  vote(actorId: string, targetId: unknown): Result<void, MatchError> {
+    const voter = this.requireVoter(actorId)
+    if (!voter.ok) return voter
+    const target = targetId === null ? null : this.livingSeat(targetId)
+    if (target === undefined || target === voter.value) return err(matchError('target-invalid'))
+    this.currentBallot.cast(actorId, target?.memberId ?? null)
+    return done
+  }
+
+  lockVote(actorId: string): Result<void, MatchError> {
+    const voter = this.requireVoter(actorId)
+    if (!voter.ok) return voter
+    if (this.voteOf(actorId).targetId === null) return err(matchError('target-invalid'))
+    this.currentBallot.lock(actorId)
+    return done
+  }
+
+  avenge(actorId: string, targetId: unknown): Result<void, MatchError> {
+    if (this.currentOutcome !== null) return err(matchError('match-over'))
+    const shot = this.currentRevenge
+    if (shot === null || !shot.pending || shot.hunterId !== actorId) return err(matchError('no-revenge'))
+    const target = this.livingSeat(targetId)
+    if (target === undefined || target.memberId === actorId) return err(matchError('target-invalid'))
+    this.currentRevenge = { ...shot, targetId: target.memberId, pending: false }
+    this.bury([target.memberId])
+    return done
+  }
+
+  skipRevenge(actorId: string): Result<void, MatchError> {
+    const authority = this.requireRunningNarrator(actorId)
+    if (!authority.ok) return authority
+    if (this.currentRevenge === null || !this.currentRevenge.pending) return err(matchError('no-revenge'))
+    this.currentRevenge = { ...this.currentRevenge, pending: false }
+    return done
+  }
+
   extendTimer(actorId: string): Result<void, MatchError> {
     const authority = this.requireRunningNarrator(actorId)
     if (!authority.ok) return authority
@@ -166,8 +245,12 @@ export class Match {
     if (!authority.ok) return authority
     const seat = this.seats.find((candidate) => candidate.memberId === memberId)
     if (seat === undefined) return err(matchError('member-not-found'))
-    seat.alive = alive === true
-    this.currentPendingWinner = winnerOf(this.seats)
+    if (alive === true) {
+      seat.alive = true
+      this.refreshPendingWinner()
+    } else {
+      this.bury([seat.memberId])
+    }
     return done
   }
 
@@ -187,11 +270,52 @@ export class Match {
   }
 
   private targetFor(actor: Seat, action: NightAction, targetId: unknown): Seat | undefined {
-    const target = this.seats.find((candidate) => candidate.memberId === targetId)
-    if (target === undefined || !target.alive) return undefined
+    const target = this.livingSeat(targetId)
+    if (target === undefined) return undefined
     if (target === actor && action !== 'protect') return undefined
     if (action === 'hunt' && ROLE_CATALOG[target.role].team === 'wolves') return undefined
     return target
+  }
+
+  private livingSeat(memberId: unknown): Seat | undefined {
+    return this.seats.find((candidate) => candidate.memberId === memberId && candidate.alive)
+  }
+
+  private get revengePending(): boolean {
+    return this.currentRevenge?.pending === true
+  }
+
+  private bury(memberIds: readonly string[]): void {
+    const fallen = this.seats.filter((seat) => seat.alive && memberIds.includes(seat.memberId))
+    for (const seat of fallen) seat.alive = false
+    const hunter = fallen.find((seat) => seat.role === 'hunter')
+    if (hunter !== undefined && !this.revengePending) {
+      this.currentRevenge = { hunterId: hunter.memberId, targetId: null, pending: true }
+    }
+    this.refreshPendingWinner()
+  }
+
+  private refreshPendingWinner(): void {
+    this.currentPendingWinner = winnerOf(this.seats)
+  }
+
+  private executeVerdict(): void {
+    const verdict = verdictOf(this.currentBallot, this.seats, this.anonymousVotes, this.currentRound)
+    const executed = this.seats.find((seat) => seat.memberId === verdict.executedId)
+    const foolWins = executed?.role === 'fool'
+    this.currentVerdict = { ...verdict, foolWins }
+    if (executed === undefined) return
+    if (foolWins) this.currentSoloWinnerIds.push(executed.memberId)
+    this.bury([executed.memberId])
+  }
+
+  private requireVoter(actorId: string): Result<Seat, MatchError> {
+    if (this.currentOutcome !== null) return err(matchError('match-over'))
+    if (this.currentPhase !== 'vote') return err(matchError('not-vote'))
+    const seat = this.seats.find((candidate) => candidate.memberId === actorId)
+    if (seat === undefined) return err(matchError('not-your-action'))
+    if (!seat.alive) return err(matchError('player-dead'))
+    return this.voteOf(actorId).locked ? err(matchError('vote-locked')) : ok(seat)
   }
 
   private inspect(seer: Seat, target: Seat, random: RandomNumbers): Result<void, MatchError> {
@@ -215,7 +339,6 @@ export class Match {
 
   private resolveNight(): void {
     const resolution = this.previewDawn()
-    for (const seat of this.seats) if (resolution.deaths.includes(seat.memberId)) seat.alive = false
     for (const witchId of resolution.healedBy) {
       this.spentPotions.set(witchId, { ...this.potionsSpentBy(witchId), heal: true })
     }
@@ -225,11 +348,12 @@ export class Match {
     this.blockedPatients.clear()
     for (const [doctorId, targetId] of resolution.nextBlocked) this.blockedPatients.set(doctorId, targetId)
     this.currentDawn = { round: this.currentRound, deaths: resolution.deaths }
-    if (resolution.deaths.length > 0) this.currentPendingWinner = winnerOf(this.seats)
+    if (resolution.deaths.length > 0) this.bury(resolution.deaths)
   }
 
   private beginNight(): void {
     this.currentDawn = null
+    this.currentVerdict = null
     this.currentNight = new Night()
   }
 

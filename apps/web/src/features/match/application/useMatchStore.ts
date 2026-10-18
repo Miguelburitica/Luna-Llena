@@ -50,6 +50,10 @@ export const useMatchStore = defineStore('match', () => {
     setAlive: (memberId: string, alive: boolean) => command(() => gateway.setAlive(memberId, alive)),
     endGame: () => command(() => gateway.endGame()),
     keepPlaying: () => command(() => gateway.keepPlaying()),
-    act: (input: NightActionInput) => command(() => gateway.act(input))
+    act: (input: NightActionInput) => command(() => gateway.act(input)),
+    vote: (targetId: string | null) => command(() => gateway.vote(targetId)),
+    lockVote: () => command(() => gateway.lockVote()),
+    avenge: (targetId: string) => command(() => gateway.avenge(targetId)),
+    skipRevenge: () => command(() => gateway.skipRevenge())
   }
 })

@@ -33,6 +33,22 @@ export class SocketMatchGateway implements MatchGateway {
     return reachOrFail(() => this.socket.emitWithAck('match:act', input))
   }
 
+  vote(targetId: string | null) {
+    return reachOrFail(() => this.socket.emitWithAck('match:vote', { targetId }))
+  }
+
+  lockVote() {
+    return reachOrFail(() => this.socket.emitWithAck('match:lockVote', {}))
+  }
+
+  avenge(targetId: string) {
+    return reachOrFail(() => this.socket.emitWithAck('match:avenge', { targetId }))
+  }
+
+  skipRevenge() {
+    return reachOrFail(() => this.socket.emitWithAck('match:skipRevenge', {}))
+  }
+
   onView(listener: (view: MatchView) => void): void {
     this.socket.on('match:view', listener)
   }

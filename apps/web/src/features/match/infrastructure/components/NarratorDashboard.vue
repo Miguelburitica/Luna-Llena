@@ -12,6 +12,7 @@ import { useMatchStore } from '../../application/useMatchStore'
 import { actionLineOf } from '../../domain/night'
 import { nextPhaseOf, phaseLook } from '../../domain/phases'
 import { seatsOf, trueRoleOf } from '../../domain/seating'
+import { tallyBars, verdictOutcomeOf, voteLinesOf, voteProgressOf } from '../../domain/voting'
 import PhaseTimer from './PhaseTimer.vue'
 
 const props = defineProps<{ view: NarratorMatchView }>()
@@ -56,6 +57,19 @@ const rows = computed(() =>
 const preview = computed(() => props.view.night?.preview ?? null)
 const waitingNames = computed(() => (props.view.night?.waitingOn ?? []).map(nameOf).join(', '))
 const outcomeNames = computed(() => (preview.value?.deaths ?? []).map(nameOf).join(', '))
+const voteLines = computed(() => voteLinesOf(props.view, seats.value))
+const progress = computed(() => voteProgressOf(props.view))
+const verdictRows = computed(() =>
+  props.view.verdict === null
+    ? []
+    : tallyBars(props.view.verdict).map((bar) => ({
+        ...bar,
+        name: nameOf(bar.targetId),
+        voterNames: (bar.voterIds ?? []).map(nameOf).join(', ')
+      }))
+)
+const verdictOutcome = computed(() => (props.view.verdict === null ? null : verdictOutcomeOf(props.view.verdict)))
+const shotPending = computed(() => props.view.revenge?.pending === true)
 </script>
 
 <template>
@@ -104,7 +118,7 @@ const outcomeNames = computed(() => (preview.value?.deaths ?? []).map(nameOf).jo
             {{ t('match.dashboard.addTime', { seconds: TIMER_EXTENSION_SECONDS }) }}
           </button>
         </div>
-        <button type="button" class="btn btn-primary" @click="match.advance()">
+        <button type="button" class="btn btn-primary" :disabled="shotPending" @click="match.advance()">
           <LunaIcon :name="phaseLook(upcoming).icon" />{{ t('match.dashboard.next', { phase: t(`match.phases.${upcoming}`) }) }}
         </button>
       </div>
@@ -160,6 +174,70 @@ const outcomeNames = computed(() => (preview.value?.deaths ?? []).map(nameOf).jo
             </button>
           </li>
         </ul>
+      </section>
+
+      <section v-if="view.votes && progress" class="panel dashboard-panel dashboard-votes">
+        <div class="panel-h">
+          <h2 class="h3 dashboard-heading">{{ t('match.dashboard.votes.title') }}</h2>
+          <span class="sbadge">
+            <LunaIcon name="users" size="sm" />{{
+              t('match.dashboard.votes.progress', { voted: progress.voted, voters: progress.voters, locked: progress.locked })
+            }}
+          </span>
+        </div>
+        <ul class="dashboard-votelist">
+          <li v-for="line in voteLines" :key="line.seat.id" class="dashboard-vote">
+            <LunaAvatar :avatar="line.seat.avatar" :name="line.seat.name" size="sm" />
+            <b>{{ line.seat.name }}</b>
+            <span v-if="line.targetId" class="dashboard-vote-target">
+              {{ t('match.dashboard.votes.for', { name: nameOf(line.targetId) }) }}
+            </span>
+            <span v-else class="t-small t-muted dashboard-vote-target">{{ t('match.dashboard.votes.pending') }}</span>
+            <span v-if="line.locked" class="sbadge is-ok">
+              <LunaIcon name="lock" size="sm" />{{ t('match.dashboard.votes.lockedLabel') }}
+            </span>
+          </li>
+        </ul>
+      </section>
+
+      <section v-if="view.verdict && verdictOutcome" class="panel dashboard-panel dashboard-verdict">
+        <div class="panel-h">
+          <h2 class="h3 dashboard-heading">{{ t('match.dashboard.verdict.title') }}</h2>
+          <span v-if="view.verdict.foolWins" class="tbadge team-solo">
+            <LunaIcon name="sparkles" size="sm" />{{ t('match.win.solo') }}
+          </span>
+        </div>
+        <ul class="dashboard-votelist">
+          <li v-for="row in verdictRows" :key="row.targetId" class="dashboard-vote">
+            <b>{{ t('match.dashboard.verdict.tallyLine', { name: row.name, votes: t('match.verdict.votes', row.votes) }) }}</b>
+            <span v-if="row.voterNames" class="t-small t-muted">{{ t('match.dashboard.verdict.by', { names: row.voterNames }) }}</span>
+          </li>
+        </ul>
+        <p class="dashboard-verdict-line">
+          {{
+            verdictOutcome === 'executed'
+              ? t('match.dashboard.verdict.executed', { name: nameOf(view.verdict.executedId) })
+              : t(`match.dashboard.verdict.${verdictOutcome}`)
+          }}
+        </p>
+      </section>
+
+      <section v-if="view.revenge" class="panel dashboard-panel dashboard-revenge">
+        <div class="panel-h">
+          <h2 class="h3 dashboard-heading">{{ t('match.dashboard.revenge.title') }}</h2>
+          <button v-if="view.revenge.pending" type="button" class="btn btn-sm btn-danger" @click="match.skipRevenge()">
+            <LunaIcon name="skip" size="sm" />{{ t('match.dashboard.revenge.skip') }}
+          </button>
+        </div>
+        <p class="dashboard-verdict-line">
+          {{
+            view.revenge.pending
+              ? t('match.dashboard.revenge.pending', { name: nameOf(view.revenge.hunterId) })
+              : view.revenge.targetId
+                ? t('match.dashboard.revenge.took', { name: nameOf(view.revenge.hunterId), target: nameOf(view.revenge.targetId) })
+                : t('match.dashboard.revenge.held', { name: nameOf(view.revenge.hunterId) })
+          }}
+        </p>
       </section>
 
       <section v-if="view.night && preview" class="panel dashboard-dawn">
@@ -312,8 +390,38 @@ const outcomeNames = computed(() => (preview.value?.deaths ?? []).map(nameOf).jo
   margin: 0;
 }
 
-.dashboard-dawn {
+.dashboard-dawn,
+.dashboard-panel {
   margin-top: 20px;
+}
+
+.dashboard-votelist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard-vote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dashboard-vote .av {
+  margin: 0;
+}
+
+.dashboard-vote-target {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-verdict-line {
+  margin: 12px 0 0;
+  font: 700 15px var(--font-ui);
 }
 
 .dashboard-chain {

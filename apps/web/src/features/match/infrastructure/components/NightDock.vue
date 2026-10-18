@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import type { PlayerMatchView } from '@luna/contracts'
 import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
-import { useMatchStore } from '../../application/useMatchStore'
 import type { Seat } from '../../domain/seating'
+import DockError from './DockError.vue'
 import HuntDock from './HuntDock.vue'
 import InspectDock from './InspectDock.vue'
 import PotionsDock from './PotionsDock.vue'
@@ -12,8 +10,6 @@ import ProtectDock from './ProtectDock.vue'
 import SuspectDock from './SuspectDock.vue'
 
 const props = defineProps<{ view: PlayerMatchView; seats: readonly Seat[] }>()
-const { t } = useI18n()
-const match = useMatchStore()
 const night = computed(() => props.view.you.night)
 </script>
 
@@ -24,9 +20,7 @@ const night = computed(() => props.view.you.night)
     <ProtectDock v-else-if="night.action === 'protect'" :view="view" :night="night" :seats="seats" />
     <PotionsDock v-else-if="night.action === 'potions'" :view="view" :night="night" :seats="seats" />
     <SuspectDock v-else :view="view" :night="night" :seats="seats" />
-    <span v-if="match.failure" class="err night-dock-error" role="alert">
-      <LunaIcon name="info" size="sm" />{{ t(`match.errors.${match.failure.code}`) }}
-    </span>
+    <DockError />
   </div>
 </template>
 
@@ -36,9 +30,5 @@ const night = computed(() => props.view.you.night)
   flex-direction: column;
   gap: 8px;
   margin-top: 8px;
-}
-
-.night-dock-error {
-  margin: 0 16px;
 }
 </style>

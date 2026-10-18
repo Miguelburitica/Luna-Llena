@@ -13,10 +13,13 @@ import type { Match } from '../domain/Match'
 import type { Seat } from '../domain/Seat'
 import type { MemberMatchView } from './ports'
 
+const isRevealed = (match: Match, seat: Seat): boolean =>
+  (!seat.alive && match.revealRoleOnDeath) || match.outcome !== null || match.soloWinnerIds.includes(seat.memberId)
+
 const toPlayerView = (match: Match, seat: Seat): MatchPlayerView => ({
   id: seat.memberId,
   alive: seat.alive,
-  revealedRole: (!seat.alive && match.revealRoleOnDeath) || match.outcome !== null ? seat.role : null
+  revealedRole: isRevealed(match, seat) ? seat.role : null
 })
 
 const commonOf = (match: Match, now: number) => ({
@@ -27,7 +30,11 @@ const commonOf = (match: Match, now: number) => ({
   serverNow: now,
   players: match.seats.map((seat) => toPlayerView(match, seat)),
   outcome: match.outcome,
-  dawn: match.dawn
+  dawn: match.dawn,
+  voting: match.votingProgress(),
+  verdict: match.verdict,
+  revenge: match.revenge,
+  soloWinnerIds: match.soloWinnerIds
 })
 
 const toNarratorAction = (match: Match, seat: Seat): NarratorActionView => {
@@ -101,12 +108,18 @@ const pastVisionsOf = (match: Match, seat: Seat): readonly Vision[] =>
     .visionsOf(seat.memberId)
     .filter((vision) => match.phase !== 'night' || vision.round !== match.round)
 
+const toNarratorVotes = (match: Match): NarratorMatchView['votes'] =>
+  match.phase === 'vote'
+    ? Object.fromEntries(match.seats.filter((seat) => seat.alive).map((seat) => [seat.memberId, match.voteOf(seat.memberId)]))
+    : null
+
 const toNarratorView = (match: Match, now: number): NarratorMatchView => ({
   ...commonOf(match, now),
   perspective: 'narrator',
   roles: Object.fromEntries(match.seats.map((seat) => [seat.memberId, seat.role])),
   pendingWinner: match.pendingWinner,
-  night: toNarratorNight(match)
+  night: toNarratorNight(match),
+  votes: toNarratorVotes(match)
 })
 
 const packOf = (match: Match, seat: Seat): string[] =>
@@ -126,7 +139,8 @@ const toSeatView = (match: Match, seat: Seat, now: number): PlayerMatchView => {
       team: ROLE_CATALOG[perceivedRole].team,
       packIds: packOf(match, seat),
       night: toPlayerNight(match, seat),
-      visions: pastVisionsOf(match, seat)
+      visions: pastVisionsOf(match, seat),
+      vote: match.phase === 'vote' && seat.alive ? match.voteOf(seat.memberId) : null
     }
   }
 }

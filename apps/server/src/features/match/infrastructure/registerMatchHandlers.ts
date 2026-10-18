@@ -16,6 +16,10 @@ export const registerMatchHandlers = (io: LunaServer, useCases: MatchUseCases): 
     answer(socket, 'match:setAlive', asActor(socket, (actor, payload) => useCases.setAlive.execute(actor, payload)))
     answer(socket, 'match:endGame', asActor(socket, (actor) => useCases.endGame.execute(actor)))
     answer(socket, 'match:act', asActor(socket, (actor, payload) => useCases.actAtNight.execute(actor, payload)))
+    answer(socket, 'match:vote', asActor(socket, (actor, payload) => useCases.castVote.execute(actor, payload.targetId)))
+    answer(socket, 'match:lockVote', asActor(socket, (actor) => useCases.lockVote.execute(actor)))
+    answer(socket, 'match:avenge', asActor(socket, (actor, payload) => useCases.takeRevenge.execute(actor, payload.targetId)))
+    answer(socket, 'match:skipRevenge', asActor(socket, (actor) => useCases.skipRevenge.execute(actor)))
     answer(socket, 'match:keepPlaying', asActor(socket, (actor) => useCases.keepPlaying.execute(actor)))
   })
 }

@@ -60,6 +60,41 @@ describe('match store', () => {
     expect(store.failure).toBeNull()
   })
 
+  it('sends votes, locks and revenge shots through the gateway', async () => {
+    const { store, matches } = createMatchTestApp()
+    await store.vote('id-Juan')
+    await store.vote(null)
+    await store.lockVote()
+    await store.avenge('id-Luis')
+    await store.skipRevenge()
+    expect(matches.calls).toEqual([
+      { command: 'vote', input: { targetId: 'id-Juan' } },
+      { command: 'vote', input: { targetId: null } },
+      { command: 'lockVote', input: undefined },
+      { command: 'avenge', input: { targetId: 'id-Luis' } },
+      { command: 'skipRevenge', input: undefined }
+    ])
+  })
+
+  it('keeps the failure of each voting command and clears it on success', async () => {
+    const { store, matches } = createMatchTestApp()
+    matches.failWith('vote', 'vote-locked')
+    expect(await store.vote('id-Juan')).toEqual({ ok: false, error: { code: 'vote-locked' } })
+    expect(store.failure).toEqual({ code: 'vote-locked' })
+    matches.failWith('lockVote', 'not-vote')
+    await store.lockVote()
+    expect(store.failure).toEqual({ code: 'not-vote' })
+    matches.failWith('avenge', 'no-revenge')
+    await store.avenge('id-Luis')
+    expect(store.failure).toEqual({ code: 'no-revenge' })
+    matches.failWith('skipRevenge', 'no-revenge')
+    await store.skipRevenge()
+    expect(store.failure).toEqual({ code: 'no-revenge' })
+    matches.responses = {}
+    await store.skipRevenge()
+    expect(store.failure).toBeNull()
+  })
+
   it('keeps a command failure for the view and clears it on success', async () => {
     const { store, matches } = createMatchTestApp(narratorViewOf())
     matches.failWith('advance', 'match-over')
