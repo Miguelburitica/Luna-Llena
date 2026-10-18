@@ -22,7 +22,7 @@ export const identityOf = (name: string): MemberIdentity => ({
 export const settingsWithDeckOf = (cards: number): RoomSettings =>
   unwrap(
     RoomSettings.defaults().apply({
-      deck: { ...Object.fromEntries(ROLE_IDS.map((role) => [role, 0])), villager: cards }
+      deck: { ...Object.fromEntries(ROLE_IDS.map((role) => [role, 0])), werewolf: 1, villager: cards - 1 }
     })
   )
 

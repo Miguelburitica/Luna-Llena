@@ -1,20 +1,10 @@
-import type { ClientToServerEvents, RoomSession, RoomSnapshot, ServerToClientEvents } from '@luna/contracts'
-import { io as connect, type Socket } from 'socket.io-client'
+import type { RoomSession, RoomSnapshot } from '@luna/contracts'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { createSocketKit, type Client } from '../../../shared/infrastructure/socketTestKit.fixtures'
 import { FRIENDS, unwrap } from '../domain/Room.fixtures'
-import { startServer, type RunningServer } from '../../../shared/infrastructure/startServer'
 
-type Client = Socket<ServerToClientEvents, ClientToServerEvents>
-
-let server: RunningServer
-const clients: Client[] = []
-
-const newClient = async (): Promise<Client> => {
-  const client: Client = connect(`http://localhost:${server.port}`, { transports: ['websocket'], forceNew: true })
-  clients.push(client)
-  await new Promise<void>((resolve) => client.on('connect', () => resolve()))
-  return client
-}
+const kit = createSocketKit()
+const newClient = kit.newClient
 
 const nextSnapshot = (client: Client, matches: (snapshot: RoomSnapshot) => boolean): Promise<RoomSnapshot> =>
   new Promise((resolve) => {
@@ -33,12 +23,11 @@ const join = async (client: Client, code: string, name: string): Promise<RoomSes
   unwrap(await client.emitWithAck('room:join', { code, name }))
 
 beforeEach(async () => {
-  server = await startServer({ port: 0, webOrigin: '*' })
+  await kit.start()
 })
 
 afterEach(async () => {
-  for (const client of clients.splice(0)) client.disconnect()
-  await server.close()
+  await kit.stop()
 })
 
 describe('room socket handlers', () => {

@@ -78,7 +78,7 @@ export class Room {
   }
 
   get startReadiness(): StartReadiness {
-    return evaluateStartReadiness(this.players, this.currentSettings.deckSize)
+    return evaluateStartReadiness(this.players, this.currentSettings)
   }
 
   memberWithId(memberId: string): Member | undefined {
@@ -152,6 +152,8 @@ export class Room {
     const member = this.requireMember(memberId)
     if (!member.ok) return member
     if (member.value.isNarrator) return ok('room-closed')
+    const lobby = this.requireLobby()
+    if (!lobby.ok) return lobby
     this.removeSeat(member.value)
     return ok('player-left')
   }

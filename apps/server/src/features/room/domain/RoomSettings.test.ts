@@ -49,9 +49,15 @@ describe('RoomSettings', () => {
     ['a negative count', { deck: { seer: -1 } }],
     ['a fractional count', { deck: { seer: 1.5 } }],
     ['a deck above 15 cards', { deck: { villager: 9 } }],
+    ['two seers', { deck: { seer: 2 } }],
+    ['5 werewolves', { deck: { werewolf: 5 } }],
     ['a non-object', 'night']
   ])('rejects %s', (_, input) => {
     expect(RoomSettings.defaults().apply(input)).toEqual(invalid)
+  })
+
+  it('accepts four werewolves', () => {
+    expect(unwrap(RoomSettings.defaults().apply({ deck: { werewolf: 4 } })).deck.werewolf).toBe(4)
   })
 
   it('builds settings from missing input as defaults', () => {

@@ -2,6 +2,7 @@ import { DEFAULT_ROOM_SETTINGS, ok } from '@luna/contracts'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { sessionFor } from '../../application/RoomGateway.fixtures'
+import { suggestedDeckFor } from '../../domain/deckAdvice'
 import { snapshotOf } from '../../domain/snapshot.fixtures'
 import { mountRoomView } from '../mountRoomView.fixtures'
 import RoomSetupView from './RoomSetupView.vue'
@@ -56,5 +57,40 @@ describe('RoomSetupView', () => {
       }
     })
     await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/room/LUNA42'))
+  })
+
+  it('shows the balance verdict for the expected players', async () => {
+    const { wrapper } = await mountRoomView(RoomSetupView, { path: '/host' })
+    expect(wrapper.find('.setup-balance-title').text()).toContain('Balanced')
+    await wrapper.find('[aria-label="Fewer Werewolf"]').trigger('click')
+    await wrapper.find('[aria-label="Fewer Werewolf"]').trigger('click')
+    expect(wrapper.find('.setup-balance-title').text()).toContain('No wolves')
+    for (let step = 0; step < 4; step += 1) await wrapper.find('[aria-label="More Werewolf"]').trigger('click')
+    expect(wrapper.find('.setup-balance-title').text()).toContain('Too many wolves')
+  })
+
+  it('caps each role at its catalog limit and at the cards left', async () => {
+    const { wrapper } = await mountRoomView(RoomSetupView, { path: '/host' })
+    expect(wrapper.find('[aria-label="More Seer"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.find('[aria-label="More Villager"]').attributes('disabled')).toBeUndefined()
+    for (let step = 0; step < 4; step += 1) await wrapper.find('[aria-label="More Werewolf"]').trigger('click')
+    expect(wrapper.find('[aria-label="More Werewolf"]').attributes('disabled')).toBeDefined()
+  })
+
+  it('fills in the suggested deck for the expected players', async () => {
+    const { wrapper, gateway } = await mountRoomView(RoomSetupView, { path: '/host' })
+    const [roomName, narratorName] = wrapper.findAll('input.input')
+    await roomName?.setValue('Los Primos')
+    await narratorName?.setValue('Nico')
+    await wrapper.find('[aria-label="Fewer players"]').trigger('click')
+    await wrapper.find('[aria-label="Fewer players"]').trigger('click')
+    const suggest = wrapper.findAll('button').find((button) => button.text() === 'Suggested deck for 6')
+    await suggest?.trigger('click')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(gateway.calls.at(-1)).toMatchObject({
+      command: 'createRoom',
+      input: { settings: { deck: suggestedDeckFor(6) } }
+    })
   })
 })

@@ -2,7 +2,7 @@ import type { RoomSnapshot } from '@luna/contracts'
 import { FRIENDS, unwrap } from '../domain/Room.fixtures'
 import { RoomCode } from '../domain/RoomCode'
 import { InMemoryRoomRepository } from '../infrastructure/InMemoryRoomRepository'
-import type { Actor, RoomPublisher } from './ports'
+import type { Actor, GameOpening, GameStarter, RoomPublisher } from './ports'
 import { createRoomUseCases } from './roomUseCases'
 
 export class RecordingPublisher implements RoomPublisher {
@@ -27,14 +27,24 @@ export class RecordingPublisher implements RoomPublisher {
   }
 }
 
+export class RecordingGameStarter implements GameStarter {
+  readonly openings: GameOpening[] = []
+
+  async start(opening: GameOpening): Promise<void> {
+    this.openings.push(opening)
+  }
+}
+
 export const createRoomKit = (codes: readonly string[] = ['LUNA42', 'NUBE77']) => {
   let idSequence = 0
   let codeSequence = 0
   const rooms = new InMemoryRoomRepository()
   const publisher = new RecordingPublisher()
+  const starter = new RecordingGameStarter()
   const useCases = createRoomUseCases({
     rooms,
     publisher,
+    starter,
     ids: { next: () => `id-${(idSequence += 1)}` },
     codes: { next: () => unwrap(RoomCode.parse(codes[codeSequence++ % codes.length])) }
   })
@@ -52,15 +62,15 @@ export const createRoomKit = (codes: readonly string[] = ['LUNA42', 'NUBE77']) =
 
   const roomReadyToStart = async (playerCount: number) => {
     const { session, narrator } = await createRoom()
-    unwrap(await useCases.updateSettings.execute(narrator, { settings: { deck: { werewolf: 0, seer: 0, doctor: 0, witch: 0, hunter: 0, fool: 0, drunk: 0, villager: playerCount } } }))
+    unwrap(await useCases.updateSettings.execute(narrator, { settings: { deck: { werewolf: 1, seer: 0, doctor: 0, witch: 0, hunter: 0, fool: 0, drunk: 0, villager: playerCount - 1 } } }))
     const players = []
     for (const name of FRIENDS.slice(0, playerCount)) {
       const player = await join(session.code, name)
       unwrap(await useCases.setReady.execute(player.actor, { ready: true }))
       players.push(player)
     }
-    return { code: session.code, narrator, players }
+    return { code: session.code, narrator, players, firstPlayer: players[0] as (typeof players)[number] }
   }
 
-  return { useCases, rooms, publisher, createRoom, join, roomReadyToStart }
+  return { useCases, rooms, publisher, starter, createRoom, join, roomReadyToStart }
 }

@@ -1,5 +1,5 @@
-import type { ClientToServerEvents } from '@luna/contracts'
-import type { LunaSocket } from './socketTypes'
+import { err, type ClientToServerEvents, type Result } from '@luna/contracts'
+import type { LunaSocket, SessionBinding } from './socketTypes'
 
 export type Payload = Readonly<Record<string, unknown>>
 
@@ -21,3 +21,14 @@ export const answer = (
   }
   socket.on(event, listener as never)
 }
+
+export const withSession =
+  <T, E>(
+    socket: LunaSocket,
+    missingSession: E,
+    command: (session: SessionBinding, payload: Payload) => Promise<Result<T, E>>
+  ) =>
+  async (payload: Payload): Promise<Result<T, E>> => {
+    const session = socket.data.session
+    return session === undefined ? err(missingSession) : command(session, payload)
+  }

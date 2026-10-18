@@ -5,6 +5,7 @@ import {
   ok,
   PLAYABLE_THEME_IDS,
   ROLE_IDS,
+  ROLE_CATALOG,
   roomError,
   ROOM_LIMITS,
   TIMER_OPTIONS,
@@ -55,8 +56,10 @@ const mergeHouseRules = (current: HouseRules, input: unknown): Result<HouseRules
   return ok(merged)
 }
 
-const isCardCount = (value: unknown): value is number =>
-  Number.isInteger(value) && (value as number) >= 0 && (value as number) <= ROOM_LIMITS.maxCardsPerRole
+const isCardCountFor = (role: RoleId, value: unknown): value is number =>
+  Number.isInteger(value) &&
+  (value as number) >= 0 &&
+  (value as number) <= Math.min(ROOM_LIMITS.maxCardsPerRole, ROLE_CATALOG[role].maxCopies)
 
 const sizeOf = (deck: Deck): number => ROLE_IDS.reduce((total, role) => total + deck[role], 0)
 
@@ -65,7 +68,7 @@ const mergeDeck = (current: Deck, input: unknown): Result<Deck, RoomError> => {
   if (!isRecord(input)) return invalid()
   const merged: Record<RoleId, number> = { ...current }
   for (const [role, count] of Object.entries(input)) {
-    if (!includes(ROLE_IDS, role) || !isCardCount(count)) return invalid()
+    if (!includes(ROLE_IDS, role) || !isCardCountFor(role, count)) return invalid()
     merged[role] = count
   }
   return sizeOf(merged) <= ROOM_LIMITS.maxPlayers ? ok(merged) : invalid()

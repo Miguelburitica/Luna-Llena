@@ -6,7 +6,7 @@ import { KickPlayer } from './KickPlayer'
 import { LeaveRoom } from './LeaveRoom'
 import { LookUpRoom } from './LookUpRoom'
 import { MarkDisconnected } from './MarkDisconnected'
-import type { RoomCodeGenerator, RoomPublisher, RoomRepository } from './ports'
+import type { GameStarter, RoomCodeGenerator, RoomPublisher, RoomRepository } from './ports'
 import { ResumeSession } from './ResumeSession'
 import { SetReady } from './SetReady'
 import { StartGame } from './StartGame'
@@ -17,9 +17,10 @@ export interface RoomDependencies {
   readonly codes: RoomCodeGenerator
   readonly ids: IdGenerator
   readonly publisher: RoomPublisher
+  readonly starter: GameStarter
 }
 
-export const createRoomUseCases = ({ rooms, codes, ids, publisher }: RoomDependencies) => {
+export const createRoomUseCases = ({ rooms, codes, ids, publisher, starter }: RoomDependencies) => {
   const access = { rooms, publisher }
   return {
     createRoom: new CreateRoom(rooms, codes, ids),
@@ -32,7 +33,7 @@ export const createRoomUseCases = ({ rooms, codes, ids, publisher }: RoomDepende
     kickPlayer: new KickPlayer(access),
     leaveRoom: new LeaveRoom(access),
     markDisconnected: new MarkDisconnected(access),
-    startGame: new StartGame(access)
+    startGame: new StartGame(access, starter)
   }
 }
 

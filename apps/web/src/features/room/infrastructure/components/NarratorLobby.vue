@@ -3,14 +3,15 @@ import { ROOM_LIMITS, type MemberView, type RoomSnapshot } from '@luna/contracts
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import DeskHeader from '@/shared/infrastructure/ui/components/DeskHeader.vue'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import { teamClassOf } from '@/shared/infrastructure/ui/teamClass'
 import { useRoomAction } from '../../application/useRoomAction'
 import { useRoomStore } from '../../application/useRoomStore'
+import { suggestedDeckFor } from '../../domain/deckAdvice'
 import { cardsInDeck, namesOf, playersOf, readyPlayerCount } from '../../domain/lobby'
 import { useInviteLink } from '../useInviteLink'
-import DeskHeader from './DeskHeader.vue'
 import RoomFailureMessage from './RoomFailureMessage.vue'
 
 const props = defineProps<{ snapshot: RoomSnapshot; memberId: string }>()
@@ -38,11 +39,19 @@ const checks = computed(() => [
         : t('room.narratorLobby.checkReadyNamed', { names: notReadyNames.value.join(', ') })
   },
   {
+    key: 'wolves',
+    met: !readiness.value.unmet.includes('no-wolves'),
+    label: t('room.narratorLobby.checkWolves')
+  },
+  {
     key: 'enough',
     met: !readiness.value.unmet.includes('not-enough-players'),
     label: t('room.narratorLobby.checkEnough', { min: ROOM_LIMITS.minPlayersToStart })
   }
 ])
+
+const canSuggest = computed(() => readiness.value.playerCount >= ROOM_LIMITS.minPlayersToStart)
+const useSuggestedDeck = () => run(() => store.updateSettings({ deck: suggestedDeckFor(readiness.value.playerCount) }))
 
 const statusOf = (member: MemberView) => {
   if (!member.connected) return { tone: 'warn', label: t('room.narratorLobby.reconnecting') }
@@ -159,9 +168,14 @@ const closeRoom = async () => {
               {{ card.count > 1 ? `${card.count} ` : '' }}{{ t(`roles.${card.role}`) }}
             </span>
           </div>
-          <RouterLink :to="{ name: 'room-settings', params: { code: snapshot.code } }" class="btn btn-ghost btn-sm">
-            {{ t('room.narratorLobby.editDeck') }}
-          </RouterLink>
+          <div class="narrator-deck-actions">
+            <button type="button" class="btn btn-secondary btn-sm" :disabled="!canSuggest || pending" @click="useSuggestedDeck">
+              <LunaIcon name="wand" size="sm" />{{ t('room.narratorLobby.useSuggested', { players: readiness.playerCount }) }}
+            </button>
+            <RouterLink :to="{ name: 'room-settings', params: { code: snapshot.code } }" class="btn btn-ghost btn-sm">
+              {{ t('room.narratorLobby.editDeck') }}
+            </RouterLink>
+          </div>
         </section>
 
         <section class="panel">
@@ -359,6 +373,12 @@ const closeRoom = async () => {
   gap: 6px;
   flex-wrap: wrap;
   margin: 14px 0;
+}
+
+.narrator-deck-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .narrator-checks {

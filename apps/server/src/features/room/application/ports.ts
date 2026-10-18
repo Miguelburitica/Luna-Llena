@@ -1,4 +1,4 @@
-import type { RoomSnapshot } from '@luna/contracts'
+import type { RoleId, RoomSnapshot, TimerPhase } from '@luna/contracts'
 import type { Room } from '../domain/Room'
 import type { RoomCode } from '../domain/RoomCode'
 
@@ -21,4 +21,17 @@ export interface RoomPublisher {
 export interface Actor {
   readonly code: string
   readonly memberId: string
+}
+
+export interface GameOpening {
+  readonly code: string
+  readonly narratorId: string
+  readonly playerIds: readonly string[]
+  readonly deck: Readonly<Record<RoleId, number>>
+  readonly timers: Readonly<Record<TimerPhase, number>>
+  readonly revealRoleOnDeath: boolean
+}
+
+export interface GameStarter {
+  start(opening: GameOpening): Promise<void>
 }

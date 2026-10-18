@@ -1,7 +1,7 @@
 import type { RoomSnapshot } from '@luna/contracts'
 import type { LunaServer } from '../../../shared/infrastructure/socketTypes'
 import type { RoomPublisher } from '../application/ports'
-import { memberChannel, roomChannel } from './roomChannels'
+import { memberChannel, roomChannel } from '../../../shared/infrastructure/socketChannels'
 
 export class SocketRoomPublisher implements RoomPublisher {
   constructor(private readonly io: LunaServer) {}

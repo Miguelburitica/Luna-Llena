@@ -1,9 +1,8 @@
-import { err, roomError, type Result, type RoomError, type RoomSession } from '@luna/contracts'
-import { answer, type Payload } from '../../../shared/infrastructure/socketRequests'
-import type { LunaServer, LunaSocket } from '../../../shared/infrastructure/socketTypes'
-import type { Actor } from '../application/ports'
+import { roomError, type Result, type RoomError, type RoomSession } from '@luna/contracts'
+import { memberChannel, roomChannel } from '../../../shared/infrastructure/socketChannels'
+import { answer, withSession, type Payload } from '../../../shared/infrastructure/socketRequests'
+import type { LunaServer, LunaSocket, SessionBinding } from '../../../shared/infrastructure/socketTypes'
 import type { RoomUseCases } from '../application/roomUseCases'
-import { memberChannel, roomChannel } from './roomChannels'
 
 const unbindSession = (socket: LunaSocket): void => {
   const previous = socket.data.session
@@ -21,13 +20,10 @@ const bindSession = (socket: LunaSocket, result: Result<RoomSession, RoomError>)
   return result
 }
 
-const asActor = (
+const asActor = <T>(
   socket: LunaSocket,
-  command: (actor: Actor, payload: Payload) => Promise<Result<void, RoomError>>
-) => async (payload: Payload) => {
-  const session = socket.data.session
-  return session === undefined ? err(roomError('session-invalid')) : command(session, payload)
-}
+  command: (session: SessionBinding, payload: Payload) => Promise<Result<T, RoomError>>
+) => withSession(socket, roomError('session-invalid'), command)
 
 export const registerRoomHandlers = (io: LunaServer, useCases: RoomUseCases): void => {
   io.on('connection', (socket) => {

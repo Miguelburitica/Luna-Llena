@@ -9,6 +9,8 @@ import { ROOM_GATEWAY, SESSION_STORE } from '../application/ports'
 import { useRoomStore } from '../application/useRoomStore'
 import { roomRoutes } from './roomRoutes'
 
+const gameStubRoute = { path: '/room/:code/game', name: 'game', component: { render: () => null } }
+
 type RoomStore = ReturnType<typeof useRoomStore>
 
 interface MountOptions {
@@ -29,7 +31,7 @@ export const mountRoomView = async (component: Component, { path = '/', props = 
   const store = host.runWithContext(() => useRoomStore())
   if (seed !== undefined) await seed({ store, gateway })
 
-  const router = createRouter({ history: createMemoryHistory(), routes: roomRoutes })
+  const router = createRouter({ history: createMemoryHistory(), routes: [...roomRoutes, gameStubRoute] })
   await router.push(path)
   await router.isReady()
   const wrapper = mount(component, {

@@ -3,6 +3,7 @@ import {
   DEFAULT_ROOM_SETTINGS,
   HOUSE_RULE_IDS,
   PLAYABLE_THEME_IDS,
+  ROLE_CATALOG,
   ROLE_IDS,
   ROLE_TEAMS,
   ROOM_LIMITS,
@@ -19,17 +20,19 @@ import {
 import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import DeskHeader from '@/shared/infrastructure/ui/components/DeskHeader.vue'
 import LunaCounter from '@/shared/infrastructure/ui/components/LunaCounter.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import LunaSegmented from '@/shared/infrastructure/ui/components/LunaSegmented.vue'
 import LunaToggle from '@/shared/infrastructure/ui/components/LunaToggle.vue'
-import { teamClassFor, teamClassOf } from '@/shared/infrastructure/ui/teamClass'
+import { roleArtClassOf } from '@/shared/infrastructure/ui/roleArt'
+import { teamClassFor, teamClassOf, teamIconFor } from '@/shared/infrastructure/ui/teamClass'
 import { useRoomAction } from '../../application/useRoomAction'
 import { useRoomEntry } from '../../application/useRoomEntry'
 import { useRoomStore } from '../../application/useRoomStore'
+import { balanceVerdictOf, suggestedDeckFor } from '../../domain/deckAdvice'
 import { deckSizeOf, teamCountsOf, timerLabelOf } from '../../domain/lobby'
 import { normalizeRoomCode } from '../../domain/roomCode'
-import DeskHeader from '../components/DeskHeader.vue'
 import RoomFailureMessage from '../components/RoomFailureMessage.vue'
 
 const { t } = useI18n()
@@ -53,6 +56,9 @@ const draftOf = (settings: RoomSettingsView) => ({
 
 const draft = reactive(draftOf(DEFAULT_ROOM_SETTINGS))
 
+const clampPlayers = (count: number) => Math.min(ROOM_LIMITS.maxPlayers, Math.max(ROOM_LIMITS.minPlayersToStart, count))
+const targetPlayers = ref(clampPlayers(deckSizeOf(DEFAULT_ROOM_SETTINGS.deck)))
+
 const adopt = (settings: RoomSettingsView) => Object.assign(draft, draftOf(settings))
 
 if (editing) {
@@ -69,6 +75,7 @@ if (editing) {
     (snapshot) => {
       if (adopted || snapshot === null || snapshot.code !== code.value) return
       adopt(snapshot.settings)
+      targetPlayers.value = clampPlayers(snapshot.startReadiness.playerCount || deckSizeOf(snapshot.settings.deck))
       roomName.value = snapshot.name
       adopted = true
     },
@@ -86,11 +93,13 @@ const timerOptions = (phase: TimerPhase) =>
   })
 
 const phaseIcons: Record<TimerPhase, string> = { night: 'moon', day: 'sun', vote: 'vote' }
-const teamIcons = { wolves: 'paw', village: 'home', solo: 'sparkles' } as const
 
 const deckSize = computed(() => deckSizeOf(draft.deck))
 const teamCounts = computed(() => teamCountsOf(draft.deck))
 const roomCardsLeft = computed(() => ROOM_LIMITS.maxPlayers - deckSize.value)
+const verdict = computed(() => balanceVerdictOf(draft.deck, targetPlayers.value))
+const applySuggestedDeck = () => Object.assign(draft.deck, suggestedDeckFor(targetPlayers.value))
+const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, draft.deck[role] + roomCardsLeft.value)
 const canSubmit = computed(
   () => !pending.value && (editing || (roomName.value.trim() !== '' && narratorName.value.trim() !== ''))
 )
@@ -211,12 +220,33 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
             <span class="sbadge">{{ t('room.setup.cards', { count: deckSize }) }}</span>
           </div>
 
+          <div class="setup-suggest">
+            <div class="setup-suggest-count">
+              <span class="setup-row-label"><LunaIcon name="users" />{{ t('room.setup.playersExpected') }}</span>
+              <LunaCounter
+                v-model="targetPlayers"
+                :min="ROOM_LIMITS.minPlayersToStart"
+                :max="ROOM_LIMITS.maxPlayers"
+                :fewer-label="t('room.setup.fewerPlayers')"
+                :more-label="t('room.setup.morePlayers')"
+              />
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" @click="applySuggestedDeck">
+              <LunaIcon name="wand" size="sm" />{{ t('room.setup.suggestedDeck', { players: targetPlayers }) }}
+            </button>
+          </div>
+
           <div class="setup-balance">
             <div class="setup-balance-head">
-              <b>{{ t('room.setup.balance') }}</b>
+              <div class="setup-balance-title">
+                <b>{{ t('room.setup.balance') }}</b>
+                <span class="sbadge" :class="verdict === 'balanced' ? 'is-ok' : 'is-warn'">
+                  <LunaIcon :name="verdict === 'balanced' ? 'check' : 'info'" size="sm" />{{ t(`room.setup.verdicts.${verdict}`) }}
+                </span>
+              </div>
               <div class="setup-balance-legend">
                 <span v-for="team in TEAM_IDS" :key="team" :class="`legend-${team}`">
-                  <LunaIcon :name="teamIcons[team]" size="sm" />{{ t(`teams.${team}`) }} {{ teamCounts[team] }}
+                  <LunaIcon :name="teamIconFor(team)" size="sm" />{{ t(`teams.${team}`) }} {{ teamCounts[team] }}
                 </span>
               </div>
             </div>
@@ -237,7 +267,7 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
               class="setup-card"
               :class="[teamClassOf(role), { 'is-on': draft.deck[role] > 0 }]"
             >
-              <span class="rcard-art setup-card-art" :class="`r-${role}`" aria-hidden="true" />
+              <span class="rcard-art setup-card-art" :class="roleArtClassOf(role)" aria-hidden="true" />
               <div class="setup-card-text">
                 <b>{{ t(`roles.${role}`) }}</b>
                 <div class="t-small setup-card-team">{{ t(`teams.${ROLE_TEAMS[role]}`) }}</div>
@@ -245,7 +275,7 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
               <LunaCounter
                 v-model="draft.deck[role]"
                 :min="0"
-                :max="draft.deck[role] + roomCardsLeft"
+                :max="maxCopiesOf(role)"
                 :fewer-label="t('room.setup.fewer', { role: t(`roles.${role}`) })"
                 :more-label="t('room.setup.more', { role: t(`roles.${role}`) })"
               />
@@ -407,6 +437,28 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
 .setup-deck {
   flex: 999 1 560px;
   min-width: 0;
+}
+
+.setup-suggest {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.setup-suggest-count {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.setup-balance-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .setup-balance {

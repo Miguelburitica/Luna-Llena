@@ -136,6 +136,13 @@ describe('Leaving and kicking', () => {
     expect(room.join(identityOf('Caro')).ok).toBe(true)
   })
 
+  it('keeps the seat when a player leaves during a game', () => {
+    const room = readyRoomOf(6)
+    unwrap(room.start('id-Nico'))
+    expect(room.leave('id-Ana')).toEqual({ ok: false, error: { code: 'game-already-started' } })
+    expect(room.players).toHaveLength(6)
+  })
+
   it('closes the room when the narrator leaves', () => {
     expect(roomWith(['Caro']).leave('id-Nico')).toEqual({ ok: true, value: 'room-closed' })
   })
@@ -200,6 +207,18 @@ describe('Start conditions', () => {
   it('needs at least 6 players', () => {
     const room = readyRoomOf(5)
     expect(room.startReadiness.unmet).toEqual(['not-enough-players'])
+  })
+
+  it('reports a deck without wolves', () => {
+    const room = readyRoomOf(7)
+    unwrap(room.updateSettings('id-Nico', { deck: { werewolf: 0, villager: 7 } }))
+    expect(room.startReadiness.unmet).toEqual(['no-wolves'])
+  })
+
+  it('lists unmet conditions in the contract order', () => {
+    const room = roomWith(FRIENDS.slice(0, 5), settingsWithDeckOf(6))
+    unwrap(room.updateSettings('id-Nico', { deck: { werewolf: 0, villager: 7 } }))
+    expect(room.startReadiness.unmet).toEqual(['not-enough-players', 'deck-mismatch', 'no-wolves', 'players-not-ready'])
   })
 
   it('does not count the narrator as a player', () => {

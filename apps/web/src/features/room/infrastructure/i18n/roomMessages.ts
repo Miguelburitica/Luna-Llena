@@ -66,6 +66,8 @@ const en = {
     checkReady: 'Everyone is ready',
     checkReadyNamed: 'Everyone is ready ({names})',
     checkEnough: 'At least {min} players',
+    checkWolves: 'At least one Werewolf in the deck',
+    useSuggested: 'Use suggested deck for {players}',
     start: 'Start game',
     startHint: 'Enabled when the deck matches and everyone is ready'
   },
@@ -96,6 +98,16 @@ const en = {
     deck: 'Role deck',
     deckHint: 'Each card is one secret role handed out at the start',
     balance: 'Balance',
+    playersExpected: 'Players expected',
+    fewerPlayers: 'Fewer players',
+    morePlayers: 'More players',
+    suggestedDeck: 'Suggested deck for {players}',
+    verdicts: {
+      'no-wolves': 'No wolves',
+      'too-few-wolves': 'Too few wolves',
+      'too-many-wolves': 'Too many wolves',
+      balanced: 'Balanced'
+    },
     cards: '{count} cards',
     fewer: 'Fewer {role}',
     more: 'More {role}',
@@ -116,10 +128,6 @@ const en = {
     unreachableTitle: 'Lost in the fog',
     unreachableBody: 'We can’t reach the village. Your seat is saved — come back any time.',
     tryAgain: 'Try again'
-  },
-  started: {
-    title: 'The game begins',
-    body: 'Night falls over {room}. Keep this screen open.'
   },
   errors: {
     'room-name-invalid': 'Give your room a name (up to 40 characters).',
@@ -207,6 +215,8 @@ const es: typeof en = {
     checkReady: 'Todos están listos',
     checkReadyNamed: 'Todos están listos ({names})',
     checkEnough: 'Al menos {min} jugadores',
+    checkWolves: 'Al menos un hombre lobo en el mazo',
+    useSuggested: 'Usar mazo sugerido para {players}',
     start: 'Empezar juego',
     startHint: 'Se activa cuando el mazo cuadra y todos están listos'
   },
@@ -237,6 +247,16 @@ const es: typeof en = {
     deck: 'Mazo de roles',
     deckHint: 'Cada carta es un rol secreto que se reparte al empezar',
     balance: 'Balance',
+    playersExpected: 'Jugadores esperados',
+    fewerPlayers: 'Menos jugadores',
+    morePlayers: 'Más jugadores',
+    suggestedDeck: 'Mazo sugerido para {players}',
+    verdicts: {
+      'no-wolves': 'Sin lobos',
+      'too-few-wolves': 'Pocos lobos',
+      'too-many-wolves': 'Demasiados lobos',
+      balanced: 'Equilibrado'
+    },
     cards: '{count} cartas',
     fewer: 'Menos {role}',
     more: 'Más {role}',
@@ -257,10 +277,6 @@ const es: typeof en = {
     unreachableTitle: 'Perdidos en la niebla',
     unreachableBody: 'No logramos llegar a la aldea. Tu puesto sigue guardado, vuelve cuando quieras.',
     tryAgain: 'Intentar de nuevo'
-  },
-  started: {
-    title: 'Empieza el juego',
-    body: 'Cae la noche sobre {room}. Deja esta pantalla abierta.'
   },
   errors: {
     'room-name-invalid': 'Ponle un nombre a tu sala (hasta 40 caracteres).',

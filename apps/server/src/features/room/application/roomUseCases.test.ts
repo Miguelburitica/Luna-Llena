@@ -189,6 +189,40 @@ describe('Narrator commands', () => {
     expect(publisher.latest?.status).toBe('in-game')
   })
 
+  it('hands the opening to the game starter after the room is saved', async () => {
+    const { useCases, roomReadyToStart, starter, publisher } = createRoomKit()
+    const { code, narrator, players } = await roomReadyToStart(6)
+    unwrap(await useCases.startGame.execute(narrator))
+    expect(publisher.latest?.status).toBe('in-game')
+    expect(starter.openings).toEqual([
+      {
+        code,
+        narratorId: narrator.memberId,
+        playerIds: players.map((player) => player.actor.memberId),
+        deck: { werewolf: 1, villager: 5, seer: 0, doctor: 0, witch: 0, hunter: 0, fool: 0, drunk: 0 },
+        timers: { night: 60, day: 180, vote: 60 },
+        revealRoleOnDeath: true
+      }
+    ])
+  })
+
+  it('does not open a match when the start is rejected', async () => {
+    const { useCases, createRoom, starter } = createRoomKit()
+    const { narrator } = await createRoom()
+    await useCases.startGame.execute(narrator)
+    expect(starter.openings).toEqual([])
+  })
+
+  it('rejects a player leaving during a game', async () => {
+    const { useCases, roomReadyToStart } = createRoomKit()
+    const { narrator, firstPlayer } = await roomReadyToStart(6)
+    unwrap(await useCases.startGame.execute(narrator))
+    expect(await useCases.leaveRoom.execute(firstPlayer.actor)).toEqual({
+      ok: false,
+      error: { code: 'game-already-started' }
+    })
+  })
+
   it('rejects starting with unmet conditions', async () => {
     const { useCases, createRoom } = createRoomKit()
     const { narrator } = await createRoom()
