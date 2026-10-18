@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Night — Seer</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="phone ph-night">
+  <div class="banner">
+    <span class="ph-badge"><span class="i i-moon"></span></span>
+    <div style="flex: 1"><div class="ph-name">Night</div><div class="ph-sub">Night 2 · The village sleeps</div></div>
+    <button class="btn btn-icon btn-secondary" aria-label="Hold to peek at your role"><span class="i i-card"></span></button>
+    <div class="timer"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="tr-track" cx="26" cy="26" r="22"></circle><circle class="tr-prog" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="70"></circle></svg><b>0:41</b></div>
+  </div>
+  <div class="scene">
+    <span class="scene-bg bg-night"></span>
+    <div class="fog" style="top: 200px"></div>
+    <span class="firefly" style="left: 130px; top: 220px"></span>
+    <div class="hearth"><span class="i i-lg i-eye"></span></div>
+    <div class="seat s1"><span class="av"><span class="face f-ana" role="img" aria-label="Ana"></span></span><span class="av-name">Ana</span></div>
+    <div class="seat s2"><span class="av"><span class="face f-juan" role="img" aria-label="Juan"></span></span><span class="av-name">Juan</span></div>
+    <div class="seat s3"><span class="av is-you"><span class="face f-marta" role="img" aria-label="Marta, you"></span><span class="you-tag">You</span></span><span class="av-name" style="margin-top: 11px">Marta</span></div>
+    <div class="seat s4"><span class="av is-sel"><span class="face f-luis" role="img" aria-label="Luis, inspected"></span><span class="av-badge b-ink"><span class="i i-sm i-eye"></span></span></span><span class="av-name">Luis</span></div>
+    <div class="seat s5"><span class="av"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><span class="av-name">Sofi</span></div>
+    <div class="seat s6"><span class="av"><span class="face f-pipe" role="img" aria-label="Pipe"></span></span><span class="av-name">Pipe</span></div>
+    <div class="seat s7"><span class="av"><span class="face f-caro" role="img" aria-label="Caro"></span></span><span class="av-name">Caro</span></div>
+    <div class="seat s8"><span class="av"><span class="face f-tato" role="img" aria-label="Tato"></span></span><span class="av-name">Tato</span></div>
+  </div>
+  <div class="dock">
+    <div style="display: flex; align-items: center; gap: 8px"><span class="i i-eye" style="color: var(--accent)"></span><span class="h3" style="flex: 1">Your vision</span><span class="sbadge"><span class="i i-sm i-eye-off"></span>Only you</span></div>
+    <div class="result a-flip" style="padding: 16px; gap: 14px; box-shadow: inset 0 0 0 1px #DCC59A">
+      <span class="av av-lg" style="margin: 0; --ring: #B8323A"><span class="face f-luis" role="img" aria-label="Luis"></span></span>
+      <div style="flex: 1">
+        <div class="t-story" style="font-size: 17px; font-style: italic; color: #6A4E30">The crystal ball says…</div>
+        <div class="t-display" style="font-size: 28px; font-weight: 800">Luis is a Werewolf</div>
+      </div>
+      <span class="i i-xl i-paw" style="color: #B8323A"></span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span class="t-cap t-muted">Past visions</span>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 12px; background: var(--surface-2)"><span class="av av-sm" style="margin: 0"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><span class="t-small" style="flex: 1">Night 1 · Sofi</span><span class="sbadge is-ok"><span class="i i-sm i-home"></span>not a Werewolf</span></div>
+    </div>
+    <span class="t-small t-muted t-center">One peek per night. Use it wisely at dawn.</span>
+  </div>
+  <div class="chatbar" style="cursor: default"><span class="i i-lock"></span><span style="flex: 1" class="t-muted">The village sleeps — chat opens at dawn</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>End game</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.who-role{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}.tl{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px}.tl-dot{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}.award{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}</style>
+</helmet>
+<div class="phone ph-day" style="height: 2000px">
+  <div style="position: relative; height: 380px; flex: none; overflow: hidden">
+    <span class="scene-bg bg-day a-rise"></span>
+    <span class="cf a-sway" style="position: absolute; left: 50px; top: 70px; width: 9px; height: 14px; border-radius: 2px; background: #E0565B"></span>
+    <span class="a-sway" style="position: absolute; left: 330px; top: 100px; width: 9px; height: 14px; border-radius: 2px; background: #6BA3D6; animation-delay: .5s"></span>
+    <span class="a-sway" style="position: absolute; left: 260px; top: 40px; width: 9px; height: 14px; border-radius: 2px; background: #5FB3A1; animation-delay: .9s"></span>
+    <div style="position: absolute; left: 0; right: 0; top: 140px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+      <span class="tbadge team-village" style="font-size: 12px; padding: 6px 12px"><span class="i i-sm i-home"></span>Village victory</span>
+      <h1 class="t-display" style="margin: 0; font-size: 56px; font-weight: 900; color: #2B2238; line-height: .95">The village<br>wins!</h1>
+      <p class="t-story" style="margin: 0; font-size: 18px; font-style: italic; color: #4A3E58">Both wolves are gone. Arepas are safe again.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin: -24px 12px 0; position: relative; z-index: 2; display: flex; gap: 14px; align-items: center; background: #3A2848; color: #FFF4EA; box-shadow: var(--shadow-2)">
+    <div class="rcard-mini team-village a-flip" style="flex: none"><span class="rcard-art r-drunk art" role="img" aria-label="Drunk"></span><b>Drunk</b></div>
+    <div><div class="t-cap" style="color: #F6D9CC">Plot twist</div><div class="h2" style="font-size: 22px; color: #FFF4EA">You were the Drunk all along</div><div class="t-small" style="color: #F6D9CC; margin-top: 4px">Your “visions” were random. Tato was <b>not</b> innocent. Sorry.</div></div>
+  </div>
+
+  <section style="padding: 26px 16px 0">
+    <h2 class="h2" style="margin-bottom: 14px">Who was who</h2>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 8px">
+      <div class="who-role"><span class="av av-md"><span class="face f-ana" role="img" aria-label="Ana"></span></span><b class="t-small">Ana</b><span class="tbadge team-village" style="font-size: 9px; padding: 3px 7px">Hunter</span></div>
+      <div class="who-role"><span class="av av-md is-dead"><span class="face" role="img" aria-label="Juan"></span></span><b class="t-small">Juan</b><span class="tbadge team-village" style="font-size: 9px; padding: 3px 7px">Doctor</span></div>
+      <div class="who-role"><span class="av av-md"><span class="face f-marta" role="img" aria-label="Marta"></span></span><b class="t-small">Marta</b><span class="tbadge team-village" style="font-size: 9px; padding: 3px 7px">Seer</span></div>
+      <div class="who-role"><span class="av av-md is-dead"><span class="face" role="img" aria-label="Luis"></span></span><b class="t-small">Luis</b><span class="tbadge team-wolf" style="font-size: 9px; padding: 3px 7px">Werewolf</span></div>
+      <div class="who-role"><span class="av av-md"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><b class="t-small">Sofi</b><span class="tbadge team-solo" style="font-size: 9px; padding: 3px 7px">Fool</span></div>
+      <div class="who-role"><span class="av av-md"><span class="face f-pipe" role="img" aria-label="Pipe"></span></span><b class="t-small">Pipe</b><span class="tbadge team-village" style="font-size: 9px; padding: 3px 7px">Witch</span></div>
+      <div class="who-role"><span class="av av-md is-you"><span class="face f-caro" role="img" aria-label="Caro, you"></span></span><b class="t-small">Caro (you)</b><span class="tbadge team-village" style="font-size: 9px; padding: 3px 7px">Drunk</span></div>
+      <div class="who-role"><span class="av av-md is-dead"><span class="face" role="img" aria-label="Tato"></span></span><b class="t-small">Tato</b><span class="tbadge team-wolf" style="font-size: 9px; padding: 3px 7px">Werewolf</span></div>
+    </div>
+  </section>
+
+  <section style="padding: 30px 16px 0">
+    <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px"><h2 class="h2">What really happened</h2><button class="btn btn-ghost btn-sm" style="color: #8A4F08">Expand all</button></div>
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div class="tl"><div style="display: flex; flex-direction: column; align-items: center"><span class="tl-dot" style="background: #1C1F4A; color: #F2A541"><span class="i i-moon"></span></span><i style="flex: 1; width: 2px; background: var(--line)"></i></div>
+        <div style="padding-bottom: 16px"><b class="h3">Night 1</b><div class="t-small" style="color: var(--muted); margin-top: 2px">Wolves targeted <b style="color: var(--ink)">Ana</b>. The Doctor and the Witch <i>both</i> saved her. The Seer inspected Sofi: not a wolf. The Drunk “inspected” Tato and was told: not a wolf.</div></div></div>
+      <div class="tl"><div style="display: flex; flex-direction: column; align-items: center"><span class="tl-dot" style="background: #F6E6B4; color: #8A4F08"><span class="i i-sun"></span></span><i style="flex: 1; width: 2px; background: var(--line)"></i></div>
+        <div style="padding-bottom: 16px"><b class="h3">Day 1</b><div class="t-small" style="color: var(--muted); margin-top: 2px">Luis and Tato tied 3–3. No execution.</div></div></div>
+      <div class="tl"><div style="display: flex; flex-direction: column; align-items: center"><span class="tl-dot" style="background: #1C1F4A; color: #F2A541"><span class="i i-moon"></span></span><i style="flex: 1; width: 2px; background: var(--line)"></i></div>
+        <div style="padding-bottom: 16px"><b class="h3">Night 2</b><div class="t-small" style="color: var(--muted); margin-top: 2px">Wolves got <b style="color: var(--ink)">Juan</b> while he protected Pipe. The Seer found Luis: Werewolf.</div></div></div>
+      <div class="tl"><div style="display: flex; flex-direction: column; align-items: center"><span class="tl-dot" style="background: #F6E6B4; color: #8A4F08"><span class="i i-sun"></span></span><i style="flex: 1; width: 2px; background: var(--line)"></i></div>
+        <div style="padding-bottom: 16px"><b class="h3">Day 2</b><div class="t-small" style="color: var(--muted); margin-top: 2px">Juan’s last words named Tato. The village executed <b style="color: var(--ink)">Luis</b> 4–2. He was a Werewolf.</div></div></div>
+      <div class="tl"><div style="display: flex; flex-direction: column; align-items: center"><span class="tl-dot" style="background: #1C1F4A; color: #F2A541"><span class="i i-moon"></span></span><i style="flex: 1; width: 2px; background: var(--line)"></i></div>
+        <div style="padding-bottom: 16px"><b class="h3">Night 3</b><div class="t-small" style="color: var(--muted); margin-top: 2px">Tato missed the deadline (no action). Juan’s ghost whispered “bakery” to Marta.</div></div></div>
+      <div class="tl"><div style="display: flex; flex-direction: column; align-items: center"><span class="tl-dot" style="background: #23705F; color: #fff"><span class="i i-trophy"></span></span></div>
+        <div style="padding-bottom: 6px"><b class="h3">Day 3</b><div class="t-small" style="color: var(--muted); margin-top: 2px">The village executed <b style="color: var(--ink)">Tato</b>. Last wolf down. Village wins.</div></div></div>
+    </div>
+  </section>
+
+  <section style="padding: 28px 16px 0">
+    <h2 class="h2" style="margin-bottom: 14px">Awards</h2>
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <div class="award"><span style="width: 48px; height: 48px; border-radius: 14px; background: #F6E6B4; color: #8A4F08; display: flex; align-items: center; justify-content: center"><span class="i i-eye"></span></span><div style="flex: 1"><b class="h3">Most Suspicious</b><div class="t-small" style="color: var(--muted)">9 votes received</div></div><span class="av av-md" style="margin: 0"><span class="face f-tato" role="img" aria-label="Tato"></span></span></div>
+      <div class="award"><span style="width: 48px; height: 48px; border-radius: 14px; background: #F6D0D2; color: #8A1F26; display: flex; align-items: center; justify-content: center"><span class="i i-paw"></span></span><div style="flex: 1"><b class="h3">Worst Liar</b><div class="t-small" style="color: var(--muted)">wolf, caught by Day 2</div></div><span class="av av-md" style="margin: 0"><span class="face f-luis" role="img" aria-label="Luis"></span></span></div>
+      <div class="award"><span style="width: 48px; height: 48px; border-radius: 14px; background: #E9D6F5; color: #5E2C80; display: flex; align-items: center; justify-content: center"><span class="i i-split"></span></span><div style="flex: 1"><b class="h3">Betrayed Own Team</b><div class="t-small" style="color: var(--muted)">3 votes against villagers</div></div><span class="av av-md" style="margin: 0"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span></div>
+      <div class="award"><span style="width: 48px; height: 48px; border-radius: 14px; background: #D3ECE6; color: #1B5A4C; display: flex; align-items: center; justify-content: center"><span class="i i-chat"></span></span><div style="flex: 1"><b class="h3">Chatterbox</b><div class="t-small" style="color: var(--muted)">64 messages</div></div><span class="av av-md" style="margin: 0"><span class="face f-marta" role="img" aria-label="Marta"></span></span></div>
+    </div>
+  </section>
+
+  <div style="margin-top: auto; padding: 24px 16px 24px; display: flex; flex-direction: column; gap: 10px">
+    <button class="btn btn-primary btn-lg btn-block"><span class="i i-refresh"></span>Play again</button>
+    <span class="t-small t-center" style="color: var(--muted)">Same room, same friends — back to the lobby</span>
+    <a href="Home.dc.html" class="btn btn-secondary btn-block"><span class="i i-logout"></span>Leave</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

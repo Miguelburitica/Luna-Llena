@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}input[type=range]{width:100%;accent-color:#F2A541;height:28px}</style>
+</helmet>
+<div class="phone ph-night">
+  <div class="banner"><span class="ph-badge"><span class="i i-moon"></span></span><div style="flex: 1"><div class="ph-name">Night</div><div class="ph-sub">Night 2</div></div></div>
+  <div class="scene"><span class="scene-bg bg-night"></span></div>
+  <div class="scrim"></div>
+  <div class="sheet" style="top: 150px">
+    <div class="grabber"></div>
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 2px 4px">
+      <h1 class="h2">Settings</h1>
+      <button class="btn btn-icon btn-secondary" aria-label="Close"><span class="i i-x"></span></button>
+    </div>
+    <div style="padding: 0 6px; display: flex; flex-direction: column">
+      <div class="field" style="padding: 10px 0; border-bottom: 1px solid var(--line)">
+        <label class="h3" style="display: flex; align-items: center; gap: 10px" for="mv"><span class="i i-volume"></span>Master volume<span class="t-small t-muted" style="margin-left: auto">80%</span></label>
+        <input id="mv" type="range" min="0" max="100" value="80">
+      </div>
+      <div class="field" style="padding: 10px 0; border-bottom: 1px solid var(--line)">
+        <label class="h3" style="display: flex; align-items: center; gap: 10px" for="mu"><span class="i i-music"></span>Music &amp; ambience<span class="t-small t-muted" style="margin-left: auto">55%</span></label>
+        <input id="mu" type="range" min="0" max="100" value="55">
+      </div>
+      <div class="field" style="padding: 10px 0; border-bottom: 1px solid var(--line)">
+        <label class="h3" style="display: flex; align-items: center; gap: 10px" for="fx"><span class="i i-zap"></span>Sound effects<span class="t-small t-muted" style="margin-left: auto">100%</span></label>
+        <input id="fx" type="range" min="0" max="100" value="100">
+      </div>
+      <div class="row-set">
+        <div><div class="h3" style="display: flex; align-items: center; gap: 10px"><span class="i i-sparkles"></span>Reduced motion</div><div class="t-small t-muted" style="margin-left: 32px">Crossfades instead of flips, drops and flicker</div></div>
+        <button class="toggle" role="switch" aria-checked="false" aria-label="Reduced motion"></button>
+      </div>
+      <div class="row-set">
+        <div class="h3" style="display: flex; align-items: center; gap: 10px"><span class="i i-globe"></span>Language</div>
+        <div class="seg" style="width: 150px"><button>ES</button><button class="is-on">EN</button></div>
+      </div>
+      <div class="row-set" style="border: 0">
+        <div class="h3" style="display: flex; align-items: center; gap: 10px"><span class="i i-help"></span>How to play</div>
+        <a href="HowToPlay.dc.html" class="btn btn-icon btn-ghost" aria-label="Open how to play"><span class="i i-arrow-right"></span></a>
+      </div>
+    </div>
+    <button class="btn btn-secondary btn-block" style="margin-top: auto; color: #FF9C92"><span class="i i-logout"></span>Leave the village</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

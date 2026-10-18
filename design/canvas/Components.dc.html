@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Luna Llena — Components</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="sheetpage ph-night" style="width: 1440px; height: 2300px; padding: 56px 64px; display: flex; flex-direction: column; gap: 28px; background: #080A1C">
+  <div style="display: flex; align-items: baseline; justify-content: space-between">
+    <h1 class="t-display" style="margin: 0; font-size: 56px; color: #F4EBC8">Component library</h1>
+    <span class="t-small t-muted">Every component reads phase tokens, so it re-skins per phase and per theme.</span>
+  </div>
+
+  <!-- ROW 1: Role cards -->
+  <section class="panel" style="padding: 28px">
+    <div class="panel-h"><h2 class="h2">Role card</h2><span class="t-small t-muted">face-down · face-up · mini · locked theme preview</span></div>
+    <div style="display: flex; gap: 40px; align-items: flex-end">
+      <div style="display: flex; flex-direction: column; gap: 10px; align-items: center">
+        <div class="rcard-back f-cardback" role="img" aria-label="Face-down role card"><span class="sbadge" style="position: absolute; left: 50%; bottom: -16px; transform: translateX(-50%); background: #14173A; white-space: nowrap"><span class="i i-sm i-hand"></span>Tap to reveal</span></div>
+        <span class="t-cap t-muted" style="margin-top: 20px">Face-down</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; align-items: center">
+        <div class="rcard team-village">
+          <span class="rcard-art r-seer" role="img" aria-label="Seer illustration"></span>
+          <span class="tbadge"><span class="i i-sm i-home"></span>Village</span>
+          <span class="rcard-name">Seer</span>
+          <span class="rcard-power">Each night, peek at one player and learn if they’re a Werewolf.</span>
+          <span class="rcard-win"><span class="i i-sm i-trophy"></span>Win when every wolf is gone.</span>
+        </div>
+        <span class="t-cap t-muted" style="margin-top: 4px">Face-up</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; gap: 10px">
+          <div class="rcard-mini team-wolf"><span class="rcard-art r-wolf art" role="img" aria-label="Werewolf"></span><b>Werewolf</b></div>
+          <div class="rcard-mini team-village"><span class="rcard-art r-doctor art" role="img" aria-label="Doctor"></span><b>Doctor</b></div>
+          <div class="rcard-mini team-solo"><span class="rcard-art r-fool art" role="img" aria-label="Fool"></span><b>Fool</b></div>
+          <div class="rcard-mini team-village"><span class="rcard-art r-drunk art" role="img" aria-label="Drunk"></span><b>Drunk</b></div>
+        </div>
+        <span class="t-cap t-muted">Mini · timeline + end screen</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px; align-items: center">
+        <div style="position: relative; width: 200px; height: 284px; border-radius: 22px; overflow: hidden; background: linear-gradient(180deg,#0D1E2C,#22483C)">
+          <div class="is-locked-card" style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px; gap: 4px">
+            <b class="t-display" style="font-size: 28px; color: #F7E3A1">Modo Colombia</b>
+            <span class="t-small" style="color: #DDE8E0">La Patasola, El Mohán, La Llorona…</span>
+          </div>
+          <div class="lock-over"><span class="i i-lg i-lock"></span>Coming soon</div>
+        </div>
+        <span class="t-cap t-muted">Locked</span>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; gap: 10px; align-self: stretch; justify-content: center; padding-left: 20px; border-left: 1px solid var(--line)">
+        <span class="spec-label">Anatomy</span>
+        <span class="t-small">1 · Art disc ringed in team color</span>
+        <span class="t-small">2 · Team badge (color + glyph + word)</span>
+        <span class="t-small">3 · Role name — display face, themed</span>
+        <span class="t-small">4 · One-line power</span>
+        <span class="t-small">5 · Win condition — story face, italic</span>
+        <span class="t-small t-muted" style="margin-top: 8px">Drunk renders the Seer card on every player screen. The mini “Drunk” card appears only on the end screen.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROW 2: Avatars + timer -->
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 28px">
+    <section class="panel" style="padding: 28px; background: linear-gradient(180deg,#0E1230,#2A2463)">
+      <div class="panel-h"><h2 class="h2">Avatar portrait</h2><span class="t-small t-muted">8 states</span></div>
+      <div style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 12px; text-align: center; padding-top: 10px">
+        <div><span class="av"><span class="face f-ana" role="img" aria-label="Ana"></span></span><span class="av-name">Alive</span></div>
+        <div><span class="av is-you"><span class="face f-caro" role="img" aria-label="Caro, you"></span><span class="you-tag">You</span></span><span class="av-name" style="margin-top: 12px">You</span></div>
+        <div><span class="av is-sel"><span class="face f-juan" role="img" aria-label="Juan, selected"></span><span class="av-badge b-ink"><span class="i i-sm i-check"></span></span></span><span class="av-name">Selected</span></div>
+        <div><span class="av"><span class="face f-luis" role="img" aria-label="Luis, 3 votes"></span><span class="av-badge">3</span></span><span class="av-name">Voted-for</span></div>
+        <div><span class="av is-dead"><span class="face" role="img" aria-label="Marta, dead"></span></span><span class="av-name">Dead</span></div>
+        <div><span class="av is-ghost"><span class="face f-pipe" role="img" aria-label="Pipe, ghost"></span></span><span class="av-name">Ghost</span></div>
+        <div><span class="av" style="--ring: #F4EBC8"><span class="face f-nico" role="img" aria-label="Narrator"></span><span class="av-badge b-left b-ink"><span class="i i-sm i-quill"></span></span></span><span class="av-name">Narrator</span></div>
+        <div><span class="av is-off"><span class="face f-tato" role="img" aria-label="Tato, disconnected"></span><span class="av-badge b-warn"><span class="i i-sm i-wifi-off"></span></span></span><span class="av-name">Offline</span></div>
+      </div>
+      <div style="display: flex; gap: 22px; align-items: center; margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line)">
+        <span class="spec-label">Sizes</span>
+        <span class="av av-xl"><span class="face f-sofi" role="img" aria-label="Sofi XL"></span></span>
+        <span class="av av-lg"><span class="face f-sofi" role="img" aria-label="Sofi L"></span></span>
+        <span class="av"><span class="face f-sofi" role="img" aria-label="Sofi M"></span></span>
+        <span class="av av-md"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span>
+        <span class="av av-sm"><span class="face f-sofi" role="img" aria-label="Sofi S"></span></span>
+        <span class="av av-xs" style="margin: 0"><span class="face f-sofi" role="img" aria-label="Sofi XS"></span></span>
+        <span class="t-small t-muted">120 reveal · 84 spotlight · 56 seat · 44 picker · 32 chat · 24 voter stack</span>
+      </div>
+    </section>
+    <section class="panel" style="padding: 28px">
+      <div class="panel-h"><h2 class="h2">Timer ring</h2></div>
+      <div style="display: flex; gap: 26px; align-items: center; justify-content: space-around; padding-top: 10px">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+          <div class="timer"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="tr-track" cx="26" cy="26" r="22"></circle><circle class="tr-prog" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="46"></circle></svg><b>1:24</b></div>
+          <span class="t-cap t-muted">Normal</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+          <div class="timer is-warn"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="tr-track" cx="26" cy="26" r="22"></circle><circle class="tr-prog" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="122"></circle></svg><b>0:07</b></div>
+          <span class="t-cap t-muted">Last 10s</span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px">
+          <div class="timer is-paused"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="tr-track" cx="26" cy="26" r="22"></circle><circle class="tr-prog" cx="26" cy="26" r="22"></circle></svg><b><span class="i i-sm i-pause"></span></b></div>
+          <span class="t-cap t-muted">Paused</span>
+        </div>
+      </div>
+      <p class="t-small t-muted" style="margin: 22px 0 0">Ring drains clockwise. At 10s it turns warn-red, pulses and the number goes red too — readable without color via the pulse + countdown. Manual phases hide the ring.</p>
+    </section>
+  </div>
+
+  <!-- ROW 3: Phase banners -->
+  <section class="panel" style="padding: 28px">
+    <div class="panel-h"><h2 class="h2">Phase banner</h2><span class="t-small t-muted">icon + label + counter, never color alone</span></div>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px">
+      <div class="ph-night banner" style="border-radius: 18px; background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); padding: 14px; color: var(--ink)"><span class="ph-badge"><span class="i i-moon"></span></span><div><div class="ph-name">Night</div><div class="ph-sub">Night 2</div></div></div>
+      <div class="ph-dawn banner" style="border-radius: 18px; background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); padding: 14px; color: var(--ink)"><span class="ph-badge"><span class="i i-sunrise"></span></span><div><div class="ph-name">Dawn</div><div class="ph-sub">Day 2</div></div></div>
+      <div class="ph-day banner" style="border-radius: 18px; background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); padding: 14px; color: var(--ink)"><span class="ph-badge"><span class="i i-sun"></span></span><div><div class="ph-name">Day</div><div class="ph-sub">Discuss</div></div></div>
+      <div class="ph-vote banner" style="border-radius: 18px; background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); padding: 14px; color: var(--ink)"><span class="ph-badge"><span class="i i-vote"></span></span><div><div class="ph-name">Vote</div><div class="ph-sub">Day 2</div></div></div>
+      <div class="ph-vote banner" style="border-radius: 18px; background: linear-gradient(180deg,#1A0A14,#4A1A22); padding: 14px; color: var(--ink)"><span class="ph-badge"><span class="i i-pitchfork"></span></span><div><div class="ph-name">Execution</div><div class="ph-sub">Day 2</div></div></div>
+    </div>
+  </section>
+
+  <!-- ROW 4: buttons + inputs -->
+  <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px">
+    <section class="panel" style="padding: 28px">
+      <div class="panel-h"><h2 class="h2">Buttons</h2><span class="t-small t-muted">min 48px tall · icon 44px</span></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+        <button class="btn btn-primary">Lock vote</button>
+        <button class="btn btn-secondary">Change pick</button>
+        <button class="btn btn-danger"><span class="i i-user-x"></span>Kick</button>
+        <button class="btn btn-primary" disabled>Start game</button>
+        <button class="btn btn-icon btn-secondary" aria-label="Settings"><span class="i i-sliders"></span></button>
+        <button class="btn btn-icon btn-primary" aria-label="Send"><span class="i i-send"></span></button>
+      </div>
+      <div class="ph-day" style="margin-top: 16px; padding: 16px; border-radius: 18px; background: linear-gradient(180deg,var(--bg-1),var(--bg-2)); display: flex; flex-wrap: wrap; gap: 12px">
+        <button class="btn btn-primary">Lock vote</button>
+        <button class="btn btn-secondary">Change pick</button>
+        <button class="btn btn-icon btn-secondary" aria-label="Chat"><span class="i i-chat"></span></button>
+        <span class="t-small" style="align-self: center; color: var(--muted)">Same tokens on Day</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px">
+        <button class="tile"><span class="i i-lg i-howl"></span>Howl</button>
+        <button class="tile is-playing"><span class="i i-lg i-zap"></span>Thunder</button>
+        <button class="tile"><span class="i i-lg i-church"></span>Church bell</button>
+        <button class="tile"><span class="i i-lg i-trombone"></span>Sad trombone</button>
+      </div>
+      <span class="t-cap t-muted" style="display: block; margin-top: 10px">Soundboard tile · idle / playing</span>
+    </section>
+    <section class="panel" style="padding: 28px">
+      <div class="panel-h"><h2 class="h2">Inputs</h2></div>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px">
+        <label class="field"><span class="label">Your name</span><input class="input" value="Caro"></label>
+        <label class="field"><span class="label">Your name</span><input class="input is-err" value="Ana"><span class="err"><span class="i i-sm i-info"></span>Ana is already in this village.</span></label>
+      </div>
+      <div class="field" style="margin-top: 18px"><span class="label">Room code</span>
+        <div class="code"><input class="is-filled" value="L" aria-label="Code 1"><input class="is-filled" value="U" aria-label="Code 2"><input class="is-filled" value="N" aria-label="Code 3"><input class="is-filled" value="A" aria-label="Code 4"><input value="" aria-label="Code 5"><input value="" aria-label="Code 6"></div>
+      </div>
+      <div style="display: flex; gap: 22px; align-items: center; margin-top: 18px; flex-wrap: wrap">
+        <div class="counter"><button aria-label="Fewer"><span class="i i-minus"></span></button><output>2</output><button aria-label="More"><span class="i i-plus"></span></button></div>
+        <div class="counter"><button aria-label="Fewer" disabled><span class="i i-minus"></span></button><output>0</output><button aria-label="More"><span class="i i-plus"></span></button></div>
+        <button class="toggle is-on" role="switch" aria-checked="true" aria-label="On"></button>
+        <button class="toggle" role="switch" aria-checked="false" aria-label="Off"></button>
+        <div class="seg" style="width: 230px"><button class="is-on">ES</button><button>EN</button></div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap">
+        <button class="chip is-on">Spooky</button><button class="chip">Funny</button><button class="chip">Dramatic</button>
+        <span class="tbadge team-wolf"><span class="i i-sm i-paw"></span>Wolves</span>
+        <span class="tbadge team-village"><span class="i i-sm i-home"></span>Village</span>
+        <span class="tbadge team-solo"><span class="i i-sm i-sparkles"></span>Solo</span>
+        <span class="sbadge is-ok"><span class="i i-sm i-check"></span>Ready</span>
+        <span class="sbadge"><span class="i i-sm i-hourglass"></span>Waiting</span>
+        <span class="count">3</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- ROW 5: picker, chat, tally, narration -->
+  <div style="display: grid; grid-template-columns: 390px 390px minmax(0, 1fr); gap: 28px">
+    <section class="panel" style="padding: 22px">
+      <div class="panel-h"><h2 class="h2">Target picker</h2></div>
+      <div class="picker">
+        <button class="pick is-sel"><span class="av"><span class="face f-ana" role="img" aria-label=""></span></span>Ana<span class="chk"><span class="i i-sm i-check"></span></span></button>
+        <button class="pick"><span class="av"><span class="face f-juan" role="img" aria-label=""></span></span>Juan</button>
+        <button class="pick" disabled><span class="av"><span class="face f-marta" role="img" aria-label=""></span></span>Marta<span class="why">last night</span></button>
+        <button class="pick"><span class="av"><span class="face f-sofi" role="img" aria-label=""></span></span>Sofi<span class="mini"><span class="av av-xs" style="margin: 0"><span class="face f-tato" role="img" aria-label="Tato picked"></span></span></span></button>
+      </div>
+      <p class="t-small t-muted" style="margin: 14px 0 0">Selected · default · disabled-with-reason · with a teammate’s live pick (wolves).</p>
+      <div class="result" style="margin-top: 16px"><span class="av av-md" style="margin: 0"><span class="face f-luis" role="img" aria-label="Luis"></span></span><div><b class="t-display" style="font-size: 18px">Luis is… a Werewolf</b><div class="t-small">Only you can see this.</div></div><span class="i i-lg i-paw" style="margin-left: auto; color: #B8323A"></span></div>
+    </section>
+    <section class="panel" style="padding: 22px; background: var(--sheet)">
+      <div class="panel-h"><h2 class="h2">Chat</h2></div>
+      <div class="tabs"><button class="tab is-on">Village</button><button class="tab">Wolves <span class="count">2</span></button><button class="tab is-locked"><span class="i i-sm i-lock"></span>Ghosts</button></div>
+      <div class="msgs" style="margin-top: 14px; gap: 10px">
+        <div class="msg-sys msg"><span>Ana joined the village</span></div>
+        <div class="msg msg-narr"><span class="av av-sm"><span class="face f-nico" role="img" aria-label="Narrator"></span></span><div class="bubble"><span class="who">Narrator</span>The fog is thick tonight. Lock your doors.</div></div>
+        <div class="msg"><span class="av av-sm"><span class="face f-juan" role="img" aria-label="Juan"></span></span><div class="bubble"><span class="who">Juan</span>Luis was VERY quiet yesterday…</div></div>
+        <div class="msg msg-own"><div class="bubble">Quiet ≠ wolf, Juan</div></div>
+        <div class="msg msg-wolf"><span class="av av-sm"><span class="face f-tato" role="img" aria-label="Tato"></span></span><div class="bubble"><span class="who">Tato · wolf chat</span>Juan is onto us. Him tonight?</div></div>
+        <div class="msg msg-ghost"><span class="av av-sm is-ghost"><span class="face f-pipe" role="img" aria-label="Pipe"></span></span><div class="bubble"><span class="who">Pipe · ghost</span>it was Tato. it’s always Tato.</div></div>
+      </div>
+      <div class="composer" style="margin-top: 14px"><input class="input" placeholder="Say something…" aria-label="Message"><button class="btn btn-icon btn-primary" aria-label="Send"><span class="i i-send"></span></button></div>
+    </section>
+    <section style="display: flex; flex-direction: column; gap: 28px; min-width: 0">
+      <div class="panel ph-vote" style="padding: 22px; background: linear-gradient(180deg,var(--bg-1),var(--bg-2))">
+        <div class="panel-h"><h2 class="h2">Vote tally</h2><span class="t-small" style="color: var(--muted)">7 of 7 voted</span></div>
+        <div class="tally">
+          <div class="tally-row"><span class="av av-md"><span class="face f-luis" role="img" aria-label="Luis"></span></span><div class="bar"><i class="is-top" style="width: 57%"></i></div><span class="tally-n">4</span></div>
+          <div class="tally-row"><span class="av av-md"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><div class="bar"><i style="width: 29%"></i></div><span class="tally-n">2</span></div>
+          <div class="tally-row"><span class="av av-md"><span class="face f-ana" role="img" aria-label="Ana"></span></span><div class="bar"><i style="width: 14%"></i></div><span class="tally-n">1</span></div>
+        </div>
+      </div>
+      <div class="panel" style="padding: 22px">
+        <div class="panel-h"><h2 class="h2">Narration card</h2><span class="t-small t-muted">typewriter · 28 chars/s</span></div>
+        <div class="parch"><span class="drop">T</span>he moon hiccupped, the dogs pretended not to notice, and by morning Juan’s famous straw hat sat alone on the well<span class="caret"></span></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ROW 6: overlays -->
+  <section class="panel" style="padding: 28px">
+    <div class="panel-h"><h2 class="h2">Toasts, sheets &amp; modals</h2></div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) 380px; gap: 18px; align-items: start">
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div class="toast"><span class="av av-sm" style="margin: 0"><span class="face f-vale" role="img" aria-label=""></span></span>Vale joined the village</div>
+        <div class="toast"><span class="i i-logout" style="color: #B4B0E0"></span>Nico left the room</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div class="toast is-ghost"><span class="art f-ghost a-bob" role="img" aria-label="" style="width: 32px; height: 32px"></span><span>A ghost whispers: <b>“bakery”</b></span></div>
+        <div class="toast is-warn"><span class="i i-clock" style="color: #FF6B5E"></span>10 seconds left to vote!</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <div class="netbar" style="border-radius: 14px"><span class="i i-wifi-off"></span>Reconnecting to the village…</div>
+        <div style="position: relative; height: 92px; border-radius: 18px; overflow: hidden; background: #0E1230"><div class="sheet" style="height: 74px; padding-top: 6px"><div class="grabber"></div><span class="t-small t-center" style="color: var(--muted)">Bottom sheet · grabber + 26px top radius</span></div></div>
+      </div>
+      <div class="modal" style="position: relative; left: auto; right: auto; background: #1A1E48">
+        <h3 class="h3" style="font-size: 20px">Kick Tato from the village?</h3>
+        <p class="t-small t-muted" style="margin: 8px 0 18px">They can rejoin with the link unless you start the game.</p>
+        <div style="display: flex; gap: 10px"><button class="btn btn-secondary" style="flex: 1">Cancel</button><button class="btn btn-danger" style="flex: 1">Kick Tato</button></div>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

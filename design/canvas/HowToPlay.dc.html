@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How to play</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="phone ph-night" style="background: var(--sheet)">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 8px">
+    <h1 class="h2" style="font-size: 26px">How to play</h1>
+    <a href="Home.dc.html" class="btn btn-icon btn-secondary" aria-label="Close"><span class="i i-x"></span></a>
+  </div>
+  <div style="padding: 0 16px"><div class="tabs"><button class="tab is-on">The rounds</button><button class="tab">Roles</button></div></div>
+  <div style="padding: 18px 20px 0; display: flex; flex-direction: column; gap: 4px">
+    <p class="t-story" style="margin: 0 0 12px; font-size: 18px; font-style: italic; color: var(--muted)">A few villagers are secretly wolves. Find them before they eat everyone.</p>
+
+    <div style="display: grid; grid-template-columns: 46px minmax(0,1fr); gap: 12px">
+      <div style="display: flex; flex-direction: column; align-items: center"><span class="ph-badge" style="background: #1C1F4A"><span class="i i-moon"></span></span><i style="flex: 1; width: 2px; background: var(--line); margin: 4px 0"></i></div>
+      <div style="padding-bottom: 14px"><b class="h3">Night</b><div class="t-small t-muted">Everyone closes their eyes. Wolves choose a victim. Special roles use their powers in secret.</div></div>
+    </div>
+    <div style="display: grid; grid-template-columns: 46px minmax(0,1fr); gap: 12px">
+      <div style="display: flex; flex-direction: column; align-items: center"><span class="ph-badge" style="background: #5A3A5E; color: #FFD08A"><span class="i i-sunrise"></span></span><i style="flex: 1; width: 2px; background: var(--line); margin: 4px 0"></i></div>
+      <div style="padding-bottom: 14px"><b class="h3">Dawn</b><div class="t-small t-muted">The narrator reads what happened. Someone may not wake up.</div></div>
+    </div>
+    <div style="display: grid; grid-template-columns: 46px minmax(0,1fr); gap: 12px">
+      <div style="display: flex; flex-direction: column; align-items: center"><span class="ph-badge" style="background: #E9D9A6; color: #7A4A10"><span class="i i-sun"></span></span><i style="flex: 1; width: 2px; background: var(--line); margin: 4px 0"></i></div>
+      <div style="padding-bottom: 14px"><b class="h3">Day</b><div class="t-small t-muted">Talk on your call and in chat. Accuse, defend, lie a little.</div></div>
+    </div>
+    <div style="display: grid; grid-template-columns: 46px minmax(0,1fr); gap: 12px">
+      <div style="display: flex; flex-direction: column; align-items: center"><span class="ph-badge" style="background: #5A1E2E; color: #FFCB5C"><span class="i i-vote"></span></span><i style="flex: 1; width: 2px; background: var(--line); margin: 4px 0"></i></div>
+      <div style="padding-bottom: 14px"><b class="h3">Vote</b><div class="t-small t-muted">Tap a suspect and lock your vote. Most votes is out.</div></div>
+    </div>
+    <div style="display: grid; grid-template-columns: 46px minmax(0,1fr); gap: 12px">
+      <div style="display: flex; flex-direction: column; align-items: center"><span class="ph-badge" style="background: #3A1418; color: #FF8F94"><span class="i i-pitchfork"></span></span></div>
+      <div style="padding-bottom: 14px"><b class="h3">Execution</b><div class="t-small t-muted">The chosen one leaves the village (comically). Then night falls again.</div></div>
+    </div>
+
+    <div class="card" style="display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 6px">
+      <div style="display: flex; gap: 8px; align-items: center"><span class="tbadge team-village"><span class="i i-sm i-home"></span></span><span class="t-small">Village wins when every wolf is gone</span></div>
+      <div style="display: flex; gap: 8px; align-items: center"><span class="tbadge team-wolf"><span class="i i-sm i-paw"></span></span><span class="t-small">Wolves win when they equal the village</span></div>
+    </div>
+  </div>
+  <div style="margin-top: auto; padding: 16px 20px 22px; display: flex; gap: 10px">
+    <button class="btn btn-secondary" style="flex: 1">See all 8 roles</button>
+    <a href="Home.dc.html" class="btn btn-primary" style="flex: 1">Let’s play</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

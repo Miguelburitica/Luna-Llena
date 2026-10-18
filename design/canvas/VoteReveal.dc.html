@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vote — Reveal</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.stack{display:flex;padding-left:7px;grid-column:2;margin-top:-4px}.stack .av{margin:0 0 0 -7px}</style>
+</helmet>
+<div class="phone ph-vote">
+  <div class="banner">
+    <span class="ph-badge"><span class="i i-vote"></span></span>
+    <div style="flex: 1"><div class="ph-name">The votes are in</div><div class="ph-sub">Day 2 · 7 of 7 voted</div></div>
+    <span class="sbadge"><span class="i i-sm i-drum"></span>drumroll</span>
+  </div>
+  <div style="padding: 16px 20px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center">
+    <span class="av av-xl is-target a-poof"><span class="face f-luis" role="img" aria-label="Luis"></span><span class="av-badge b-warn" style="min-width: 34px; height: 34px; font-size: 18px">4</span></span>
+    <h1 class="h1" style="font-size: 36px; margin-top: 6px">Luis leaves the village</h1>
+    <p class="t-body" style="margin: 0; color: var(--muted)">The village has spoken. Loudly.</p>
+  </div>
+  <div class="card" style="margin: 20px 12px 0; padding: 18px 16px">
+    <div class="tally" style="gap: 10px">
+      <div class="tally-row"><span class="av av-md"><span class="face f-luis" role="img" aria-label="Luis"></span></span><div class="bar"><i class="is-top" style="width: 57%"></i></div><span class="tally-n">4</span>
+        <span class="stack"><span class="av av-xs"><span class="face f-marta"></span></span><span class="av av-xs"><span class="face f-ana"></span></span><span class="av av-xs"><span class="face f-pipe"></span></span><span class="av av-xs"><span class="face f-caro"></span></span></span></div>
+      <div class="tally-row"><span class="av av-md"><span class="face f-tato" role="img" aria-label="Tato"></span></span><div class="bar"><i style="width: 29%; animation-delay: .12s"></i></div><span class="tally-n">2</span>
+        <span class="stack"><span class="av av-xs"><span class="face f-luis"></span></span><span class="av av-xs"><span class="face f-sofi"></span></span></span></div>
+      <div class="tally-row"><span class="av av-md"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><div class="bar"><i style="width: 14%; animation-delay: .24s"></i></div><span class="tally-n">1</span>
+        <span class="stack"><span class="av av-xs"><span class="face f-tato"></span></span></span></div>
+      <div class="tally-row" style="opacity: .6"><span class="av av-md"><span class="face f-ana" role="img" aria-label="Ana"></span></span><div class="bar"></div><span class="tally-n">0</span></div>
+    </div>
+  </div>
+  <div style="margin-top: auto; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 10px">
+    <span class="t-small t-center t-muted">Votes are public in this room. The narrator will reveal what happens next.</span>
+    <div class="chatbar" style="margin: 0; width: 100%; cursor: default"><span class="i i-chat"></span><span style="flex: 1">Village chat</span><span class="count">9</span><span class="i i-chevron-up"></span></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

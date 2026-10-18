@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Narrator — Room setup</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}.dcard{display:flex;gap:12px;align-items:center;padding:12px;border-radius:18px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(233,230,255,.1)}.dcard.is-on{box-shadow:inset 0 0 0 2px var(--team)}.dcard .rcard-art{width:56px;height:56px;box-shadow:0 0 0 3px var(--team)}.theme{position:relative;flex:1 1 220px;min-height:140px;border-radius:20px;overflow:hidden;border:0;padding:16px;text-align:left;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;cursor:pointer;color:#fff}</style>
+</helmet>
+<div class="desk ph-night">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 16px 32px; border-bottom: 1px solid rgba(233,230,255,.1); flex-wrap: wrap">
+    <span class="art f-logo" role="img" aria-label="Luna Llena" style="width: 40px; height: 40px"></span>
+    <b class="t-display" style="font-size: 22px; color: #F4EBC8">Luna Llena</b>
+    <span class="t-muted" style="font-size: 14px">/ New room</span>
+    <div style="margin-left: auto; display: flex; gap: 8px"><button class="btn btn-icon btn-secondary" aria-label="Help"><span class="i i-help"></span></button><button class="btn btn-icon btn-secondary" aria-label="Settings"><span class="i i-sliders"></span></button></div>
+  </div>
+  <div style="max-width: 1360px; margin: 0 auto; padding: 32px; display: flex; flex-direction: column; gap: 24px">
+    <div>
+      <span class="t-cap t-muted">Narrator · step 1 of 2</span>
+      <h1 class="h1" style="font-size: 44px; margin-top: 6px">Set up your village</h1>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+      <div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+        <section class="panel">
+          <label class="field"><span class="label">Room name</span><input class="input" value="Los Primos · Viernes"></label>
+        </section>
+        <section class="panel">
+          <div class="panel-h"><h2 class="h3">Theme</h2></div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap">
+            <button class="theme" aria-pressed="true" style="background: linear-gradient(180deg,#0E1230,#2A2463); box-shadow: inset 0 0 0 3px #F2A541">
+              <span class="art bg-night" style="position: absolute; inset: 0; background-size: cover; opacity: .9"></span>
+              <span class="chk" style="position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border-radius: 50%; background: #F2A541; color: #1E1230; display: flex; align-items: center; justify-content: center"><span class="i i-sm i-check"></span></span>
+              <b class="t-display" style="font-size: 22px; position: relative">Classic</b>
+              <span class="t-small" style="position: relative; color: #D9D6F5">Moonlit storybook village</span>
+            </button>
+            <button class="theme" disabled style="background: linear-gradient(180deg,#0D1E2C,#22483C); cursor: not-allowed">
+              <span class="is-locked-card" style="position: absolute; inset: 0"></span>
+              <b class="t-display" style="font-size: 22px; position: relative; color: #F7E3A1; opacity: .7">Modo Colombia</b>
+              <span class="t-small" style="position: relative; color: #DDE8E0; opacity: .7">La Patasola, El Mohán…</span>
+              <span class="sbadge" style="position: absolute; top: 12px; right: 12px; background: rgba(8,10,28,.7)"><span class="i i-sm i-lock"></span>Coming soon</span>
+            </button>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-h"><h2 class="h3">Timers</h2><span class="t-small t-muted">Off = you advance manually</span></div>
+          <div class="row-set"><span style="display: flex; gap: 10px; align-items: center; font-weight: 700"><span class="i i-moon"></span>Night</span><div class="seg" style="width: 260px"><button>Off</button><button>45s</button><button class="is-on">60s</button><button>90s</button></div></div>
+          <div class="row-set"><span style="display: flex; gap: 10px; align-items: center; font-weight: 700"><span class="i i-sun"></span>Day discussion</span><div class="seg" style="width: 260px"><button>Off</button><button>2m</button><button class="is-on">3m</button><button>5m</button></div></div>
+          <div class="row-set" style="border: 0"><span style="display: flex; gap: 10px; align-items: center; font-weight: 700"><span class="i i-vote"></span>Vote</span><div class="seg" style="width: 260px"><button>Off</button><button>30s</button><button class="is-on">60s</button><button>90s</button></div></div>
+        </section>
+        <section class="panel">
+          <div class="panel-h"><h2 class="h3">House rules</h2></div>
+          <div class="row-set"><div><b>Ghost powers</b><div class="t-small t-muted">Dead players get one haunt</div></div><button class="toggle is-on" role="switch" aria-checked="true" aria-label="Ghost powers"></button></div>
+          <div class="row-set"><div><b>Last words</b><div class="t-small t-muted">15s spotlight for the fallen</div></div><button class="toggle is-on" role="switch" aria-checked="true" aria-label="Last words"></button></div>
+          <div class="row-set"><div><b>Reveal role on death</b><div class="t-small t-muted">Flip the card when someone dies</div></div><button class="toggle is-on" role="switch" aria-checked="true" aria-label="Reveal role on death"></button></div>
+          <div class="row-set" style="border: 0"><div><b>Anonymous votes</b><div class="t-small t-muted">Hide who voted for whom</div></div><button class="toggle" role="switch" aria-checked="false" aria-label="Anonymous votes"></button></div>
+        </section>
+      </div>
+
+      <section class="panel" style="flex: 999 1 560px; min-width: 0">
+        <div class="panel-h" style="flex-wrap: wrap">
+          <div><h2 class="h2">Role deck</h2><span class="t-small t-muted">Each card is one secret role handed out at the start</span></div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <div class="counter"><button aria-label="Fewer players"><span class="i i-minus"></span></button><output>8</output><button aria-label="More players"><span class="i i-plus"></span></button></div>
+            <button class="btn btn-secondary btn-sm"><span class="i i-sm i-wand"></span>Suggested deck for 8</button>
+          </div>
+        </div>
+
+        <div style="padding: 16px; border-radius: 18px; background: rgba(255,255,255,.04); margin-bottom: 16px">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px">
+            <b>Balance</b>
+            <div style="display: flex; gap: 14px; font: 700 13px var(--font-ui)"><span style="display: flex; gap: 6px; align-items: center; color: #FF8F94"><span class="i i-sm i-paw"></span>Wolves 2</span><span style="display: flex; gap: 6px; align-items: center; color: #7FD3BF"><span class="i i-sm i-home"></span>Village 5</span><span style="display: flex; gap: 6px; align-items: center; color: #D9A8F2"><span class="i i-sm i-sparkles"></span>Solo 1</span></div>
+          </div>
+          <div style="display: flex; height: 18px; border-radius: 99px; overflow: hidden; gap: 3px">
+            <i style="width: 25%; background: #B8323A"></i><i style="width: 62.5%; background: #23705F"></i><i style="width: 12.5%; background: #8445A8"></i>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 10px"><span class="sbadge is-ok"><span class="i i-sm i-check"></span>Balanced for 8 players</span><span class="t-small t-muted">8 roles</span></div>
+        </div>
+
+        <div class="deck">
+          <div class="dcard team-wolf is-on"><span class="rcard-art r-wolf" role="img" aria-label=""></span><div style="flex: 1; min-width: 0"><b>Werewolf</b><div class="t-small" style="color: #FF8F94">Wolves</div></div><div class="counter"><button aria-label="Fewer Werewolves"><span class="i i-minus"></span></button><output>2</output><button aria-label="More Werewolves"><span class="i i-plus"></span></button></div></div>
+          <div class="dcard team-village"><span class="rcard-art r-villager" role="img" aria-label=""></span><div style="flex: 1; min-width: 0"><b>Villager</b><div class="t-small" style="color: #7FD3BF">Village</div></div><div class="counter"><button aria-label="Fewer Villagers" disabled><span class="i i-minus"></span></button><output>0</output><button aria-label="More Villagers"><span class="i i-plus"></span></button></div></div>
+          <div class="dcard team-village is-on"><span class="rcard-art r-seer" role="img" aria-label=""></span><div style="flex: 1; min-width: 0"><b>Seer</b><div class="t-small" style="color: #7FD3BF">Village</div></div><div class="counter"><button aria-label="Fewer Seers"><span class="i i-minus"></span></button><output>1</output><button aria-label="More Seers" disabled><span class="i i-plus"></span></button></div></div>
+          <div class="dcard team-village is-on"><span class="rcard-art r-doctor" role="img" aria-label=""></span><div style="flex: 1; min-width: 0"><b>Doctor</b><div class="t-small" style="color: #7FD3BF">Village</div></div><div class="counter"><button aria-label="Fewer Doctors"><span class="i i-minus"></span></button><output>1</output><button aria-label="More Doctors" disabled><span class="i i-plus"></span></button></div></div>
+          <div class="dcard team-village is-on"><span class="rcard-art r-witch" role="img" aria-label=""></span><div style="flex: 1; min-width: 0"><b>Witch</b><div class="t-small" style="color: #7FD3BF">Village</div></div><div class="counter"><button aria-label="Fewer Witches"><span class="i i-minus"></span></button><output>1</output><button aria-label="More Witches" disabled><span class="i i-plus"></span></button></div></div>
+          <div class="dcard team-village is-on"><span class="rcard-art r-hunter" role="img" aria-label=""></span><div style="flex: 1; min-width: 0"><b>Hunter</b><div class="t-small" style="color: #7FD3BF">Village</div></div><div class="counter"><button aria-label="Fewer Hunters"><span class="i i-minus"></span></button><output>1</output><button aria-label="More Hunters" disabled><span class="i i-plus"></span></button></div></div>
+          <div class="dcard team-solo is-on"><span class="rcard-art r-fool" role="img" aria-label=""></span><div style="flex: 1; min-width: 0"><b>Fool</b><div class="t-small" style="color: #D9A8F2">Solo</div></div><div class="counter"><button aria-label="Fewer Fools"><span class="i i-minus"></span></button><output>1</output><button aria-label="More Fools" disabled><span class="i i-plus"></span></button></div></div>
+          <div class="dcard team-village is-on"><span class="rcard-art r-drunk" role="img" aria-label=""></span><div style="flex: 1; min-width: 0"><b>Drunk</b><div class="t-small" style="color: #7FD3BF">Village · sees Seer</div></div><div class="counter"><button aria-label="Fewer Drunks"><span class="i i-minus"></span></button><output>1</output><button aria-label="More Drunks" disabled><span class="i i-plus"></span></button></div></div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div style="position: sticky; bottom: 0; padding: 16px 32px; background: rgba(10,12,34,.92); border-top: 1px solid rgba(233,230,255,.12); display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; align-items: center">
+    <span class="t-small t-muted" style="margin-right: auto">You can change any of this from the lobby.</span>
+    <button class="btn btn-secondary">Cancel</button>
+    <a href="NarratorLobby.dc.html" class="btn btn-primary btn-lg"><span class="i i-quill"></span>Create room</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1240}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

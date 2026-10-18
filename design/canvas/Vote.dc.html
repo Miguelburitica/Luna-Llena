@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Vote — Pick and lock</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="phone ph-vote">
+  <div class="banner">
+    <span class="ph-badge"><span class="i i-vote"></span></span>
+    <div style="flex: 1"><div class="ph-name">Vote</div><div class="ph-sub">Day 2 · Who leaves the village?</div></div>
+    <button class="btn btn-icon btn-secondary" aria-label="Hold to peek at your role"><span class="i i-card"></span></button>
+    <div class="timer"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="tr-track" cx="26" cy="26" r="22"></circle><circle class="tr-prog" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="64"></circle></svg><b>0:32</b></div>
+  </div>
+  <div class="scene" style="height: 300px">
+    <span class="scene-bg bg-dawn" style="filter: hue-rotate(-20deg) saturate(1.2) brightness(.8)"></span>
+    <div class="hearth" style="top: 112px"><span class="i i-lg i-vote"></span></div>
+    <div class="seat s1" style="top: 14px"><span class="av"><span class="face f-ana" role="img" aria-label="Ana"></span></span><span class="av-name">Ana</span></div>
+    <div class="seat s2" style="top: 44px"><span class="av is-dead"><span class="face" role="img" aria-label="Juan, dead"></span></span><span class="av-name">Juan</span></div>
+    <div class="seat s3" style="top: 120px"><span class="av"><span class="face f-marta" role="img" aria-label="Marta"></span></span><span class="av-name">Marta</span></div>
+    <div class="seat s4" style="top: 194px"><span class="av is-target"><span class="face f-luis" role="img" aria-label="Luis, 3 votes from Marta, Ana and Pipe"></span><span class="av-badge">3</span><span class="voters"><span class="av av-xs"><span class="face f-marta"></span></span><span class="av av-xs"><span class="face f-ana"></span></span><span class="av av-xs"><span class="face f-pipe"></span></span></span></span><span class="av-name" style="margin-top: 14px">Luis</span></div>
+    <div class="seat s5" style="top: 222px"><span class="av"><span class="face f-sofi" role="img" aria-label="Sofi, 1 vote"></span><span class="av-badge">1</span></span><span class="av-name">Sofi</span></div>
+    <div class="seat s6" style="top: 194px"><span class="av"><span class="face f-pipe" role="img" aria-label="Pipe"></span></span><span class="av-name">Pipe</span></div>
+    <div class="seat s7" style="top: 120px"><span class="av is-you"><span class="face f-caro" role="img" aria-label="Caro, you"></span><span class="you-tag">You</span></span><span class="av-name" style="margin-top: 11px">Caro</span></div>
+    <div class="seat s8" style="top: 44px"><span class="av"><span class="face f-tato" role="img" aria-label="Tato, 1 vote"></span><span class="av-badge">1</span></span><span class="av-name">Tato</span></div>
+  </div>
+  <div class="dock">
+    <div style="display: flex; align-items: center; gap: 8px"><span class="h3" style="flex: 1">Tap a suspect</span><span class="sbadge"><span class="i i-sm i-users"></span>5 of 7 voted</span></div>
+    <div class="picker">
+      <sc-for list="{{ targets }}" as="t" hint-placeholder-count="6">
+        <button class="{{ t.cls }}" onClick="{{ t.pick }}" aria-pressed="{{ t.pressed }}" disabled="{{ locked }}">
+          <span class="av"><span class="{{ t.face }}" role="img" aria-label=""></span></span>{{ t.name }}
+          <sc-if value="{{ t.selected }}" hint-placeholder-val="{{ false }}"><span class="chk"><span class="i i-sm i-check"></span></span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ notLocked }}" hint-placeholder-val="{{ true }}">
+      <button class="btn btn-primary btn-lg btn-block" onClick="{{ lock }}" disabled="{{ noPick }}"><span class="i i-lock"></span>{{ lockLabel }}</button>
+    </sc-if>
+    <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; gap: 10px; align-items: center">
+        <div style="flex: 1; display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 0 14px; border-radius: 18px; background: rgba(255,203,92,.16); box-shadow: inset 0 0 0 1.5px var(--accent); font: 700 15px var(--font-ui)"><span class="i i-lock" style="color: var(--accent)"></span><span style="flex: 1">Locked on {{ pickedName }}</span><span class="t-small t-muted" style="font-weight: 600">waiting for 1 more</span></div>
+      </div>
+    </sc-if>
+  </div>
+  <div class="chatbar" style="cursor: default"><span class="i i-chat"></span><span style="flex: 1; font-weight: 500" class="t-muted">Chat stays open while you vote</span><span class="count">2</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { picked: 'luis', locked: false }; }
+  renderVals() {
+    const people = [
+      { id: 'ana', name: 'Ana' }, { id: 'marta', name: 'Marta' }, { id: 'luis', name: 'Luis' },
+      { id: 'sofi', name: 'Sofi' }, { id: 'pipe', name: 'Pipe' }, { id: 'tato', name: 'Tato' }
+    ];
+    const picked = this.state.picked;
+    const locked = !!this.state.locked;
+    const p = people.find((x) => x.id === picked);
+    return {
+      targets: people.map((x) => ({
+        name: x.name,
+        face: 'face f-' + x.id,
+        selected: x.id === picked,
+        pressed: x.id === picked ? 'true' : 'false',
+        cls: x.id === picked ? 'pick is-sel' : 'pick',
+        pick: () => this.setState({ picked: x.id })
+      })),
+      locked: locked,
+      notLocked: !locked,
+      noPick: !picked,
+      pickedName: p ? p.name : '',
+      lockLabel: p ? 'Lock vote on ' + p.name : 'Lock vote',
+      lock: () => this.setState({ locked: true }),
+      unlock: () => this.setState({ locked: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

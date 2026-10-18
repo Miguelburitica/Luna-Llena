@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Luna Llena — Motion notes</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="sheetpage ph-night" style="width: 1440px; height: 1140px; padding: 56px 64px; display: flex; flex-direction: column; gap: 28px; background: #080A1C">
+  <div style="display: flex; align-items: baseline; justify-content: space-between">
+    <h1 class="t-display" style="margin: 0; font-size: 56px; color: #F4EBC8">Motion notes</h1>
+    <span class="t-small t-muted">Motion is identity: slow and atmospheric for phases, snappy and bouncy for comedy beats.</span>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+
+    <section class="panel" style="display: flex; flex-direction: column; gap: 14px">
+      <div class="panel-h" style="margin: 0"><h2 class="h2">Day / night transition</h2><span class="sbadge">2.4s</span></div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+        <div style="height: 110px; border-radius: 12px; background: linear-gradient(180deg,#0E1230,#2A2463); position: relative; overflow: hidden"><span class="art bg-night" style="position: absolute; inset: 0; background-size: cover"></span></div>
+        <div style="height: 110px; border-radius: 12px; background: linear-gradient(180deg,#1E1C48,#7A4E6E); position: relative; overflow: hidden"><span style="position: absolute; left: 60%; top: 62%; width: 30px; height: 30px; border-radius: 50%; background: #F4EBC8"></span></div>
+        <div style="height: 110px; border-radius: 12px; background: linear-gradient(180deg,#2E2552,#D9826A); position: relative; overflow: hidden"><span class="art bg-dawn" style="position: absolute; inset: 0; background-size: cover"></span></div>
+        <div style="height: 110px; border-radius: 12px; background: linear-gradient(180deg,#8EC3E0,#F6E6B4); position: relative; overflow: hidden"><span class="art bg-day" style="position: absolute; inset: 0; background-size: cover"></span></div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px" class="t-cap t-muted"><span>0ms</span><span>600ms</span><span>1400ms</span><span>2400ms</span></div>
+      <ul class="t-small" style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px">
+        <li>Moon arcs down-right 0–1200ms, ease-in. Sun rises from horizon 600–1800ms, ease-out with 4% overshoot.</li>
+        <li>Phase tokens interpolate (bg-1, bg-2, ink, surface) over 1600ms — UI never flashes.</li>
+        <li>Fog fades out, fireflies blink off one by one; ambient loop crossfades 1.5s.</li>
+        <li>Banner label swaps with a 180ms page-turn at the midpoint.</li>
+      </ul>
+      <div class="sbadge" style="align-self: flex-start"><span class="i i-sm i-eye-off"></span>Reduced: 400ms crossfade, no arcs</div>
+    </section>
+
+    <section class="panel" style="display: flex; flex-direction: column; gap: 14px">
+      <div class="panel-h" style="margin: 0"><h2 class="h2">Role card flip</h2><span class="sbadge">700ms</span></div>
+      <div style="display: flex; gap: 16px; align-items: center; justify-content: center; height: 170px">
+        <div class="rcard-back f-cardback" style="width: 90px; height: 128px; border-radius: 10px"></div>
+        <div class="f-cardback" style="width: 90px; height: 128px; border-radius: 10px; background-size: cover; transform: perspective(400px) rotateY(70deg); box-shadow: var(--shadow-2)"></div>
+        <div class="rcard-mini team-village a-flip" style="width: 90px"><span class="rcard-art r-seer art" style="width: 76px; height: 70px"></span><b>Seer</b></div>
+      </div>
+      <ul class="t-small" style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px">
+        <li>Tap → card lifts 8px + scales 1.04 (120ms), then rotateY 180→0 over 580ms, spring (overshoot 6°).</li>
+        <li>Face swaps at 90°. Haptic tick + soft “whoomp” sting at the swap.</li>
+        <li>Team ring glows once (300ms) after landing.</li>
+        <li>Hold-to-peek uses the same flip at 2× speed and flips back on release.</li>
+      </ul>
+      <div class="sbadge" style="align-self: flex-start"><span class="i i-sm i-eye-off"></span>Reduced: instant swap + 150ms fade</div>
+    </section>
+
+    <section class="panel" style="display: flex; flex-direction: column; gap: 14px">
+      <div class="panel-h" style="margin: 0"><h2 class="h2">Death reveal</h2><span class="sbadge">1.8s</span></div>
+      <div style="display: flex; gap: 24px; align-items: flex-end; justify-content: center; height: 170px; background: linear-gradient(180deg,#2E2552,#D9826A); border-radius: 16px; padding-bottom: 20px" class="ph-dawn">
+        <div style="text-align: center"><span class="av"><span class="face f-juan" role="img" aria-label="Juan"></span></span><span class="t-cap" style="display: block; margin-top: 8px">1 · wobble</span></div>
+        <div style="text-align: center"><span class="a-poof" style="display: inline-flex; width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, rgba(255,255,255,.5) 40%, transparent 70%)"></span><span class="t-cap" style="display: block; margin-top: 8px">2 · poof</span></div>
+        <div style="text-align: center"><span class="av is-dead a-drop" style="width: 64px; height: 64px"><span class="face" role="img" aria-label="Tombstone"></span></span><span class="t-cap" style="display: block; margin-top: 8px">3 · drop</span></div>
+      </div>
+      <ul class="t-small" style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px">
+        <li>Portrait wobbles ±6° (300ms), then a white “poof” cloud scales 0.4→1.15→1 (600ms).</li>
+        <li>Tombstone drops from −70px with bounce (900ms); a feather floats down and sways for 1.6s.</li>
+        <li>If role reveal is on: mini role card flips up beside it 400ms later.</li>
+      </ul>
+      <div class="sbadge" style="align-self: flex-start"><span class="i i-sm i-eye-off"></span>Reduced: portrait crossfades to tombstone</div>
+    </section>
+
+    <section class="panel ph-vote" style="display: flex; flex-direction: column; gap: 14px; grid-column: span 1">
+      <div class="panel-h" style="margin: 0"><h2 class="h2">Vote tally fill</h2><span class="sbadge">2.2s</span></div>
+      <div class="tally" style="padding: 14px; border-radius: 16px; background: linear-gradient(180deg,#2A1030,#7A2E35)">
+        <div class="tally-row"><span class="av av-md"><span class="face f-luis" role="img" aria-label="Luis"></span></span><div class="bar"><i class="is-top" style="width: 64%"></i></div><span class="tally-n">4</span></div>
+        <div class="tally-row"><span class="av av-md"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><div class="bar"><i style="width: 32%; animation-delay: .12s"></i></div><span class="tally-n">2</span></div>
+        <div class="tally-row"><span class="av av-md"><span class="face f-ana" role="img" aria-label="Ana"></span></span><div class="bar"><i style="width: 16%; animation-delay: .24s"></i></div><span class="tally-n">1</span></div>
+      </div>
+      <ul class="t-small" style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px">
+        <li>Drumroll sting starts. Bars grow left→right, staggered 120ms, 1400ms each, ease-out.</li>
+        <li>Counters tick up in sync. Voter faces stack in one by one (non-anonymous).</li>
+        <li>Top bar turns warn-red and pulses twice; the name slams in at 1.05 scale.</li>
+      </ul>
+      <div class="sbadge" style="align-self: flex-start"><span class="i i-sm i-eye-off"></span>Reduced: final bars, no stagger</div>
+    </section>
+
+    <section class="panel ph-ghost" style="display: flex; flex-direction: column; gap: 14px">
+      <div class="panel-h" style="margin: 0"><h2 class="h2">Haunt · flicker</h2><span class="sbadge">900ms</span></div>
+      <div style="position: relative; height: 150px; border-radius: 16px; overflow: hidden; background: linear-gradient(180deg,#0E1230,#2A2463)">
+        <span class="art bg-night" style="position: absolute; inset: 0; background-size: cover"></span>
+        <div class="flicker"></div>
+        <span class="t-cap" style="position: absolute; left: 12px; top: 12px; color: #EEEBFF">Every living player’s screen</span>
+      </div>
+      <ul class="t-small" style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px">
+        <li>Three uneven blinks to 75% black over 900ms, like a candle guttering. A candle-out puff sound plays.</li>
+        <li>Whisper: a toast drifts up 24px and fades in (400ms) in the story face, then holds 4s.</li>
+        <li>Never blocks input. Under 3 flashes per second (photosensitivity safe).</li>
+      </ul>
+      <div class="sbadge" style="align-self: flex-start"><span class="i i-sm i-eye-off"></span>Reduced: one 250ms dim</div>
+    </section>
+
+    <section class="panel" style="display: flex; flex-direction: column; gap: 12px; background: #1A1E48">
+      <h2 class="h2">Timing tokens</h2>
+      <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; font: 600 14px var(--font-ui)">
+        <span>instant · taps, toggles</span><code class="kbd">120ms</code>
+        <span>snap · chips, picks, toasts</span><code class="kbd">240ms</code>
+        <span>beat · flip, poof</span><code class="kbd">600–700ms</code>
+        <span>drama · drop, tally</span><code class="kbd">900–1400ms</code>
+        <span>atmos · phase change</span><code class="kbd">1.6–2.4s</code>
+        <span>ambient · fog, fireflies</span><code class="kbd">loop 3–16s</code>
+      </div>
+      <p class="t-small t-muted" style="margin: 6px 0 0">Comedy beats use a spring (cubic-bezier .3, 1.4, .5, 1). Atmosphere uses ease-in-out. Reduced motion follows the OS setting and the in-app toggle, and keeps all sound cues.</p>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1140}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

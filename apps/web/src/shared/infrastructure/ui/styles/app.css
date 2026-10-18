@@ -1,0 +1,55 @@
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--ink-950);
+  color: #eeebff;
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  min-height: 100dvh;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.face.is-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink-600);
+  color: var(--moon);
+  font: 800 13px var(--font-ui);
+}
+
+.av-xs .face.is-initials,
+.av-sm .face.is-initials {
+  font-size: 10px;
+}
+
+.av-lg .face.is-initials,
+.av-xl .face.is-initials {
+  font-size: 26px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+:focus-visible {
+  outline: 3px solid var(--lantern);
+  outline-offset: 2px;
+}

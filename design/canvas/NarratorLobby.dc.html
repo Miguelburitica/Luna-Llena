@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Narrator — Lobby</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.pcard{display:flex;align-items:center;gap:12px;padding:12px 12px 12px 14px;border-radius:18px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(233,230,255,.1)}.pcard .av{margin:0}</style>
+</helmet>
+<div class="desk ph-night">
+  <div style="display: flex; align-items: center; gap: 14px; padding: 16px 32px; border-bottom: 1px solid rgba(233,230,255,.1); flex-wrap: wrap">
+    <span class="art f-logo" role="img" aria-label="Luna Llena" style="width: 40px; height: 40px"></span>
+    <b class="t-display" style="font-size: 22px; color: #F4EBC8">Luna Llena</b>
+    <span class="t-muted" style="font-size: 14px">/ Los Primos · Viernes / Lobby</span>
+    <div style="margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap">
+      <span class="sbadge" style="font: 800 15px var(--font-display); letter-spacing: .12em; padding: 8px 14px">LUNA42</span>
+      <button class="btn btn-secondary btn-sm"><span class="i i-sm i-copy"></span>Copy invite link</button>
+      <a href="NarratorSetup.dc.html" class="btn btn-secondary btn-sm"><span class="i i-sm i-sliders"></span>Edit settings</a>
+    </div>
+  </div>
+  <div style="max-width: 1360px; margin: 0 auto; padding: 28px 32px 40px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+    <section class="panel" style="flex: 999 1 640px; min-width: 0">
+      <div class="panel-h"><div><h1 class="h2" style="font-size: 30px">In the village</h1><span class="t-small t-muted">7 players · 5 ready</span></div><span class="t-small t-muted" style="display: flex; gap: 6px; align-items: center"><span class="i i-sm i-info"></span>Players see this list too, without roles</span></div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px">
+        <div class="pcard" style="box-shadow: inset 0 0 0 1.5px #F4EBC8"><span class="av av-md" style="--ring: #F4EBC8"><span class="face f-nico" role="img" aria-label=""></span></span><div style="flex: 1"><b>Nico</b><div class="t-small" style="color: #F4EBC8; display: flex; gap: 4px; align-items: center"><span class="i i-sm i-quill"></span>Narrator (you)</div></div></div>
+        <div class="pcard"><span class="av av-md"><span class="face f-ana" role="img" aria-label=""></span></span><div style="flex: 1"><b>Ana</b><div class="t-small" style="color: var(--ok)">Ready</div></div><button class="btn btn-icon btn-ghost" aria-label="Kick Ana"><span class="i i-user-x"></span></button></div>
+        <div class="pcard"><span class="av av-md"><span class="face f-juan" role="img" aria-label=""></span></span><div style="flex: 1"><b>Juan</b><div class="t-small" style="color: var(--ok)">Ready</div></div><button class="btn btn-icon btn-ghost" aria-label="Kick Juan"><span class="i i-user-x"></span></button></div>
+        <div class="pcard"><span class="av av-md"><span class="face f-marta" role="img" aria-label=""></span></span><div style="flex: 1"><b>Marta</b><div class="t-small t-muted">Not ready yet</div></div><button class="btn btn-icon btn-ghost" aria-label="Kick Marta"><span class="i i-user-x"></span></button></div>
+        <div class="pcard"><span class="av av-md"><span class="face f-luis" role="img" aria-label=""></span></span><div style="flex: 1"><b>Luis</b><div class="t-small" style="color: var(--ok)">Ready</div></div><button class="btn btn-icon btn-ghost" aria-label="Kick Luis"><span class="i i-user-x"></span></button></div>
+        <div class="pcard"><span class="av av-md"><span class="face f-sofi" role="img" aria-label=""></span></span><div style="flex: 1"><b>Sofi</b><div class="t-small" style="color: var(--ok)">Ready</div></div><button class="btn btn-icon btn-ghost" aria-label="Kick Sofi"><span class="i i-user-x"></span></button></div>
+        <div class="pcard"><span class="av av-md"><span class="face f-caro" role="img" aria-label=""></span></span><div style="flex: 1"><b>Caro</b><div class="t-small" style="color: var(--ok)">Ready</div></div><button class="btn btn-icon btn-ghost" aria-label="Kick Caro"><span class="i i-user-x"></span></button></div>
+        <div class="pcard" style="box-shadow: inset 0 0 0 1.5px var(--warn)"><span class="av av-md is-off"><span class="face f-tato" role="img" aria-label=""></span><span class="av-badge b-warn"><span class="i i-sm i-wifi-off"></span></span></span><div style="flex: 1"><b>Tato</b><div class="t-small" style="color: var(--warn)">Reconnecting…</div></div><button class="btn btn-icon btn-danger" aria-label="Kick Tato"><span class="i i-user-x"></span></button></div>
+        <div class="pcard" style="border: 1.5px dashed rgba(233,230,255,.2); box-shadow: none; justify-content: center; color: var(--muted)"><span class="i i-link"></span><span class="t-small">Waiting for more… share LUNA42</span></div>
+      </div>
+      <div class="modal" style="position: relative; left: auto; right: auto; margin-top: 16px; max-width: 420px; background: #1A1E48; padding: 18px; box-shadow: inset 0 0 0 1.5px var(--danger), var(--shadow-2)">
+        <h3 class="h3" style="display: flex; gap: 10px; align-items: center"><span class="av av-sm" style="margin: 0"><span class="face f-tato"></span></span>Kick Tato from the village?</h3>
+        <p class="t-small t-muted" style="margin: 6px 0 14px">They can rejoin with the link until you start the game.</p>
+        <div style="display: flex; gap: 8px"><button class="btn btn-secondary btn-sm" style="flex: 1">Cancel</button><button class="btn btn-danger btn-sm" style="flex: 1">Kick Tato</button></div>
+      </div>
+    </section>
+
+    <aside style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+      <section class="panel" style="box-shadow: inset 0 0 0 1.5px var(--warn)">
+        <div class="panel-h"><h2 class="h3">Deck vs players</h2><span class="sbadge is-warn"><span class="i i-sm i-x"></span>Mismatch</span></div>
+        <div style="display: flex; align-items: baseline; gap: 10px"><b class="t-display" style="font-size: 42px">8</b><span class="t-muted">roles</span><span class="t-display" style="font-size: 28px; color: var(--muted)">/</span><b class="t-display" style="font-size: 42px">7</b><span class="t-muted">players</span></div>
+        <p class="t-small" style="margin: 8px 0 14px; color: #FF9C92">Deck has 8 roles for 7 players. Remove one role, or wait for one more friend.</p>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px">
+          <span class="tbadge team-wolf">2 Werewolf</span><span class="tbadge team-village">Seer</span><span class="tbadge team-village">Doctor</span><span class="tbadge team-village">Witch</span><span class="tbadge team-village">Hunter</span><span class="tbadge team-village">Drunk</span><span class="tbadge team-solo">Fool</span>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap"><button class="btn btn-secondary btn-sm"><span class="i i-sm i-wand"></span>Use suggested 7-deck</button><a href="NarratorSetup.dc.html" class="btn btn-ghost btn-sm">Edit deck</a></div>
+      </section>
+      <section class="panel">
+        <div class="panel-h"><h2 class="h3">Before you start</h2></div>
+        <div style="display: flex; flex-direction: column; gap: 10px" class="t-small">
+          <span style="display: flex; gap: 8px; align-items: center; color: #FF9C92"><span class="i i-sm i-x"></span>Deck matches player count</span>
+          <span style="display: flex; gap: 8px; align-items: center; color: #FF9C92"><span class="i i-sm i-x"></span>Everyone is ready (Marta, Tato)</span>
+          <span style="display: flex; gap: 8px; align-items: center; color: var(--ok)"><span class="i i-sm i-check"></span>At least 6 players</span>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" style="margin-top: 18px" disabled><span class="i i-play"></span>Start game</button>
+        <span class="t-small t-muted t-center" style="display: block; margin-top: 8px">Enabled when the deck matches and everyone is ready</span>
+      </section>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":940}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

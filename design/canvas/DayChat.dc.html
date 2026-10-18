@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Day — Chat sheet</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="phone ph-day">
+  <div class="banner">
+    <span class="ph-badge"><span class="i i-sun"></span></span>
+    <div style="flex: 1"><div class="ph-name">Day</div><div class="ph-sub">Day 2 · Discuss</div></div>
+    <div class="timer"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="tr-track" cx="26" cy="26" r="22"></circle><circle class="tr-prog" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="62"></circle></svg><b>1:12</b></div>
+  </div>
+  <div class="scene" style="height: 160px"><span class="scene-bg bg-day" style="background-size: cover; background-position: center 80%"></span></div>
+  <div class="sheet" style="top: 140px">
+    <div class="grabber"></div>
+    <div class="tabs">
+      <button class="tab is-on"><span class="i i-sm i-home"></span>Village</button>
+      <button class="tab"><span class="i i-sm i-paw"></span>Wolves <span class="count" style="background: #B8323A">2</span></button>
+    </div>
+    <div class="msgs">
+      <div class="msg msg-sys"><span>Day 2 begins · Juan has left us</span></div>
+      <div class="msg msg-narr"><span class="av av-sm" style="--ring: #F4EBC8"><span class="face f-nico" role="img" aria-label="Narrator"></span></span><div class="bubble" style="background: #FFF3DC"><span class="who">Narrator</span>The baker swears she heard howling near the arepa stand.</div></div>
+      <div class="msg"><span class="av av-sm"><span class="face f-marta" role="img" aria-label="Marta"></span></span><div class="bubble"><span class="who">Marta</span>I have a very strong feeling about Luis. Trust me on this one.</div></div>
+      <div class="msg"><span class="av av-sm"><span class="face f-ana" role="img" aria-label="Ana"></span></span><div class="bubble"><span class="who">Ana</span>Juan literally said Tato with his last breath</div></div>
+      <div class="msg msg-own"><div class="bubble">arepas are a valid alibi</div></div>
+      <div class="msg"><span class="av av-sm"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><div class="bubble"><span class="who">Sofi</span>honestly vote me, I dare you</div></div>
+      <div class="msg"><span class="av av-sm"><span class="face f-pipe" role="img" aria-label="Pipe"></span></span><div class="bubble"><span class="who">Pipe</span>Sofi is being weird on purpose. Marta, why Luis?</div></div>
+      <div class="msg msg-sys"><span>Marta is typing…</span></div>
+    </div>
+    <div class="composer"><input class="input" placeholder="Say something to the village…" aria-label="Message the village" style="background: #fff"><button class="btn btn-icon btn-primary" aria-label="Send"><span class="i i-send"></span></button></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

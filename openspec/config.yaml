@@ -1,0 +1,65 @@
+schema: spec-driven
+
+context: |
+  Product: Luna Llena, an online Werewolf party game for groups of friends (6 to 15 players plus one human narrator).
+  The narrator ("God") runs the game from a desktop dashboard; players use phones or laptops. Players talk over an
+  external voice call; the game provides text chat, secret roles, night actions, voting, atmosphere (animation and
+  sound) and AI-drafted narration. MVP scope is online only and the Classic theme. A Colombian theme pack comes later
+  and must be a swap of theme tokens, illustrations, role display names and sounds plus new roles.
+
+  Design source of truth: design/canvas (exported Claude Design canvas, one .dc.html per screen) and
+  design/ui-brief.md. The stylesheet lives in apps/web/src/shared/infrastructure/ui/styles/design-system.css and its
+  class names (btn, card, pick, prow, sbadge, panel, seg, toggle, counter, av, face, i-*) are reused, never re-invented.
+
+  Stack: pnpm monorepo, TypeScript (strict), Node 24.
+    apps/server   Node + Socket.io, authoritative game state held in memory, run with tsx.
+    apps/web      Vue 3 SPA (Vite, Vue Router, Pinia, vue-i18n with en and es), socket.io-client.
+    packages/contracts  shared kernel: vocabulary (ids, enums as const arrays), DTOs, socket event maps, error codes.
+  Testing: Vitest everywhere; @vue/test-utils with jsdom for components. Domain and application code is covered by
+  unit tests; socket handlers by integration tests with a real socket.io server and client.
+
+  Architecture: DDD layered by feature. Every feature lives in src/features/<feature>/ with exactly three folders:
+    domain/          entities, aggregates, value objects, domain services and errors. Pure TypeScript, no I/O, no
+                     framework imports. May import @luna/contracts vocabulary and src/shared/domain.
+    application/     use cases (one class per command or query, method execute) and ports (interfaces for
+                     repositories, gateways, publishers, clocks, id generators). On the web this layer also holds the
+                     Pinia stores and composables. Never imports infrastructure.
+    infrastructure/  adapters implementing ports (in-memory repositories, socket gateways, random generators,
+                     localStorage) and driving adapters (socket handlers on the server; Vue views and components on
+                     the web). Wiring happens in the composition root (apps/server/src/main.ts, apps/web/src/app).
+  Cross-cutting code lives in src/shared/{domain,application,infrastructure}. Features talk to each other through
+  application ports or domain events, never by reaching into another feature's infrastructure.
+  Errors are values: use cases return Result<T, E> (src/shared/domain/Result.ts) with error codes from contracts;
+  exceptions are reserved for programmer errors.
+  The server is authoritative and sends each member only what that member is allowed to know.
+
+  Code conventions (enforced by pnpm lint):
+    No comments of any kind in code, templates or styles. Product knowledge and decisions live in these specs.
+    Names carry the meaning: no abbreviations, no generic helpers like utils.ts.
+    DRY: shared vocabulary in contracts, shared UI in src/shared/infrastructure/ui, one mapper per DTO.
+    Layer boundaries are lint errors (domain cannot import application or infrastructure or frameworks;
+    application cannot import infrastructure).
+
+  Workflow: every change goes through OpenSpec (proposal, specs, design, tasks, apply, archive). Opus writes gold
+  examples, proposes changes, orchestrates and verifies. Sonnet agents implement tasks by copying the gold example
+  feature (room) patterns. A change is done only when pnpm check passes and every spec scenario has a test.
+
+rules:
+  proposal:
+    - State which feature folders (server and web) the change touches.
+    - List non-goals explicitly.
+  specs:
+    - Write requirements with SHALL and at least one scenario each, in WHEN/THEN form.
+    - Specs describe observable behaviour of the game, not code structure.
+  design:
+    - Show the domain model, the use cases, the ports and the socket events the change adds.
+    - Reference the design/canvas screens each view implements.
+  tasks:
+    - Group tasks by layer in this order - contracts, server domain, server application, server infrastructure, web domain, web application, web infrastructure, verification.
+    - Each task names the scenario tests it adds.
+
+operations:
+  apply:
+    guidance:
+      - Read the room feature on both server and web before writing a new feature and copy its patterns.
+      - Never write comments; run pnpm check before reporting done.

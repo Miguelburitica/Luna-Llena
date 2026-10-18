@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dawn — Narration and death</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<div class="phone ph-dawn">
+  <div class="banner">
+    <span class="ph-badge"><span class="i i-sunrise"></span></span>
+    <div style="flex: 1"><div class="ph-name">Dawn</div><div class="ph-sub">Day 2 · Alguien no amaneció</div></div>
+    <button class="btn btn-icon btn-secondary" aria-label="Hold to peek at your role"><span class="i i-card"></span></button>
+  </div>
+  <div class="scene" style="height: 300px">
+    <span class="scene-bg bg-dawn a-rise"></span>
+    <div class="seat s1" style="top: 14px"><span class="av"><span class="face f-ana" role="img" aria-label="Ana"></span></span><span class="av-name">Ana</span></div>
+    <div class="seat s2" style="top: 40px"><span class="av is-dead a-drop" style="width: 64px; height: 64px"><span class="face" role="img" aria-label="Juan, died tonight"></span></span><span class="av-name">Juan</span></div>
+    <span class="a-sway" aria-hidden="true" style="position: absolute; left: 318px; top: 30px; width: 20px; height: 28px; z-index: 4"><svg viewBox="0 0 20 28" width="20" height="28"><path d="M10 1 C18 6 18 18 10 27 C2 18 2 6 10 1Z" fill="#F4EBC8"></path><path d="M10 3 V26" stroke="#C9B98A" stroke-width="1.2"></path></svg></span>
+    <div class="seat s3" style="top: 120px"><span class="av"><span class="face f-marta" role="img" aria-label="Marta"></span></span><span class="av-name">Marta</span></div>
+    <div class="seat s4" style="top: 196px"><span class="av"><span class="face f-luis" role="img" aria-label="Luis"></span></span><span class="av-name">Luis</span></div>
+    <div class="seat s5" style="top: 222px"><span class="av"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><span class="av-name">Sofi</span></div>
+    <div class="seat s6" style="top: 196px"><span class="av"><span class="face f-pipe" role="img" aria-label="Pipe"></span></span><span class="av-name">Pipe</span></div>
+    <div class="seat s7" style="top: 120px"><span class="av is-you"><span class="face f-caro" role="img" aria-label="Caro, you"></span><span class="you-tag">You</span></span><span class="av-name" style="margin-top: 11px">Caro</span></div>
+    <div class="seat s8" style="top: 40px"><span class="av"><span class="face f-tato" role="img" aria-label="Tato"></span></span><span class="av-name">Tato</span></div>
+  </div>
+  <div style="margin: 0 12px; display: flex; flex-direction: column; gap: 10px">
+    <div class="parch" style="font-size: 18px; padding: 20px 20px 16px">
+      <div class="t-cap" style="font-family: var(--font-ui); color: #8A6A3A; margin-bottom: 6px; display: flex; align-items: center; gap: 6px"><span class="i i-sm i-quill"></span>Nico, the narrator</div>
+      <span class="drop">T</span>he moon hiccupped, the dogs pretended not to notice, and by sunrise Juan’s famous straw hat sat all alone on the well. The Doctor, it seems, forgot to doctor himself<span class="caret"></span>
+    </div>
+    <div class="card a-poof" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px">
+      <span class="av av-md is-dead" style="margin: 0"><span class="face" role="img" aria-label=""></span></span>
+      <div style="flex: 1"><b class="h3">Juan didn’t wake up</b><div class="t-small t-muted">He was the…</div></div>
+      <div class="rcard-mini team-village a-flip" style="width: 70px; padding: 4px 4px 6px"><span class="rcard-art r-doctor art" role="img" aria-label="Doctor" style="width: 62px; height: 52px"></span><b style="font-size: 12px">Doctor</b></div>
+    </div>
+  </div>
+  <button class="chatbar"><span class="i i-chat"></span><span style="flex: 1">Village chat is awake</span><span class="count">5</span><span class="i i-chevron-up"></span></button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

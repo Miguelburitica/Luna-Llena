@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Role reveal</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.flipbtn{background:none;border:0;padding:0;cursor:pointer;border-radius:22px}</style>
+</helmet>
+<div class="phone ph-night" style="align-items: center">
+  <span class="firefly" style="left: 50px; top: 160px"></span><span class="firefly" style="left: 330px; top: 260px; animation-delay: 1.4s"></span><span class="firefly" style="left: 300px; top: 620px; animation-delay: .6s"></span>
+  <div style="padding: 40px 28px 0; text-align: center; display: flex; flex-direction: column; gap: 8px">
+    <span class="t-cap t-muted">The night begins</span>
+    <h1 class="h1" style="font-size: 36px">Your secret role</h1>
+    <sc-if value="{{ notFlipped }}" hint-placeholder-val="{{ true }}">
+      <p class="t-body t-muted" style="margin: 0">Make sure nobody’s peeking at your screen. Then tap the card.</p>
+    </sc-if>
+    <sc-if value="{{ flipped }}" hint-placeholder-val="{{ false }}">
+      <p class="t-body t-muted" style="margin: 0">Keep it to yourself. Act natural.</p>
+    </sc-if>
+  </div>
+  <div style="flex: 1; display: flex; align-items: center; justify-content: center">
+    <sc-if value="{{ notFlipped }}" hint-placeholder-val="{{ true }}">
+      <button class="flipbtn a-bob" onClick="{{ flip }}" aria-label="Reveal your role">
+        <span class="rcard-back f-cardback" style="display: block; width: 260px; height: 368px"></span>
+      </button>
+    </sc-if>
+    <sc-if value="{{ flipped }}" hint-placeholder-val="{{ false }}">
+      <div class="rcard team-village a-flip" style="width: 260px; height: 368px">
+        <span class="rcard-art r-seer" role="img" aria-label="Seer illustration" style="width: 164px; height: 154px"></span>
+        <span class="tbadge"><span class="i i-sm i-home"></span>Village</span>
+        <span class="rcard-name" style="font-size: 30px">Seer</span>
+        <span class="rcard-power" style="font-size: 14px">Each night, peek at one player and learn if they’re a Werewolf.</span>
+        <span class="rcard-win"><span class="i i-sm i-trophy"></span>Win when every wolf is gone.</span>
+      </div>
+    </sc-if>
+  </div>
+  <div style="width: 100%; padding: 0 24px 28px; display: flex; flex-direction: column; gap: 12px; align-items: center">
+    <sc-if value="{{ notFlipped }}" hint-placeholder-val="{{ true }}">
+      <span class="sbadge"><span class="i i-sm i-hand"></span>Tap to flip</span>
+    </sc-if>
+    <sc-if value="{{ flipped }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 12px; width: 342px">
+        <div class="card" style="display: flex; gap: 12px; align-items: center; padding: 12px 14px">
+          <span class="btn btn-icon btn-secondary" style="flex: none" aria-hidden="true"><span class="i i-card"></span></span>
+          <span class="t-small">Forgot? <b>Press and hold</b> the card icon during the game to peek. It hides again when you let go.</span>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" onClick="{{ reset }}">Got it</button>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { flipped: false }; }
+  renderVals() {
+    const f = !!this.state.flipped;
+    return {
+      flipped: f,
+      notFlipped: !f,
+      flip: () => this.setState({ flipped: true }),
+      reset: () => this.setState({ flipped: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

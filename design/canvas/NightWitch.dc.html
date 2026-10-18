@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Night — Witch</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.potion{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:14px;border-radius:18px;border:0;text-align:left;cursor:pointer;min-height:132px;font-family:var(--font-ui)}</style>
+</helmet>
+<div class="phone ph-night">
+  <div class="banner">
+    <span class="ph-badge"><span class="i i-moon"></span></span>
+    <div style="flex: 1"><div class="ph-name">Night</div><div class="ph-sub">Night 2 · The village sleeps</div></div>
+    <button class="btn btn-icon btn-secondary" aria-label="Hold to peek at your role"><span class="i i-card"></span></button>
+    <div class="timer is-warn"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="tr-track" cx="26" cy="26" r="22"></circle><circle class="tr-prog" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="118"></circle></svg><b>0:09</b></div>
+  </div>
+  <div class="scene">
+    <span class="scene-bg bg-night"></span>
+    <div class="fog" style="top: 200px"></div>
+    <div class="hearth"><span class="i i-lg i-flask"></span></div>
+    <div class="seat s1"><span class="av"><span class="face f-ana" role="img" aria-label="Ana"></span></span><span class="av-name">Ana</span></div>
+    <div class="seat s2"><span class="av is-target a-shake"><span class="face f-juan" role="img" aria-label="Juan, wolves’ victim"></span><span class="av-badge b-warn"><span class="i i-sm i-paw"></span></span></span><span class="av-name">Juan</span></div>
+    <div class="seat s3"><span class="av"><span class="face f-marta" role="img" aria-label="Marta"></span></span><span class="av-name">Marta</span></div>
+    <div class="seat s4"><span class="av"><span class="face f-luis" role="img" aria-label="Luis"></span></span><span class="av-name">Luis</span></div>
+    <div class="seat s5"><span class="av"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><span class="av-name">Sofi</span></div>
+    <div class="seat s6"><span class="av is-you"><span class="face f-pipe" role="img" aria-label="Pipe, you"></span><span class="you-tag">You</span></span><span class="av-name" style="margin-top: 11px">Pipe</span></div>
+    <div class="seat s7"><span class="av"><span class="face f-caro" role="img" aria-label="Caro"></span></span><span class="av-name">Caro</span></div>
+    <div class="seat s8"><span class="av"><span class="face f-tato" role="img" aria-label="Tato"></span></span><span class="av-name">Tato</span></div>
+  </div>
+  <div class="dock">
+    <div class="result" style="padding: 10px 12px">
+      <span class="av av-md" style="margin: 0; --ring: #FF6B5E"><span class="face f-juan" role="img" aria-label="Juan"></span></span>
+      <div style="flex: 1"><div class="t-story" style="font-size: 15px; font-style: italic; color: #6A4E30">The wolves are coming for…</div><b class="t-display" style="font-size: 22px">Juan</b></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px">
+      <button class="potion" disabled style="background: rgba(255,255,255,.05); color: var(--muted); box-shadow: inset 0 0 0 1.5px var(--line); cursor: not-allowed; opacity: .6">
+        <span class="i i-lg i-heart"></span>
+        <b style="font-size: 17px; text-decoration: line-through">Heal</b>
+        <span class="t-small">Used on Ana · Night 1</span>
+      </button>
+      <button class="potion" style="background: linear-gradient(160deg,#4A2A6E,#2E1A4A); color: #F4ECFF; box-shadow: inset 0 0 0 2px #C98BE8, 0 4px 0 #1A0E2E">
+        <span class="i i-lg i-flask" style="color: #D9A8F2"></span>
+        <b style="font-size: 17px">Poison…</b>
+        <span class="t-small" style="color: #E2CCF2">1 left · then pick a target</span>
+      </button>
+    </div>
+    <button class="btn btn-ghost btn-block" style="min-height: 44px; color: var(--muted)">Do nothing tonight</button>
+  </div>
+  <div class="chatbar" style="cursor: default"><span class="i i-lock"></span><span style="flex: 1" class="t-muted">The village sleeps — chat opens at dawn</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

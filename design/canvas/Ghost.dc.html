@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ghost — Haunt</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/d8c3ee55544924b0595ca6734747303d">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..900;1,9..144,500..900&amp;family=IM+Fell+English:ital@0;1&amp;family=Figtree:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>body{margin:0}.haunt{flex:1;min-height:84px;border-radius:16px;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font:700 14px var(--font-ui);cursor:pointer}.tgt{background:none;border:0;padding:4px;border-radius:50%;cursor:pointer;width:48px;height:48px}</style>
+</helmet>
+<div class="phone ph-ghost">
+  <div class="banner">
+    <span class="ph-badge"><span class="i i-ghost"></span></span>
+    <div style="flex: 1"><div class="ph-name">You’re a ghost</div><div class="ph-sub">Day 3 · Watching from beyond</div></div>
+    <div class="timer"><svg viewBox="0 0 52 52" aria-hidden="true"><circle class="tr-track" cx="26" cy="26" r="22"></circle><circle class="tr-prog" cx="26" cy="26" r="22" stroke-dasharray="138.2" stroke-dashoffset="40"></circle></svg><b>1:58</b></div>
+  </div>
+  <div class="scene" style="height: 290px">
+    <span class="scene-bg bg-day" style="opacity: .55"></span>
+    <div class="fog" style="top: 160px"></div>
+    <div class="seat s1" style="top: 14px"><span class="av"><span class="face f-ana" role="img" aria-label="Ana"></span></span><span class="av-name">Ana</span></div>
+    <div class="seat s2" style="top: 44px"><span class="av is-ghost is-you a-bob"><span class="face f-juan" role="img" aria-label="Juan, you, ghost"></span></span><span class="av-name">You</span></div>
+    <div class="seat s3" style="top: 116px"><span class="av"><span class="face f-marta" role="img" aria-label="Marta"></span></span><span class="av-name">Marta</span></div>
+    <div class="seat s4" style="top: 186px"><span class="av is-dead"><span class="face" role="img" aria-label="Luis, dead"></span></span><span class="av-name">Luis</span></div>
+    <div class="seat s5" style="top: 210px"><span class="av"><span class="face f-sofi" role="img" aria-label="Sofi"></span></span><span class="av-name">Sofi</span></div>
+    <div class="seat s6" style="top: 186px"><span class="av"><span class="face f-pipe" role="img" aria-label="Pipe"></span></span><span class="av-name">Pipe</span></div>
+    <div class="seat s7" style="top: 116px"><span class="av"><span class="face f-caro" role="img" aria-label="Caro"></span></span><span class="av-name">Caro</span></div>
+    <div class="seat s8" style="top: 44px"><span class="av"><span class="face f-tato" role="img" aria-label="Tato"></span></span><span class="av-name">Tato</span></div>
+    <span class="art f-ghost a-bob" style="position: absolute; left: 170px; top: 104px; width: 50px; height: 50px; opacity: .8" aria-hidden="true"></span>
+  </div>
+  <div class="dock">
+    <div style="display: flex; align-items: center; gap: 8px"><span class="i i-ghost" style="color: var(--accent)"></span><span class="h3" style="flex: 1">Haunt the living</span><span class="sbadge">once per game</span></div>
+    <div style="display: flex; gap: 10px">
+      <button class="haunt" style="background: var(--surface-2); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line)"><span class="i i-lg i-zap"></span>Flicker<span class="t-small t-muted" style="font-weight: 500">blink every screen</span></button>
+      <button class="haunt" style="background: rgba(185,195,255,.16); color: var(--ink); box-shadow: inset 0 0 0 2px var(--accent)"><span class="i i-lg i-feather"></span>Whisper<span class="t-small t-muted" style="font-weight: 500">one word, one player</span></button>
+    </div>
+    <label class="field"><span class="label">Your one spooky word</span><input class="input" value="bakery" maxlength="16" style="font-family: var(--font-story); font-size: 19px; font-style: italic"></label>
+    <div style="display: flex; align-items: center; gap: 4px">
+      <span class="label" style="margin-right: 6px">To</span>
+      <button class="tgt" aria-label="Ana"><span class="av av-md"><span class="face f-ana"></span></span></button>
+      <button class="tgt" aria-label="Marta" aria-pressed="true"><span class="av av-md is-sel" style="--ring: var(--accent)"><span class="face f-marta"></span></span></button>
+      <button class="tgt" aria-label="Sofi"><span class="av av-md"><span class="face f-sofi"></span></span></button>
+      <button class="tgt" aria-label="Pipe"><span class="av av-md"><span class="face f-pipe"></span></span></button>
+      <button class="tgt" aria-label="Caro"><span class="av av-md"><span class="face f-caro"></span></span></button>
+      <button class="tgt" aria-label="Tato"><span class="av av-md"><span class="face f-tato"></span></span></button>
+    </div>
+    <button class="btn btn-primary btn-block">Whisper “bakery” to Marta</button>
+  </div>
+  <button class="chatbar"><span class="i i-ghost"></span><span style="flex: 1">Ghosts <span class="t-muted" style="font-weight: 500">· Village is read-only</span></span><span class="count" style="background: #B9C3FF; color: #151838">1</span><span class="i i-chevron-up"></span></button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
