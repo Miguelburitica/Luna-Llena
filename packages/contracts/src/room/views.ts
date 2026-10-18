@@ -36,6 +36,7 @@ export interface RoomSnapshot {
   readonly code: string
   readonly name: string
   readonly status: RoomStatus
+  readonly voiceCallUrl: string | null
   readonly settings: RoomSettingsView
   readonly members: readonly MemberView[]
   readonly startReadiness: StartReadiness
@@ -50,6 +51,7 @@ export interface RoomSummary {
   readonly capacity: number
   readonly avatarsInUse: readonly AvatarId[]
   readonly acceptingPlayers: boolean
+  readonly voiceCallUrl: string | null
 }
 
 export interface RoomSession {

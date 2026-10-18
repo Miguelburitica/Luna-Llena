@@ -9,6 +9,7 @@ export interface CreateRoomInput {
   readonly roomName: string
   readonly narratorName: string
   readonly settings?: RoomSettingsInput
+  readonly voiceCallUrl?: string | null
 }
 
 export interface RoomClientEvents {
@@ -23,6 +24,7 @@ export interface RoomClientEvents {
   'room:leave': (input: Record<string, never>, ack: RoomAck<void>) => void
   'room:start': (input: Record<string, never>, ack: RoomAck<void>) => void
   'room:playAgain': (input: Record<string, never>, ack: RoomAck<void>) => void
+  'room:setVoiceCall': (input: { readonly url: string | null }, ack: RoomAck<void>) => void
 }
 
 export interface RoomServerEvents {

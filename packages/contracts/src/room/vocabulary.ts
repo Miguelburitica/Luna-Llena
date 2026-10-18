@@ -30,5 +30,6 @@ export const ROOM_LIMITS = {
   maxNameLength: 20,
   maxRoomNameLength: 40,
   maxCardsPerRole: 15,
-  codeLength: 6
+  codeLength: 6,
+  maxVoiceCallUrlLength: 300
 } as const
