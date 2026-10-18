@@ -1,3 +1,4 @@
+import type { ChatAccess } from '../chat/views'
 import type { RoleId, TeamId } from '../roles/catalog'
 import type { DawnReport, NarratorNightView, PlayerNightView, Vision } from './night'
 import type { Phase } from './vocabulary'
@@ -26,6 +27,7 @@ interface MatchViewCommon {
   readonly verdict: Verdict | null
   readonly revenge: RevengeView | null
   readonly soloWinnerIds: readonly string[]
+  readonly chat: ChatAccess
 }
 
 export interface PlayerMatchView extends MatchViewCommon {
