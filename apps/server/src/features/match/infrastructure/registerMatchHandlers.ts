@@ -21,6 +21,7 @@ export const registerMatchHandlers = (io: LunaServer, useCases: MatchUseCases): 
     answer(socket, 'match:avenge', asActor(socket, (actor, payload) => useCases.takeRevenge.execute(actor, payload.targetId)))
     answer(socket, 'match:skipRevenge', asActor(socket, (actor) => useCases.skipRevenge.execute(actor)))
     answer(socket, 'match:haunt', asActor(socket, (actor, payload) => useCases.haunt.execute(actor, payload)))
+    answer(socket, 'match:cue', asActor(socket, (actor, payload) => useCases.playCue.execute(actor, payload)))
     answer(socket, 'match:keepPlaying', asActor(socket, (actor) => useCases.keepPlaying.execute(actor)))
   })
 }

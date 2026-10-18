@@ -1,4 +1,4 @@
-import { DEFAULT_ROOM_SETTINGS, type MatchView, type NarratorMatchView, type PlayerMatchView, type RoleId } from '@luna/contracts'
+import { DEFAULT_ROOM_SETTINGS, type CueEffect, type MatchView, type NarratorMatchView, type PlayerMatchView, type RoleId } from '@luna/contracts'
 import { FixedClock, SeededRandom, SequentialIds } from '../../../shared/application/clockAndRandom.fixtures'
 import { InMemoryMatchRepository } from '../infrastructure/InMemoryMatchRepository'
 import { NARRATOR_ID, START_TIME, unwrap } from '../domain/Match.fixtures'
@@ -10,6 +10,7 @@ export { NARRATOR_ID, START_TIME, unwrap }
 export class RecordingMatchPublisher implements MatchPublisher {
   readonly batches: Array<{ code: string; views: readonly MemberMatchView[] }> = []
   readonly haunts: Array<{ code: string; deliveries: readonly HauntDelivery[] }> = []
+  readonly cues: Array<{ code: string; memberIds: readonly string[]; effect: CueEffect }> = []
 
   publish(code: string, views: readonly MemberMatchView[]): void {
     this.batches.push({ code, views })
@@ -17,6 +18,10 @@ export class RecordingMatchPublisher implements MatchPublisher {
 
   haunt(code: string, deliveries: readonly HauntDelivery[]): void {
     this.haunts.push({ code, deliveries })
+  }
+
+  cue(code: string, memberIds: readonly string[], effect: CueEffect): void {
+    this.cues.push({ code, memberIds, effect })
   }
 
   get latest(): readonly MemberMatchView[] {

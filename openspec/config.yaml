@@ -29,7 +29,8 @@ context: |
                      the web). Wiring happens in the composition root (apps/server/src/main.ts, apps/web/src/app).
   Cross-cutting code lives in src/shared/{domain,application,infrastructure}. Features talk to each other through
   application ports or domain events, never by reaching into another feature's infrastructure. On the web a feature
-  may use another feature's application layer (store, composables) and domain functions. On the server a cross-feature
+  may use another feature's application layer (store, composables) and domain functions, and a view may mount another
+  feature's components (UI composition); it never calls another feature's gateways or other adapters directly. On the server a cross-feature
   call goes through a port owned by the calling feature and wired in the composition root.
   Errors are values: use cases return Result<T, E> (Result, ok, err, done from @luna/contracts) with error codes from contracts;
   exceptions are reserved for programmer errors.

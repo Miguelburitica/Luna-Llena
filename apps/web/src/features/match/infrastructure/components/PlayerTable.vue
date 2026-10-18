@@ -2,6 +2,8 @@
 import type { PlayerMatchView } from '@luna/contracts'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import SettingsOverlay from '@/features/atmosphere/infrastructure/components/SettingsOverlay.vue'
+import SoundToggle from '@/features/atmosphere/infrastructure/components/SoundToggle.vue'
 import ChatBar from '@/features/chat/infrastructure/components/ChatBar.vue'
 import ChatSheet from '@/features/chat/infrastructure/components/ChatSheet.vue'
 import LastWordsPrompt from '@/features/chat/infrastructure/components/LastWordsPrompt.vue'
@@ -69,6 +71,11 @@ const votingOpen = computed(
         <LunaIcon name="card" />
       </button>
       <PhaseTimer :phase="view.phase" />
+    </div>
+
+    <div class="table-tools">
+      <SoundToggle />
+      <SettingsOverlay />
     </div>
 
     <MicsOffReminder v-if="view.phase === 'night' && voiceCallUrl" :key="view.round" :code="view.code" :round="view.round" />
@@ -141,6 +148,14 @@ const votingOpen = computed(
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+}
+
+.table-tools {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
 }
 
 .table-scene {

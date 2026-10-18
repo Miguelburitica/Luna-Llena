@@ -195,3 +195,26 @@ describe('Membership', () => {
     expect(match.hasMember('stranger')).toBe(false)
   })
 })
+
+describe('Cue validation', () => {
+  it('accepts a sound or an effect from the narrator and changes nothing', () => {
+    const match = beginMatch()
+    expect(match.validateCue(NARRATOR_ID, { kind: 'sound', sound: 'bell' })).toEqual({ ok: true, value: { kind: 'sound', sound: 'bell' } })
+    expect(match.validateCue(NARRATOR_ID, { kind: 'effect', effect: 'fog', extra: 1 })).toEqual({
+      ok: true,
+      value: { kind: 'effect', effect: 'fog' }
+    })
+    expect(match.phase).toBe('night')
+  })
+
+  it('rejects anyone but the narrator, bad shapes and a finished match', () => {
+    const match = beginMatch()
+    expect(match.validateCue('p1', { kind: 'sound', sound: 'bell' })).toEqual(notNarrator)
+    expect(match.validateCue(NARRATOR_ID, { kind: 'sound', sound: 'fog' })).toEqual({ ok: false, error: { code: 'cue-invalid' } })
+    expect(match.validateCue(NARRATOR_ID, 7)).toEqual({ ok: false, error: { code: 'cue-invalid' } })
+    unwrap(match.setAlive(NARRATOR_ID, 'p1', false))
+    unwrap(match.setAlive(NARRATOR_ID, 'p2', false))
+    unwrap(match.endGame(NARRATOR_ID))
+    expect(match.validateCue(NARRATOR_ID, { kind: 'sound', sound: 'bell' })).toEqual(matchOver)
+  })
+})

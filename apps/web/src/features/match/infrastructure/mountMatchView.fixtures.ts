@@ -11,6 +11,8 @@ import { memberView, snapshotOf } from '@/features/room/domain/snapshot.fixtures
 import { createLunaI18n } from '@/shared/infrastructure/i18n/lunaI18n'
 import { FakeChatGateway } from '@/features/chat/application/ChatGateway.fixtures'
 import { CHAT_GATEWAY } from '@/features/chat/application/ports'
+import { atmosphereProvides, createAtmosphereKit } from '@/features/atmosphere/application/Atmosphere.fixtures'
+import type { AtmosphereSettings } from '@/features/atmosphere/domain/soundSettings'
 import { FakeMatchGateway, playerViewOf } from '../application/MatchGateway.fixtures'
 import { MATCH_GATEWAY } from '../application/ports'
 import { useMatchStore } from '../application/useMatchStore'
@@ -36,20 +38,22 @@ interface MountOptions {
   readonly voiceCallUrl?: string | null
   readonly preload?: boolean
   readonly resume?: boolean
+  readonly atmosphereSettings?: AtmosphereSettings
   readonly configure?: (gateways: { matches: FakeMatchGateway; rooms: FakeRoomGateway; chats: FakeChatGateway }) => void
 }
 
 export const mountMatchView = async (
   component: Component,
-  { path = '/room/LUNA42/game', props = {}, view = playerViewOf(), memberId = 'id-Ana', voiceCallUrl = null, preload = true, resume = false, configure }: MountOptions = {}
+  { path = '/room/LUNA42/game', props = {}, view = playerViewOf(), memberId = 'id-Ana', voiceCallUrl = null, preload = true, resume = false, atmosphereSettings, configure }: MountOptions = {}
 ) => {
   const rooms = new FakeRoomGateway()
   const matches = new FakeMatchGateway(view)
   const chats = new FakeChatGateway()
   const sessions = new MemorySessionStore()
+  const atmosphere = createAtmosphereKit(atmosphereSettings ?? null)
   const pinia = createPinia()
   setActivePinia(pinia)
-  const provide = { [ROOM_GATEWAY as symbol]: rooms, [SESSION_STORE as symbol]: sessions, [MATCH_GATEWAY as symbol]: matches, [CHAT_GATEWAY as symbol]: chats }
+  const provide = { [ROOM_GATEWAY as symbol]: rooms, [SESSION_STORE as symbol]: sessions, [MATCH_GATEWAY as symbol]: matches, [CHAT_GATEWAY as symbol]: chats, ...atmosphereProvides(atmosphere) }
   const host = createApp({})
   host.use(pinia)
   for (const key of Object.getOwnPropertySymbols(provide)) host.provide(key, provide[key])
@@ -83,5 +87,5 @@ export const mountMatchView = async (
     global: { plugins: [pinia, router, createLunaI18n(lunaMessages, 'en')], provide }
   })
   await flushPromises()
-  return { wrapper, rooms, matches, chats, sessions, router, room, match }
+  return { wrapper, rooms, matches, chats, sessions, router, room, match, atmosphere, pinia }
 }

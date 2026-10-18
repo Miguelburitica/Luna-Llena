@@ -2,6 +2,9 @@
 import { TIMER_EXTENSION_SECONDS, type NarratorMatchView } from '@luna/contracts'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import NarratorSoundboard from '@/features/atmosphere/infrastructure/components/NarratorSoundboard.vue'
+import SettingsOverlay from '@/features/atmosphere/infrastructure/components/SettingsOverlay.vue'
+import SoundToggle from '@/features/atmosphere/infrastructure/components/SoundToggle.vue'
 import NarratorChatMonitor from '@/features/chat/infrastructure/components/NarratorChatMonitor.vue'
 import { useRoomAction } from '@/features/room/application/useRoomAction'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
@@ -131,6 +134,8 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
             <LunaIcon name="phone" size="sm" />{{ t('voiceCall.add') }}
           </button>
         </div>
+        <SoundToggle />
+        <SettingsOverlay />
         <div class="dashboard-timer">
           <PhaseTimer :phase="view.phase" />
           <button
@@ -321,6 +326,8 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
           </span>
         </div>
       </section>
+
+      <NarratorSoundboard />
 
       <NarratorHauntFeed :seats="seats" :haunts="view.haunts" />
 

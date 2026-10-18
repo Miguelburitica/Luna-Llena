@@ -3,6 +3,8 @@ import {
   done,
   GHOST_LIMITS,
   HAUNT_KINDS,
+  SCREEN_EFFECTS,
+  SOUND_CUES,
   ROLE_CATALOG,
   err,
   matchError,
@@ -11,6 +13,7 @@ import {
   PHASES,
   TIMER_EXTENSION_SECONDS,
   type CastVote,
+  type CueInput,
   type DawnReport,
   type HauntKind,
   type HauntRecord,
@@ -19,6 +22,8 @@ import {
   type NightAction,
   type Phase,
   type Result,
+  type ScreenEffect,
+  type SoundCue,
   type RevengeView,
   type TeamId,
   type TimelineEntry,
@@ -43,6 +48,8 @@ export interface HauntOutcome {
 }
 
 const HAUNT_KIND_SET: readonly unknown[] = HAUNT_KINDS
+const SOUND_CUE_SET: readonly unknown[] = SOUND_CUES
+const SCREEN_EFFECT_SET: readonly unknown[] = SCREEN_EFFECTS
 
 interface RandomNumbers {
   next(): number
@@ -309,6 +316,17 @@ export class Match {
       word: outcome.value.word
     })
     return outcome
+  }
+
+  validateCue(actorId: string, input: unknown): Result<CueInput, MatchError> {
+    const authority = this.requireRunningNarrator(actorId)
+    if (!authority.ok) return authority
+    const choice = (typeof input === 'object' && input !== null ? input : {}) as Record<string, unknown>
+    if (choice.kind === 'sound' && SOUND_CUE_SET.includes(choice.sound)) return ok({ kind: 'sound', sound: choice.sound as SoundCue })
+    if (choice.kind === 'effect' && SCREEN_EFFECT_SET.includes(choice.effect)) {
+      return ok({ kind: 'effect', effect: choice.effect as ScreenEffect })
+    }
+    return err(matchError('cue-invalid'))
   }
 
   extendTimer(actorId: string): Result<void, MatchError> {

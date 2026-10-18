@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import SettingsOverlay from '@/features/atmosphere/infrastructure/components/SettingsOverlay.vue'
 import LanguageSwitch from '@/shared/infrastructure/ui/components/LanguageSwitch.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 
@@ -10,6 +11,7 @@ const { t } = useI18n()
   <main class="phone ph-night">
     <header class="home-top">
       <LanguageSwitch />
+      <SettingsOverlay />
     </header>
     <section class="home-hero">
       <span class="art f-logo a-bob home-moon" role="img" :aria-label="t('room.home.moon')" />
@@ -37,6 +39,8 @@ const { t } = useI18n()
 <style scoped>
 .home-top {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 14px 16px 0;
 }
 

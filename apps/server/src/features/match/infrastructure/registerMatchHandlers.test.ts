@@ -1,4 +1,4 @@
-import { ROLE_IDS, type HauntEffect, type MatchView, type NarratorMatchView, type PlayerMatchView, type RoomSession } from '@luna/contracts'
+import { ROLE_IDS, type CueEffect, type HauntEffect, type MatchView, type NarratorMatchView, type PlayerMatchView, type RoomSession } from '@luna/contracts'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { FixedClock, SeededRandom } from '../../../shared/application/clockAndRandom.fixtures'
 import { createSocketKit, type Client } from '../../../shared/infrastructure/socketTestKit.fixtures'
@@ -380,6 +380,35 @@ describe('match socket handlers', () => {
         ok: false,
         error: { code: 'ghost-powers-off' }
       })
+    })
+  })
+
+  describe('narrator cues', () => {
+    it('delivers a cue to the narrator and every seat and rejects the rest', async () => {
+      const { narrator, players, first } = await seatedGame()
+      const everyone = [narrator, ...players]
+      const received = everyone.map((member) => {
+        const cues: CueEffect[] = []
+        member.client.on('match:cued', (cue) => cues.push(cue))
+        return cues
+      })
+      unwrap(await narrator.client.emitWithAck('match:cue', { kind: 'sound', sound: 'thunder' }))
+      unwrap(await narrator.client.emitWithAck('match:cue', { kind: 'effect', effect: 'lightning' }))
+      expect(await first.client.emitWithAck('match:cue', { kind: 'sound', sound: 'howl' })).toEqual({
+        ok: false,
+        error: { code: 'not-narrator' }
+      })
+      expect(await narrator.client.emitWithAck('match:cue', { kind: 'sound', sound: 'kazoo' } as never)).toEqual({
+        ok: false,
+        error: { code: 'cue-invalid' }
+      })
+      await new Promise((resolve) => setTimeout(resolve, 80))
+      for (const cues of received) {
+        expect(cues).toEqual([
+          { id: expect.any(String), kind: 'sound', sound: 'thunder', sentAt: START_TIME },
+          { id: expect.any(String), kind: 'effect', effect: 'lightning', sentAt: START_TIME }
+        ])
+      }
     })
   })
 })

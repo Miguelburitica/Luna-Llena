@@ -1,5 +1,7 @@
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
+import { useAtmosphereStore } from '@/features/atmosphere/application/useAtmosphereStore'
+import { installAtmosphere } from '@/features/atmosphere/infrastructure/installAtmosphere'
 import { installChat } from '@/features/chat/infrastructure/installChat'
 import { installMatch } from '@/features/match/infrastructure/installMatch'
 import { installRoom } from '@/features/room/infrastructure/installRoom'
@@ -17,7 +19,9 @@ const socket = createLunaSocket(import.meta.env.VITE_LUNA_SERVER_URL)
 installRoom(app, socket)
 installMatch(app, socket)
 installChat(app, socket)
+installAtmosphere(app, socket)
 app.use(createPinia())
 app.use(createLunaRouter())
 app.use(createLunaI18n(lunaMessages))
+app.runWithContext(() => useAtmosphereStore())
 app.mount('#app')
