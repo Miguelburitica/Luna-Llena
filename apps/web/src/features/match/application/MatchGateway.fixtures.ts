@@ -7,6 +7,7 @@ import {
   type PlayerMatchView,
   type Result
 } from '@luna/contracts'
+import { accessOf } from '@/features/chat/application/ChatGateway.fixtures'
 import type { MatchFailure, MatchGateway } from './ports'
 
 type Listener = (view: MatchView) => void
@@ -23,7 +24,8 @@ const baseView = {
   voting: null,
   verdict: null,
   revenge: null,
-  soloWinnerIds: []
+  soloWinnerIds: [],
+  chat: accessOf()
 } as const
 
 export const youOf = (overrides: Partial<PlayerMatchView['you']> = {}): PlayerMatchView['you'] => ({

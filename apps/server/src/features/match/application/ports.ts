@@ -28,4 +28,5 @@ export interface MatchOpening {
   readonly timers: Readonly<Record<TimerPhase, number>>
   readonly revealRoleOnDeath: boolean
   readonly anonymousVotes: boolean
+  readonly lastWords: boolean
 }

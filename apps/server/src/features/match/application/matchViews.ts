@@ -1,5 +1,6 @@
 import {
   ROLE_CATALOG,
+  type ChatAccess,
   type MatchPlayerView,
   type MatchView,
   type NarratorActionView,
@@ -9,6 +10,7 @@ import {
   type PlayerNightView,
   type Vision
 } from '@luna/contracts'
+import { chatPermissionsOf } from '../domain/chatPermissionsOf'
 import type { Match } from '../domain/Match'
 import type { Seat } from '../domain/Seat'
 import type { MemberMatchView } from './ports'
@@ -22,7 +24,12 @@ const toPlayerView = (match: Match, seat: Seat): MatchPlayerView => ({
   revealedRole: isRevealed(match, seat) ? seat.role : null
 })
 
-const commonOf = (match: Match, now: number) => ({
+const chatAccessFor = (match: Match, memberId: string, now: number): ChatAccess => {
+  const { read, write, lastWordsUntil, villagePaused } = chatPermissionsOf(match, memberId, now)
+  return { read, write, lastWordsUntil, villagePaused }
+}
+
+const commonOf = (match: Match, memberId: string, now: number) => ({
   code: match.code,
   phase: match.phase,
   round: match.round,
@@ -34,7 +41,8 @@ const commonOf = (match: Match, now: number) => ({
   voting: match.votingProgress(),
   verdict: match.verdict,
   revenge: match.revenge,
-  soloWinnerIds: match.soloWinnerIds
+  soloWinnerIds: match.soloWinnerIds,
+  chat: chatAccessFor(match, memberId, now)
 })
 
 const toNarratorAction = (match: Match, seat: Seat): NarratorActionView => {
@@ -114,7 +122,7 @@ const toNarratorVotes = (match: Match): NarratorMatchView['votes'] =>
     : null
 
 const toNarratorView = (match: Match, now: number): NarratorMatchView => ({
-  ...commonOf(match, now),
+  ...commonOf(match, match.narratorId, now),
   perspective: 'narrator',
   roles: Object.fromEntries(match.seats.map((seat) => [seat.memberId, seat.role])),
   pendingWinner: match.pendingWinner,
@@ -132,7 +140,7 @@ const packOf = (match: Match, seat: Seat): string[] =>
 const toSeatView = (match: Match, seat: Seat, now: number): PlayerMatchView => {
   const perceivedRole = ROLE_CATALOG[seat.role].appearsAs
   return {
-    ...commonOf(match, now),
+    ...commonOf(match, seat.memberId, now),
     perspective: 'player',
     you: {
       role: perceivedRole,

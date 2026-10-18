@@ -254,7 +254,7 @@ describe('Hunter revenge', () => {
   it('opens a shot when the wolves kill the Hunter and kills the pick at once', () => {
     const match = killHunterAtDawn()
     expect(match.revenge).toEqual({ hunterId: HUNTER, targetId: null, pending: true })
-    unwrap(match.avenge(HUNTER, SEER))
+    unwrap(match.avenge(HUNTER, SEER, START_TIME))
     expect(match.revenge).toEqual({ hunterId: HUNTER, targetId: SEER, pending: false })
     expect(match.seats.find((seat) => seat.memberId === SEER)?.alive).toBe(false)
   })
@@ -263,7 +263,7 @@ describe('Hunter revenge', () => {
     const match = voteOpen()
     executeWith(match, { [HUNTER]: [SEER, DOCTOR, WITCH] })
     expect(match.revenge).toEqual({ hunterId: HUNTER, targetId: null, pending: true })
-    unwrap(match.avenge(HUNTER, WOLF_ONE))
+    unwrap(match.avenge(HUNTER, WOLF_ONE, START_TIME))
     expect(match.seats.find((seat) => seat.memberId === WOLF_ONE)?.alive).toBe(false)
   })
 
@@ -307,7 +307,7 @@ describe('Hunter revenge', () => {
 
   it('keeps the resolved shot visible until the next advance', () => {
     const match = killHunterAtDawn()
-    unwrap(match.avenge(HUNTER, FOOL))
+    unwrap(match.avenge(HUNTER, FOOL, START_TIME))
     expect(match.revenge).toMatchObject({ targetId: FOOL, pending: false })
     advance(match)
     expect(match.revenge).toBeNull()
@@ -315,18 +315,18 @@ describe('Hunter revenge', () => {
 
   it('rejects a pick by anyone but the pending Hunter', () => {
     const match = killHunterAtDawn()
-    expect(match.avenge(SEER, WOLF_ONE)).toEqual(rejected('no-revenge'))
-    expect(match.avenge(NARRATOR_ID, WOLF_ONE)).toEqual(rejected('no-revenge'))
+    expect(match.avenge(SEER, WOLF_ONE, START_TIME)).toEqual(rejected('no-revenge'))
+    expect(match.avenge(NARRATOR_ID, WOLF_ONE, START_TIME)).toEqual(rejected('no-revenge'))
     expect(match.revenge?.pending).toBe(true)
   })
 
   it('rejects a pick with no shot pending and a skip with no shot pending', () => {
     const match = beginMatch()
-    expect(match.avenge(HUNTER, WOLF_ONE)).toEqual(rejected('no-revenge'))
+    expect(match.avenge(HUNTER, WOLF_ONE, START_TIME)).toEqual(rejected('no-revenge'))
     expect(match.skipRevenge(NARRATOR_ID)).toEqual(rejected('no-revenge'))
     const resolved = killHunterAtDawn()
-    unwrap(resolved.avenge(HUNTER, WOLF_ONE))
-    expect(resolved.avenge(HUNTER, WOLF_TWO)).toEqual(rejected('no-revenge'))
+    unwrap(resolved.avenge(HUNTER, WOLF_ONE, START_TIME))
+    expect(resolved.avenge(HUNTER, WOLF_TWO, START_TIME)).toEqual(rejected('no-revenge'))
     expect(resolved.skipRevenge(NARRATOR_ID)).toEqual(rejected('no-revenge'))
   })
 
@@ -336,16 +336,16 @@ describe('Hunter revenge', () => {
 
   it('rejects dead, unknown and self targets', () => {
     const match = killHunterAtDawn()
-    expect(match.avenge(HUNTER, HUNTER)).toEqual(rejected('target-invalid'))
-    expect(match.avenge(HUNTER, 'ghost')).toEqual(rejected('target-invalid'))
-    expect(match.avenge(HUNTER, undefined)).toEqual(rejected('target-invalid'))
+    expect(match.avenge(HUNTER, HUNTER, START_TIME)).toEqual(rejected('target-invalid'))
+    expect(match.avenge(HUNTER, 'ghost', START_TIME)).toEqual(rejected('target-invalid'))
+    expect(match.avenge(HUNTER, undefined, START_TIME)).toEqual(rejected('target-invalid'))
     expect(match.revenge?.pending).toBe(true)
   })
 
   it('asks to end the game when the shot kills the last werewolf', () => {
     const match = killHunterAtDawn()
     unwrap(match.setAlive(NARRATOR_ID, WOLF_TWO, false))
-    unwrap(match.avenge(HUNTER, WOLF_ONE))
+    unwrap(match.avenge(HUNTER, WOLF_ONE, START_TIME))
     expect(match.pendingWinner).toBe('village')
   })
 
@@ -354,6 +354,6 @@ describe('Hunter revenge', () => {
     unwrap(match.setAlive(NARRATOR_ID, WOLF_ONE, false))
     unwrap(match.setAlive(NARRATOR_ID, WOLF_TWO, false))
     unwrap(match.endGame(NARRATOR_ID))
-    expect(match.avenge(HUNTER, SEER)).toEqual(rejected('match-over'))
+    expect(match.avenge(HUNTER, SEER, START_TIME)).toEqual(rejected('match-over'))
   })
 })

@@ -18,6 +18,7 @@ export class StartMatch {
       timers: opening.timers,
       revealRoleOnDeath: opening.revealRoleOnDeath,
       anonymousVotes: opening.anonymousVotes,
+      lastWords: opening.lastWords,
       now: this.access.clock.now()
     })
     await saveAndPublish(this.access, match)

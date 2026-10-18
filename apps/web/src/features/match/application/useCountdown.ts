@@ -4,11 +4,16 @@ import { useMatchStore } from './useMatchStore'
 
 const TICK_MS = 1000
 
-export const useCountdown = () => {
-  const match = useMatchStore()
+export const useTickingNow = () => {
   const now = ref(Date.now())
   const timer = setInterval(() => (now.value = Date.now()), TICK_MS)
   onScopeDispose(() => clearInterval(timer))
+  return now
+}
+
+export const useCountdown = () => {
+  const match = useMatchStore()
+  const now = useTickingNow()
 
   return computed(() => {
     const view = match.view

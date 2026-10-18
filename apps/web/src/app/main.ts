@@ -1,5 +1,6 @@
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
+import { installChat } from '@/features/chat/infrastructure/installChat'
 import { installMatch } from '@/features/match/infrastructure/installMatch'
 import { installRoom } from '@/features/room/infrastructure/installRoom'
 import { createLunaI18n } from '@/shared/infrastructure/i18n/lunaI18n'
@@ -15,6 +16,7 @@ const socket = createLunaSocket(import.meta.env.VITE_LUNA_SERVER_URL)
 
 installRoom(app, socket)
 installMatch(app, socket)
+installChat(app, socket)
 app.use(createPinia())
 app.use(createLunaRouter())
 app.use(createLunaI18n(lunaMessages))

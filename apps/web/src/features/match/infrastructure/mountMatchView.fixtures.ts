@@ -9,6 +9,8 @@ import { ROOM_GATEWAY, SESSION_STORE } from '@/features/room/application/ports'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
 import { memberView, snapshotOf } from '@/features/room/domain/snapshot.fixtures'
 import { createLunaI18n } from '@/shared/infrastructure/i18n/lunaI18n'
+import { FakeChatGateway } from '@/features/chat/application/ChatGateway.fixtures'
+import { CHAT_GATEWAY } from '@/features/chat/application/ports'
 import { FakeMatchGateway, playerViewOf } from '../application/MatchGateway.fixtures'
 import { MATCH_GATEWAY } from '../application/ports'
 import { useMatchStore } from '../application/useMatchStore'
@@ -33,7 +35,7 @@ interface MountOptions {
   readonly memberId?: string
   readonly preload?: boolean
   readonly resume?: boolean
-  readonly configure?: (gateways: { matches: FakeMatchGateway; rooms: FakeRoomGateway }) => void
+  readonly configure?: (gateways: { matches: FakeMatchGateway; rooms: FakeRoomGateway; chats: FakeChatGateway }) => void
 }
 
 export const mountMatchView = async (
@@ -42,10 +44,11 @@ export const mountMatchView = async (
 ) => {
   const rooms = new FakeRoomGateway()
   const matches = new FakeMatchGateway(view)
+  const chats = new FakeChatGateway()
   const sessions = new MemorySessionStore()
   const pinia = createPinia()
   setActivePinia(pinia)
-  const provide = { [ROOM_GATEWAY as symbol]: rooms, [SESSION_STORE as symbol]: sessions, [MATCH_GATEWAY as symbol]: matches }
+  const provide = { [ROOM_GATEWAY as symbol]: rooms, [SESSION_STORE as symbol]: sessions, [MATCH_GATEWAY as symbol]: matches, [CHAT_GATEWAY as symbol]: chats }
   const host = createApp({})
   host.use(pinia)
   for (const key of Object.getOwnPropertySymbols(provide)) host.provide(key, provide[key])
@@ -61,7 +64,7 @@ export const mountMatchView = async (
   }
   if (preload) await match.sync()
   matches.calls.length = 0
-  configure?.({ matches, rooms })
+  configure?.({ matches, rooms, chats })
 
   const router = createRouter({
     history: createMemoryHistory(),
@@ -79,5 +82,5 @@ export const mountMatchView = async (
     global: { plugins: [pinia, router, createLunaI18n(lunaMessages, 'en')], provide }
   })
   await flushPromises()
-  return { wrapper, rooms, matches, sessions, router, room, match }
+  return { wrapper, rooms, matches, chats, sessions, router, room, match }
 }

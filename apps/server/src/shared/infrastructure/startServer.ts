@@ -1,6 +1,10 @@
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { Server } from 'socket.io'
+import { createChatUseCases } from '../../features/chat/application/chatUseCases'
+import { InMemoryChatLogRepository } from '../../features/chat/infrastructure/InMemoryChatLogRepository'
+import { registerChatHandlers } from '../../features/chat/infrastructure/registerChatHandlers'
+import { SocketChatPublisher } from '../../features/chat/infrastructure/SocketChatPublisher'
 import { createMatchUseCases } from '../../features/match/application/matchUseCases'
 import { InMemoryMatchRepository } from '../../features/match/infrastructure/InMemoryMatchRepository'
 import { registerMatchHandlers } from '../../features/match/infrastructure/registerMatchHandlers'
@@ -56,6 +60,22 @@ export const startServer = ({
     })
   )
   registerMatchHandlers(io, matchUseCases)
+
+  registerChatHandlers(
+    io,
+    createChatUseCases({
+      logs: new InMemoryChatLogRepository(),
+      publisher: new SocketChatPublisher(io),
+      audience: {
+        membersOf: (code, now) => matchUseCases.describeChatAudience.execute(code, now),
+        lastWordsSpoken: async (code, memberId) => {
+          await matchUseCases.closeLastWords.execute({ code, memberId })
+        }
+      },
+      clock,
+      ids: new CryptoIdGenerator()
+    })
+  )
 
   return new Promise((resolve) => {
     httpServer.listen(port, () => {

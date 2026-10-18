@@ -21,6 +21,7 @@ export interface MatchSetup {
   readonly timers?: Partial<Record<TimerPhase, number>>
   readonly revealRoleOnDeath?: boolean
   readonly anonymousVotes?: boolean
+  readonly lastWords?: boolean
   readonly now?: number
 }
 
@@ -29,6 +30,7 @@ export const beginMatch = ({
   timers = {},
   revealRoleOnDeath = true,
   anonymousVotes = false,
+  lastWords = false,
   now = START_TIME
 }: MatchSetup = {}): Match =>
   Match.begin({
@@ -38,6 +40,7 @@ export const beginMatch = ({
     timers: { ...DEFAULT_ROOM_SETTINGS.timers, ...timers },
     revealRoleOnDeath,
     anonymousVotes,
+    lastWords,
     now
   })
 

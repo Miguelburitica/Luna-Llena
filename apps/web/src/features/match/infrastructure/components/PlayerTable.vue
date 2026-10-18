@@ -2,6 +2,10 @@
 import type { PlayerMatchView } from '@luna/contracts'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import ChatBar from '@/features/chat/infrastructure/components/ChatBar.vue'
+import ChatSheet from '@/features/chat/infrastructure/components/ChatSheet.vue'
+import LastWordsPrompt from '@/features/chat/infrastructure/components/LastWordsPrompt.vue'
+import LastWordsSpotlight from '@/features/chat/infrastructure/components/LastWordsSpotlight.vue'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
@@ -103,6 +107,11 @@ const votingOpen = computed(
     <p class="t-small t-muted t-center table-alive">
       {{ t('match.table.alive', { alive: aliveCountOf(view), total: view.players.length }) }}
     </p>
+
+    <ChatBar :view="view" />
+    <ChatSheet :view="view" />
+    <LastWordsPrompt />
+    <LastWordsSpotlight />
 
     <FoolWinsCard
       v-if="view.verdict?.foolWins"

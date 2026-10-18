@@ -3,6 +3,8 @@ import type { RandomSource } from '../../../shared/application/RandomSource'
 import { ActAtNight } from './ActAtNight'
 import { AdvancePhase } from './AdvancePhase'
 import { CastVote } from './CastVote'
+import { CloseLastWords } from './CloseLastWords'
+import { DescribeChatAudience } from './DescribeChatAudience'
 import { EndGame } from './EndGame'
 import { ExtendTimer } from './ExtendTimer'
 import { KeepPlaying } from './KeepPlaying'
@@ -35,7 +37,9 @@ export const createMatchUseCases = ({ matches, publisher, clock, random }: Match
     castVote: new CastVote(access),
     lockVote: new LockVote(access),
     takeRevenge: new TakeRevenge(access),
-    skipRevenge: new SkipRevenge(access)
+    skipRevenge: new SkipRevenge(access),
+    describeChatAudience: new DescribeChatAudience(matches),
+    closeLastWords: new CloseLastWords(access)
   }
 }
 

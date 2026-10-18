@@ -2,6 +2,7 @@
 import { PHASES, TIMER_EXTENSION_SECONDS, type NarratorMatchView } from '@luna/contracts'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import NarratorChatMonitor from '@/features/chat/infrastructure/components/NarratorChatMonitor.vue'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
 import DeskHeader from '@/shared/infrastructure/ui/components/DeskHeader.vue'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
@@ -283,6 +284,8 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
           </span>
         </div>
       </section>
+
+      <NarratorChatMonitor class="dashboard-panel" />
     </div>
   </div>
 </template>

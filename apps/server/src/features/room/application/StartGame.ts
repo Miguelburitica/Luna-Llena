@@ -10,7 +10,8 @@ const openingOf = (room: Room): GameOpening => ({
   deck: room.settings.deck,
   timers: room.settings.timers,
   revealRoleOnDeath: room.settings.houseRules.revealRoleOnDeath,
-  anonymousVotes: room.settings.houseRules.anonymousVotes
+  anonymousVotes: room.settings.houseRules.anonymousVotes,
+  lastWords: room.settings.houseRules.lastWords
 })
 
 export class StartGame {

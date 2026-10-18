@@ -1,4 +1,5 @@
 import {
+  CHAT_LIMITS,
   done,
   ROLE_CATALOG,
   err,
@@ -39,6 +40,7 @@ export interface MatchOpening {
   readonly timers: Readonly<Record<TimerPhase, number>>
   readonly revealRoleOnDeath: boolean
   readonly anonymousVotes: boolean
+  readonly lastWords: boolean
   readonly now: number
 }
 
@@ -57,6 +59,7 @@ export class Match {
   private currentVerdict: Verdict | null = null
   private currentRevenge: RevengeView | null = null
   private readonly currentSoloWinnerIds: string[] = []
+  private readonly lastWordsWindows = new Map<string, number>()
 
   private constructor(
     readonly code: string,
@@ -65,13 +68,14 @@ export class Match {
     private readonly timers: Readonly<Record<TimerPhase, number>>,
     readonly revealRoleOnDeath: boolean,
     private readonly anonymousVotes: boolean,
+    private readonly lastWords: boolean,
     now: number
   ) {
     this.currentPhaseEndsAt = this.deadlineFor(this.currentPhase, now)
   }
 
-  static begin({ code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, now }: MatchOpening): Match {
-    return new Match(code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, now)
+  static begin({ code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, lastWords, now }: MatchOpening): Match {
+    return new Match(code, narratorId, seats, timers, revealRoleOnDeath, anonymousVotes, lastWords, now)
   }
 
   get phase(): Phase {
@@ -112,6 +116,20 @@ export class Match {
 
   get soloWinnerIds(): readonly string[] {
     return this.currentSoloWinnerIds
+  }
+
+  lastWordsUntilOf(memberId: string, now: number): number | null {
+    const until = this.lastWordsWindows.get(memberId)
+    return until !== undefined && now < until ? until : null
+  }
+
+  hasOpenLastWords(now: number): boolean {
+    return this.seats.some((seat) => this.lastWordsUntilOf(seat.memberId, now) !== null)
+  }
+
+  closeLastWords(memberId: string): Result<void, MatchError> {
+    this.lastWordsWindows.delete(memberId)
+    return done
   }
 
   voteOf(memberId: string): CastVote {
@@ -158,8 +176,8 @@ export class Match {
     if (this.revengePending) return err(matchError('revenge-pending'))
     this.currentRevenge = null
     const index = PHASES.indexOf(this.currentPhase)
-    if (this.currentPhase === 'night') this.resolveNight()
-    if (this.currentPhase === 'vote') this.executeVerdict()
+    if (this.currentPhase === 'night') this.resolveNight(now)
+    if (this.currentPhase === 'vote') this.executeVerdict(now)
     if (index === PHASES.length - 1) this.currentRound += 1
     this.currentPhase = PHASES[(index + 1) % PHASES.length] ?? PHASES[0]
     if (this.currentPhase === 'night') this.beginNight()
@@ -213,14 +231,14 @@ export class Match {
     return done
   }
 
-  avenge(actorId: string, targetId: unknown): Result<void, MatchError> {
+  avenge(actorId: string, targetId: unknown, now: number): Result<void, MatchError> {
     if (this.currentOutcome !== null) return err(matchError('match-over'))
     const shot = this.currentRevenge
     if (shot === null || !shot.pending || shot.hunterId !== actorId) return err(matchError('no-revenge'))
     const target = this.livingSeat(targetId)
     if (target === undefined || target.memberId === actorId) return err(matchError('target-invalid'))
     this.currentRevenge = { ...shot, targetId: target.memberId, pending: false }
-    this.bury([target.memberId])
+    this.bury([target.memberId], now)
     return done
   }
 
@@ -247,9 +265,10 @@ export class Match {
     if (seat === undefined) return err(matchError('member-not-found'))
     if (alive === true) {
       seat.alive = true
+      this.lastWordsWindows.delete(seat.memberId)
       this.refreshPendingWinner()
     } else {
-      this.bury([seat.memberId])
+      this.bury([seat.memberId], null)
     }
     return done
   }
@@ -285,9 +304,14 @@ export class Match {
     return this.currentRevenge?.pending === true
   }
 
-  private bury(memberIds: readonly string[]): void {
+  private bury(memberIds: readonly string[], now: number | null): void {
     const fallen = this.seats.filter((seat) => seat.alive && memberIds.includes(seat.memberId))
-    for (const seat of fallen) seat.alive = false
+    for (const seat of fallen) {
+      seat.alive = false
+      if (this.lastWords && now !== null) {
+        this.lastWordsWindows.set(seat.memberId, now + CHAT_LIMITS.lastWordsSeconds * 1000)
+      }
+    }
     const hunter = fallen.find((seat) => seat.role === 'hunter')
     if (hunter !== undefined && !this.revengePending) {
       this.currentRevenge = { hunterId: hunter.memberId, targetId: null, pending: true }
@@ -299,14 +323,14 @@ export class Match {
     this.currentPendingWinner = winnerOf(this.seats)
   }
 
-  private executeVerdict(): void {
+  private executeVerdict(now: number): void {
     const verdict = verdictOf(this.currentBallot, this.seats, this.anonymousVotes, this.currentRound)
     const executed = this.seats.find((seat) => seat.memberId === verdict.executedId)
     const foolWins = executed?.role === 'fool'
     this.currentVerdict = { ...verdict, foolWins }
     if (executed === undefined) return
     if (foolWins) this.currentSoloWinnerIds.push(executed.memberId)
-    this.bury([executed.memberId])
+    this.bury([executed.memberId], now)
   }
 
   private requireVoter(actorId: string): Result<Seat, MatchError> {
@@ -337,7 +361,7 @@ export class Match {
     return done
   }
 
-  private resolveNight(): void {
+  private resolveNight(now: number): void {
     const resolution = this.previewDawn()
     for (const witchId of resolution.healedBy) {
       this.spentPotions.set(witchId, { ...this.potionsSpentBy(witchId), heal: true })
@@ -348,7 +372,7 @@ export class Match {
     this.blockedPatients.clear()
     for (const [doctorId, targetId] of resolution.nextBlocked) this.blockedPatients.set(doctorId, targetId)
     this.currentDawn = { round: this.currentRound, deaths: resolution.deaths }
-    if (resolution.deaths.length > 0) this.bury(resolution.deaths)
+    if (resolution.deaths.length > 0) this.bury(resolution.deaths, now)
   }
 
   private beginNight(): void {
