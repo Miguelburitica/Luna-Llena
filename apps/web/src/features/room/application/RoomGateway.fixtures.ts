@@ -81,6 +81,10 @@ export class FakeRoomGateway implements RoomGateway {
     return this.respond<undefined>('start', undefined, ok(undefined))
   }
 
+  playAgain() {
+    return this.respond<undefined>('playAgain', undefined, ok(undefined))
+  }
+
   onSnapshot(listener: Listener<[RoomSnapshot]>) {
     this.snapshotListeners.push(listener)
   }

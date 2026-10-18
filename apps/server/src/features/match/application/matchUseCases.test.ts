@@ -223,7 +223,7 @@ describe('Win detection and ending', () => {
     for (const wolf of holdersOf('werewolf')) unwrap(await useCases.setAlive.execute(narrator, { memberId: wolf, alive: false }))
     unwrap(await useCases.endGame.execute(narrator))
     for (const { memberId, view } of publisher.latest) {
-      expect(view.outcome).toEqual({ winner: 'village' })
+      expect(view.outcome).toMatchObject({ winner: 'village' })
       if (memberId === NARRATOR_ID) continue
       expect(Object.fromEntries(view.players.map((player) => [player.id, player.revealedRole]))).toEqual(roles)
     }

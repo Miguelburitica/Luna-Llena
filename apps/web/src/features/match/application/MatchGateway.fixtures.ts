@@ -1,6 +1,7 @@
 import {
   err,
   ok,
+  type MatchOutcome,
   type MatchView,
   type NightActionInput,
   type NarratorMatchView,
@@ -27,6 +28,13 @@ const baseView = {
   soloWinnerIds: [],
   chat: accessOf()
 } as const
+
+export const outcomeOf = (overrides: Partial<MatchOutcome> = {}): MatchOutcome => ({
+  winner: 'village',
+  timeline: [],
+  awards: [],
+  ...overrides
+})
 
 export const youOf = (overrides: Partial<PlayerMatchView['you']> = {}): PlayerMatchView['you'] => ({
   role: 'villager',

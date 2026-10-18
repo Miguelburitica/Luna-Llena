@@ -7,6 +7,7 @@ import { LeaveRoom } from './LeaveRoom'
 import { LookUpRoom } from './LookUpRoom'
 import { MarkDisconnected } from './MarkDisconnected'
 import type { GameStarter, RoomCodeGenerator, RoomPublisher, RoomRepository } from './ports'
+import { PlayAgain } from './PlayAgain'
 import { ResumeSession } from './ResumeSession'
 import { SetReady } from './SetReady'
 import { StartGame } from './StartGame'
@@ -33,7 +34,8 @@ export const createRoomUseCases = ({ rooms, codes, ids, publisher, starter }: Ro
     kickPlayer: new KickPlayer(access),
     leaveRoom: new LeaveRoom(access),
     markDisconnected: new MarkDisconnected(access),
-    startGame: new StartGame(access, starter)
+    startGame: new StartGame(access, starter),
+    playAgain: new PlayAgain(access, starter)
   }
 }
 

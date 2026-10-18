@@ -36,4 +36,6 @@ export interface GameOpening {
 
 export interface GameStarter {
   start(opening: GameOpening): Promise<void>
+  isOver(code: string): Promise<boolean>
+  discard(code: string): Promise<void>
 }

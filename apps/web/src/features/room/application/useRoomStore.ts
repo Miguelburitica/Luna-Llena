@@ -85,6 +85,7 @@ export const useRoomStore = defineStore('room', () => {
     updateSettings: (settings: RoomSettingsInput) => gateway.updateSettings(settings),
     kick: (memberId: string) => gateway.kick(memberId),
     start: () => gateway.start(),
+    playAgain: () => gateway.playAgain(),
     leave: async () => {
       const result = await gateway.leave()
       if (result.ok) forget()

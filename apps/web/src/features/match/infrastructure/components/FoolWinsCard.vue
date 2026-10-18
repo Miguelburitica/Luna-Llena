@@ -8,8 +8,7 @@ import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import { roleArtClassOf } from '@/shared/infrastructure/ui/roleArt'
 import { teamClassFor, teamIconFor } from '@/shared/infrastructure/ui/teamClass'
 import type { Seat } from '../../domain/seating'
-
-const FOOL_KEY_PREFIX = 'luna-llena.fool.'
+import { FOOL_KEY_PREFIX } from '../matchMemory'
 
 const CONFETTI = [
   { left: 40, top: 90, color: '#ffe27a', delay: 0 },

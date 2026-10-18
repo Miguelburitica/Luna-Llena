@@ -25,6 +25,7 @@ export interface RoomGateway {
   kick(memberId: string): RoomResult<void>
   leave(): RoomResult<void>
   start(): RoomResult<void>
+  playAgain(): RoomResult<void>
   onSnapshot(listener: (snapshot: RoomSnapshot) => void): void
   onKicked(listener: () => void): void
   onClosed(listener: () => void): void

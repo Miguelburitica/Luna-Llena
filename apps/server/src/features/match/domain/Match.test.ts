@@ -161,7 +161,7 @@ describe('Ending the game', () => {
     unwrap(match.setAlive(NARRATOR_ID, 'p1', false))
     unwrap(match.setAlive(NARRATOR_ID, 'p2', false))
     unwrap(match.endGame(NARRATOR_ID))
-    expect(match.outcome).toEqual({ winner: 'village' })
+    expect(match.outcome).toMatchObject({ winner: 'village' })
   })
 
   it('rejects ending while no team has won', () => {

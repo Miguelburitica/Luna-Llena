@@ -1,6 +1,7 @@
 import type { Clock } from '../../../shared/application/Clock'
 import type { IdGenerator } from '../../../shared/application/IdGenerator'
 import { ChatHistory } from './ChatHistory'
+import { DiscardChat } from './DiscardChat'
 import type { ChatAudience, ChatLogRepository, ChatPublisher } from './ports'
 import { SendMessage } from './SendMessage'
 
@@ -16,7 +17,8 @@ export const createChatUseCases = ({ logs, publisher, audience, clock, ids }: Ch
   const access = { logs, audience, clock }
   return {
     sendMessage: new SendMessage(access, publisher, ids),
-    chatHistory: new ChatHistory(access)
+    chatHistory: new ChatHistory(access),
+    discardChat: new DiscardChat(logs)
   }
 }
 

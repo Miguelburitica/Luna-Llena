@@ -4,6 +4,7 @@ import type { ChatLog } from '../domain/ChatLog'
 export interface ChatLogRepository {
   find(code: string): Promise<ChatLog | undefined>
   save(log: ChatLog): Promise<void>
+  remove(code: string): Promise<void>
 }
 
 export interface ChatPublisher {

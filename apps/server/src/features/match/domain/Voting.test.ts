@@ -245,7 +245,7 @@ describe('The Fool', () => {
     unwrap(match.setAlive(NARRATOR_ID, DOCTOR, false))
     expect(match.pendingWinner).toBe('wolves')
     unwrap(match.endGame(NARRATOR_ID))
-    expect(match.outcome).toEqual({ winner: 'wolves' })
+    expect(match.outcome).toMatchObject({ winner: 'wolves' })
     expect(match.soloWinnerIds).toEqual([FOOL])
   })
 })

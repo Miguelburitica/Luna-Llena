@@ -45,6 +45,10 @@ export class SocketRoomGateway implements RoomGateway {
     return reachOrFail(() => this.socket.emitWithAck('room:start', {}))
   }
 
+  playAgain() {
+    return reachOrFail(() => this.socket.emitWithAck('room:playAgain', {}))
+  }
+
   onSnapshot(listener: (snapshot: RoomSnapshot) => void): void {
     this.socket.on('room:snapshot', listener)
   }

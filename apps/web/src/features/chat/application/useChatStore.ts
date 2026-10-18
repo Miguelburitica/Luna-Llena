@@ -81,6 +81,16 @@ export const useChatStore = defineStore('chat', () => {
     return result
   }
 
+  const reset = () => {
+    messages.value = emptyLog()
+    lastSeen.value = nothingSeen()
+    requestedTab.value = null
+    open.value = false
+    failure.value = null
+    reloadOnResume.value = false
+    loadedChannels.value = []
+  }
+
   gateway.onMessage(receive)
   gateway.onReconnected(() => {
     reloadOnResume.value = true
@@ -119,6 +129,7 @@ export const useChatStore = defineStore('chat', () => {
     open,
     failure,
     loadHistory,
+    reset,
     send,
     markSeen,
     selectTab: (tab: ChatChannel) => {

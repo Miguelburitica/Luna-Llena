@@ -203,8 +203,67 @@ const en = {
   },
   over: {
     eyebrow: 'Game over',
-    roles: 'Everyone’s true role',
-    soloAlso: 'The {role} also won'
+    roles: 'Who was who',
+    soloAlso: 'The {role} also won',
+    flavor: {
+      village: 'Every wolf is gone. The arepas are safe again.',
+      wolves: 'The pack has the village to itself. Nobody sleeps tonight.',
+      solo: 'Nobody saw it coming. Except the Fool.'
+    },
+    twist: {
+      eyebrow: 'Plot twist',
+      title: 'You were the {role} all along',
+      body: 'Your card said {seen}. It was lying. Sorry.'
+    },
+    story: 'What really happened',
+    expandAll: 'Expand all',
+    collapseAll: 'Collapse all',
+    awards: 'Awards',
+    playAgain: 'Play again',
+    playAgainHint: 'Same room, same friends — back to the lobby',
+    leave: 'Leave'
+  },
+  timeline: {
+    night: 'Night {round}',
+    day: 'Day {round}',
+    noVictim: 'The wolves did not choose anyone.',
+    hunt: 'The wolves targeted {name}.',
+    doctorSaved: 'The Doctor saved {name}.',
+    doctorProtected: 'The Doctor protected {name}.',
+    witchHealed: 'The Witch healed {name}.',
+    witchPoisoned: 'The Witch poisoned {name}.',
+    visionWolf: 'The Seer inspected {name}: a Werewolf.',
+    visionClear: 'The Seer inspected {name}: not a Werewolf.',
+    drunkVisionWolf: 'The Drunk “inspected” {name} and was told: a Werewolf.',
+    drunkVisionClear: 'The Drunk “inspected” {name} and was told: not a Werewolf.',
+    noDeaths: 'Nobody died.',
+    died: '{names} died. | {names} died.',
+    noVotes: 'Nobody voted. Nobody was executed.',
+    ballot: '{voters} voted for {name}.',
+    tie: '{names} tied with {count} votes each. Nobody was executed.',
+    executed: 'The village executed {name} with {count} vote. | The village executed {name} with {count} votes.',
+    executedRole: '{name} was a {role}.',
+    foolWon: '{name} was the Fool and got exactly what they wanted.',
+    hunterShot: 'The Hunter {name} took {other} down.',
+    hunterHeld: 'The Hunter {name} held their fire.',
+    narratorKilled: 'The narrator took {name} out of the game.',
+    narratorRevived: 'The narrator brought {name} back.'
+  },
+  awards: {
+    title: {
+      'most-suspicious': 'Most Suspicious',
+      'worst-liar': 'Worst Liar',
+      'betrayed-own-team': 'Betrayed Own Team',
+      'silent-assassin': 'Silent Assassin',
+      chatterbox: 'Chatterbox'
+    },
+    detail: {
+      'most-suspicious': '{count} vote received | {count} votes received',
+      'worst-liar': 'Wolf, caught on Day {count}',
+      'betrayed-own-team': '{count} vote against villagers | {count} votes against villagers',
+      'silent-assassin': 'A wolf nobody ever suspected',
+      chatterbox: '{count} message | {count} messages'
+    }
   },
   lost: {
     seatLostTitle: 'Your seat is gone',
@@ -444,8 +503,67 @@ const es: typeof en = {
   },
   over: {
     eyebrow: 'Fin del juego',
-    roles: 'El verdadero rol de cada quien',
-    soloAlso: 'El {role} también ganó'
+    roles: 'Quién era quién',
+    soloAlso: 'El {role} también ganó',
+    flavor: {
+      village: 'No queda ningún lobo. Las arepas están a salvo otra vez.',
+      wolves: 'La manada tiene la aldea para ella sola. Esta noche nadie duerme.',
+      solo: 'Nadie lo vio venir. Excepto el Bufón.'
+    },
+    twist: {
+      eyebrow: 'Giro de la trama',
+      title: 'Eras el {role} todo el tiempo',
+      body: 'Tu carta decía {seen}. Mentía. Perdón.'
+    },
+    story: 'Lo que pasó de verdad',
+    expandAll: 'Expandir todo',
+    collapseAll: 'Contraer todo',
+    awards: 'Premios',
+    playAgain: 'Jugar de nuevo',
+    playAgainHint: 'Misma sala, mismos amigos: de vuelta a la sala de espera',
+    leave: 'Salir'
+  },
+  timeline: {
+    night: 'Noche {round}',
+    day: 'Día {round}',
+    noVictim: 'Los lobos no eligieron a nadie.',
+    hunt: 'Los lobos fueron por {name}.',
+    doctorSaved: 'El Doctor salvó a {name}.',
+    doctorProtected: 'El Doctor protegió a {name}.',
+    witchHealed: 'La Bruja curó a {name}.',
+    witchPoisoned: 'La Bruja envenenó a {name}.',
+    visionWolf: 'La Vidente inspeccionó a {name}: hombre lobo.',
+    visionClear: 'La Vidente inspeccionó a {name}: no es hombre lobo.',
+    drunkVisionWolf: 'El Borracho “inspeccionó” a {name} y le dijeron: hombre lobo.',
+    drunkVisionClear: 'El Borracho “inspeccionó” a {name} y le dijeron: no es hombre lobo.',
+    noDeaths: 'No murió nadie.',
+    died: 'Murió {names}. | Murieron {names}.',
+    noVotes: 'Nadie votó. No se ejecutó a nadie.',
+    ballot: '{voters} votó por {name}. | {voters} votaron por {name}.',
+    tie: '{names} empataron con {count} votos cada uno. No se ejecutó a nadie.',
+    executed: 'La aldea ejecutó a {name} con {count} voto. | La aldea ejecutó a {name} con {count} votos.',
+    executedRole: '{name} era {role}.',
+    foolWon: '{name} era el Bufón y consiguió justo lo que quería.',
+    hunterShot: 'El Cazador {name} se llevó a {other}.',
+    hunterHeld: 'El Cazador {name} bajó el arma.',
+    narratorKilled: 'El narrador sacó a {name} del juego.',
+    narratorRevived: 'El narrador devolvió a {name} al juego.'
+  },
+  awards: {
+    title: {
+      'most-suspicious': 'Más sospechoso',
+      'worst-liar': 'Peor mentiroso',
+      'betrayed-own-team': 'Traidor a su bando',
+      'silent-assassin': 'Asesino silencioso',
+      chatterbox: 'Cotorra'
+    },
+    detail: {
+      'most-suspicious': '{count} voto recibido | {count} votos recibidos',
+      'worst-liar': 'Lobo, descubierto el Día {count}',
+      'betrayed-own-team': '{count} voto contra aldeanos | {count} votos contra aldeanos',
+      'silent-assassin': 'Un lobo del que nadie sospechó',
+      chatterbox: '{count} mensaje | {count} mensajes'
+    }
   },
   lost: {
     seatLostTitle: 'Tu puesto ya no está',

@@ -29,9 +29,19 @@ export class RecordingPublisher implements RoomPublisher {
 
 export class RecordingGameStarter implements GameStarter {
   readonly openings: GameOpening[] = []
+  readonly discarded: string[] = []
+  over = false
 
   async start(opening: GameOpening): Promise<void> {
     this.openings.push(opening)
+  }
+
+  async isOver(): Promise<boolean> {
+    return this.over
+  }
+
+  async discard(code: string): Promise<void> {
+    this.discarded.push(code)
   }
 }
 

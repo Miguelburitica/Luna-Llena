@@ -11,4 +11,8 @@ export class InMemoryChatLogRepository implements ChatLogRepository {
   async save(log: ChatLog): Promise<void> {
     this.logs.set(log.code, log)
   }
+
+  async remove(code: string): Promise<void> {
+    this.logs.delete(code)
+  }
 }

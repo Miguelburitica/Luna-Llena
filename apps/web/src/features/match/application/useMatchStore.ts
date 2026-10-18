@@ -35,6 +35,12 @@ export const useMatchStore = defineStore('match', () => {
     return result
   }
 
+  const reset = () => {
+    view.value = null
+    receivedAt.value = 0
+    failure.value = null
+  }
+
   gateway.onView((next) => {
     if (next.code === room.session?.code) adopt(next)
   })
@@ -45,6 +51,7 @@ export const useMatchStore = defineStore('match', () => {
     failure,
     isNarrator: computed(() => view.value?.perspective === 'narrator'),
     sync,
+    reset,
     advance: () => command(() => gateway.advance()),
     extendTimer: () => command(() => gateway.extendTimer()),
     setAlive: (memberId: string, alive: boolean) => command(() => gateway.setAlive(memberId, alive)),

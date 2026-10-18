@@ -17,11 +17,13 @@ import {
   type Result,
   type RevengeView,
   type TeamId,
+  type TimelineEntry,
   type TimerPhase,
   type Verdict,
   type Vision,
   type VotingProgress
 } from '@luna/contracts'
+import { awardsOf } from './awardsOf'
 import { Ballot } from './Ballot'
 import { Night } from './Night'
 import { livingPackVictimOf, NO_SPENT_POTIONS, resolveDawn, type DawnResolution, type SpentPotions } from './resolveDawn'
@@ -60,6 +62,7 @@ export class Match {
   private currentRevenge: RevengeView | null = null
   private readonly currentSoloWinnerIds: string[] = []
   private readonly lastWordsWindows = new Map<string, number>()
+  private readonly entries: TimelineEntry[] = []
 
   private constructor(
     readonly code: string,
@@ -112,6 +115,10 @@ export class Match {
 
   get revenge(): RevengeView | null {
     return this.currentRevenge
+  }
+
+  get timeline(): readonly TimelineEntry[] {
+    return this.entries
   }
 
   get soloWinnerIds(): readonly string[] {
@@ -238,6 +245,7 @@ export class Match {
     const target = this.livingSeat(targetId)
     if (target === undefined || target.memberId === actorId) return err(matchError('target-invalid'))
     this.currentRevenge = { ...shot, targetId: target.memberId, pending: false }
+    this.entries.push({ kind: 'revenge', round: this.currentRound, hunterId: actorId, targetId: target.memberId })
     this.bury([target.memberId], now)
     return done
   }
@@ -246,6 +254,7 @@ export class Match {
     const authority = this.requireRunningNarrator(actorId)
     if (!authority.ok) return authority
     if (this.currentRevenge === null || !this.currentRevenge.pending) return err(matchError('no-revenge'))
+    this.entries.push({ kind: 'revenge', round: this.currentRound, hunterId: this.currentRevenge.hunterId, targetId: null })
     this.currentRevenge = { ...this.currentRevenge, pending: false }
     return done
   }
@@ -263,6 +272,7 @@ export class Match {
     if (!authority.ok) return authority
     const seat = this.seats.find((candidate) => candidate.memberId === memberId)
     if (seat === undefined) return err(matchError('member-not-found'))
+    const changes = seat.alive !== (alive === true)
     if (alive === true) {
       seat.alive = true
       this.lastWordsWindows.delete(seat.memberId)
@@ -270,6 +280,7 @@ export class Match {
     } else {
       this.bury([seat.memberId], null)
     }
+    if (changes) this.entries.push({ kind: 'narrator', round: this.currentRound, memberId: seat.memberId, alive: alive === true })
     return done
   }
 
@@ -284,7 +295,11 @@ export class Match {
     const authority = this.requireRunningNarrator(actorId)
     if (!authority.ok) return authority
     if (this.currentPendingWinner === null) return err(matchError('no-winner-yet'))
-    this.currentOutcome = { winner: this.currentPendingWinner }
+    this.currentOutcome = {
+      winner: this.currentPendingWinner,
+      timeline: [...this.entries],
+      awards: awardsOf(this.entries, this.seats)
+    }
     return done
   }
 
@@ -328,6 +343,11 @@ export class Match {
     const executed = this.seats.find((seat) => seat.memberId === verdict.executedId)
     const foolWins = executed?.role === 'fool'
     this.currentVerdict = { ...verdict, foolWins }
+    this.entries.push({
+      kind: 'vote',
+      round: this.currentRound,
+      verdict: { ...verdictOf(this.currentBallot, this.seats, false, this.currentRound), foolWins }
+    })
     if (executed === undefined) return
     if (foolWins) this.currentSoloWinnerIds.push(executed.memberId)
     this.bury([executed.memberId], now)
@@ -372,6 +392,21 @@ export class Match {
     this.blockedPatients.clear()
     for (const [doctorId, targetId] of resolution.nextBlocked) this.blockedPatients.set(doctorId, targetId)
     this.currentDawn = { round: this.currentRound, deaths: resolution.deaths }
+    this.entries.push({
+      kind: 'night',
+      round: this.currentRound,
+      victimId: resolution.victimId,
+      protectedId: resolution.protectedId,
+      healed: resolution.healing,
+      poisonedId: resolution.poisonTargetId,
+      visions: [...this.currentNight.inspections].map(([seerId, inspection]) => ({
+        seerId,
+        targetId: inspection.targetId,
+        isWolf: inspection.isWolf,
+        fromDrunk: inspection.fromDrunk
+      })),
+      deaths: resolution.deaths
+    })
     if (resolution.deaths.length > 0) this.bury(resolution.deaths, now)
   }
 

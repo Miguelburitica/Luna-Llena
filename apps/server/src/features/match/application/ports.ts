@@ -4,6 +4,7 @@ import type { Match } from '../domain/Match'
 export interface MatchRepository {
   find(code: string): Promise<Match | undefined>
   save(match: Match): Promise<void>
+  remove(code: string): Promise<void>
 }
 
 export interface MemberMatchView {

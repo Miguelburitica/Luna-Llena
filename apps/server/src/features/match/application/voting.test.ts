@@ -309,7 +309,7 @@ describe('The Fool', () => {
     expect(asNarrator(publisher.latestFor(NARRATOR_ID)).pendingWinner).toBe('wolves')
     unwrap(await useCases.endGame.execute(narrator))
     for (const { view } of publisher.latest) {
-      expect(view.outcome).toEqual({ winner: 'wolves' })
+      expect(view.outcome).toMatchObject({ winner: 'wolves' })
       expect(view.soloWinnerIds).toEqual([people.fool])
       expect(Object.fromEntries(view.players.map((player) => [player.id, player.revealedRole]))).toEqual(roles)
     }

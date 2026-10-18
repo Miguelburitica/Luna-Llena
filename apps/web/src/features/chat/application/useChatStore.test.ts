@@ -31,6 +31,13 @@ describe('chat store', () => {
     expect(chat.messages.ghosts).toEqual([])
   })
 
+  it('forgets every message of the previous game on reset', async () => {
+    const { chat } = await startChat(wolfView(), [messageOf({ text: 'old game' }), messageOf({ channel: 'wolves', authorId: 'id-Tato' })])
+    chat.reset()
+    expect(chat.messages).toEqual({ village: [], wolves: [], ghosts: [] })
+    expect(chat.unread).toEqual({ village: 0, wolves: 0, ghosts: 0 })
+  })
+
   it('treats the history as already seen', async () => {
     const { chat } = await startChat(wolfView(), [messageOf({ channel: 'wolves', authorId: 'id-Tato' })])
     expect(chat.unread).toEqual({ village: 0, wolves: 0, ghosts: 0 })

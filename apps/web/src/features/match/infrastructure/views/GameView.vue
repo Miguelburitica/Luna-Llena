@@ -2,18 +2,18 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { useChatStore } from '@/features/chat/application/useChatStore'
 import { useRoomEntry } from '@/features/room/application/useRoomEntry'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
 import { normalizeRoomCode } from '@/features/room/domain/roomCode'
 import { readStored, writeStored } from '@/shared/infrastructure/storage/deviceStorage'
 import LunaNotice from '@/shared/infrastructure/ui/components/LunaNotice.vue'
 import { useMatchStore } from '../../application/useMatchStore'
+import { forgetMatchMemory, REVEALED_KEY_PREFIX } from '../matchMemory'
 import NarratorDashboard from '../components/NarratorDashboard.vue'
 import PlayerTable from '../components/PlayerTable.vue'
 import RoleRevealOverlay from '../components/RoleRevealOverlay.vue'
 import GameOverView from './GameOverView.vue'
-
-const REVEALED_KEY_PREFIX = 'luna-llena.revealed.'
 
 const isRevealed = (value: unknown): value is true => value === true
 
@@ -22,6 +22,7 @@ const route = useRoute()
 const router = useRouter()
 const room = useRoomStore()
 const match = useMatchStore()
+const chat = useChatStore()
 const code = computed(() => normalizeRoomCode(String(route.params.code)))
 const entry = useRoomEntry(code)
 
@@ -38,16 +39,25 @@ const dismissReveal = () => {
 
 const inRoom = computed(() => room.session?.code === code.value)
 
+const backToLobby = async () => {
+  match.reset()
+  chat.reset()
+  forgetMatchMemory(code.value)
+  revealed.value = false
+  await router.replace({ name: 'lobby', params: { code: code.value } })
+}
+
 const load = async () => {
   const result = await match.sync()
-  if (!result.ok && result.error.code === 'match-not-found') {
-    await router.replace({ name: 'lobby', params: { code: code.value } })
-  }
+  if (!result.ok && result.error.code === 'match-not-found') await backToLobby()
 }
+
+const reopened = computed(() => room.snapshot?.code === code.value && room.snapshot.status === 'lobby')
 
 const retry = () => (inRoom.value ? load() : entry.retry())
 
 watch(inRoom, (entered) => entered && load(), { immediate: true })
+watch(reopened, (isReopened) => isReopened && backToLobby())
 </script>
 
 <template>

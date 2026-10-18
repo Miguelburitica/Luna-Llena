@@ -167,6 +167,18 @@ export class Room {
     return done
   }
 
+  permitReplay(actorId: string): Result<void, RoomError> {
+    const member = this.requireMember(actorId)
+    if (!member.ok) return member
+    if (!member.value.isNarrator) return err(roomError('not-narrator'))
+    return this.currentStatus === 'in-game' ? done : err(roomError('game-not-over'))
+  }
+
+  reopen(): void {
+    this.currentStatus = 'lobby'
+    for (const player of this.players) player.ready = false
+  }
+
   private isNameTaken(name: DisplayName): boolean {
     return this.seats.some((member) => member.name.sameAs(name))
   }

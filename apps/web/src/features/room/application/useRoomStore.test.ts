@@ -92,4 +92,13 @@ describe('room store', () => {
     expect(store.session).toBeNull()
     expect(sessions.stored).toBeNull()
   })
+
+  it('asks the gateway to play again and passes its answer through', async () => {
+    const { store, gateway } = createRoomTestApp()
+    await store.join('LUNA42', 'Nico')
+    expect((await store.playAgain()).ok).toBe(true)
+    gateway.answer('playAgain', err({ code: 'game-not-over' }))
+    expect(await store.playAgain()).toEqual({ ok: false, error: { code: 'game-not-over' } })
+    expect(gateway.commands().filter((command) => command === 'playAgain')).toHaveLength(2)
+  })
 })

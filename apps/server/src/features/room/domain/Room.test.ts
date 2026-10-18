@@ -255,3 +255,24 @@ describe('Starting the game', () => {
     })
   })
 })
+
+describe('Reopening after a game', () => {
+  it('goes back to the lobby keeping members and clearing readiness', () => {
+    const room = readyRoomOf(6)
+    unwrap(room.start('id-Nico'))
+    unwrap(room.permitReplay('id-Nico'))
+    room.reopen()
+    expect(room.status).toBe('lobby')
+    expect(room.isAcceptingPlayers).toBe(true)
+    expect(room.players.map((player) => player.name.value)).toEqual(['Ana', 'Juan', 'Marta', 'Luis', 'Sofi', 'Caro'])
+    expect(room.players.every((player) => !player.ready)).toBe(true)
+  })
+
+  it('permits a replay only for the narrator of a game in progress', () => {
+    const room = readyRoomOf(6)
+    expect(room.permitReplay('id-Nico')).toEqual({ ok: false, error: { code: 'game-not-over' } })
+    unwrap(room.start('id-Nico'))
+    expect(room.permitReplay('id-Ana')).toEqual({ ok: false, error: { code: 'not-narrator' } })
+    expect(room.permitReplay('ghost')).toEqual({ ok: false, error: { code: 'session-invalid' } })
+  })
+})

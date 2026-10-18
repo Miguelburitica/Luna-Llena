@@ -49,6 +49,19 @@ export const startServer = ({
     random
   })
 
+  const chatUseCases = createChatUseCases({
+    logs: new InMemoryChatLogRepository(),
+    publisher: new SocketChatPublisher(io),
+    audience: {
+      membersOf: (code, now) => matchUseCases.describeChatAudience.execute(code, now),
+      lastWordsSpoken: async (code, memberId) => {
+        await matchUseCases.closeLastWords.execute({ code, memberId })
+      }
+    },
+    clock,
+    ids: new CryptoIdGenerator()
+  })
+
   registerRoomHandlers(
     io,
     createRoomUseCases({
@@ -56,26 +69,18 @@ export const startServer = ({
       codes: new RandomRoomCodeGenerator(),
       ids: new CryptoIdGenerator(),
       publisher: new SocketRoomPublisher(io),
-      starter: { start: (opening) => matchUseCases.startMatch.execute(opening) }
+      starter: {
+        start: (opening) => matchUseCases.startMatch.execute(opening),
+        isOver: (code) => matchUseCases.isMatchOver.execute(code),
+        discard: async (code) => {
+          await matchUseCases.discardMatch.execute(code)
+          await chatUseCases.discardChat.execute(code)
+        }
+      }
     })
   )
   registerMatchHandlers(io, matchUseCases)
-
-  registerChatHandlers(
-    io,
-    createChatUseCases({
-      logs: new InMemoryChatLogRepository(),
-      publisher: new SocketChatPublisher(io),
-      audience: {
-        membersOf: (code, now) => matchUseCases.describeChatAudience.execute(code, now),
-        lastWordsSpoken: async (code, memberId) => {
-          await matchUseCases.closeLastWords.execute({ code, memberId })
-        }
-      },
-      clock,
-      ids: new CryptoIdGenerator()
-    })
-  )
+  registerChatHandlers(io, chatUseCases)
 
   return new Promise((resolve) => {
     httpServer.listen(port, () => {

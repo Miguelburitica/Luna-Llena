@@ -21,6 +21,16 @@ export const writeStored = (key: string, value: unknown, area: StorageArea = 'de
   }
 }
 
+export const forgetStoredWithPrefix = (prefix: string, area: StorageArea = 'device'): void => {
+  try {
+    const storage = areaOf(area)
+    const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index))
+    for (const key of keys) if (key !== null && key.startsWith(prefix)) storage.removeItem(key)
+  } catch {
+    return
+  }
+}
+
 export const forgetStored = (key: string, area: StorageArea = 'device'): void => {
   try {
     areaOf(area).removeItem(key)

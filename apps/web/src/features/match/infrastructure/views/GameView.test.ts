@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { narratorViewOf, playerViewOf } from '../../application/MatchGateway.fixtures'
+import { messageOf } from '@/features/chat/application/ChatGateway.fixtures'
+import { snapshotOf } from '@/features/room/domain/snapshot.fixtures'
+import { narratorViewOf, outcomeOf, playerViewOf } from '../../application/MatchGateway.fixtures'
 import { matchPlayers, mountMatchView } from '../mountMatchView.fixtures'
 import GameView from './GameView.vue'
 
@@ -78,7 +80,7 @@ describe('GameView', () => {
     const view = narratorViewOf({
       players: matchPlayers(),
       roles: everyRole,
-      outcome: { winner: 'village' }
+      outcome: outcomeOf({ winner: 'village' })
     })
     const { wrapper } = await mountMatchView(GameView, { view, memberId: 'id-Nico', preload: false })
     expect(wrapper.text()).toContain('Village wins!')
@@ -92,7 +94,7 @@ describe('GameView', () => {
     const revealed = Object.fromEntries(Object.entries(everyRole).map(([id, role]) => [id, { revealedRole: role }]))
     const view = playerViewOf({
       players: matchPlayers(revealed),
-      outcome: { winner: 'wolves' }
+      outcome: outcomeOf({ winner: 'wolves' })
     })
     const { wrapper } = await mountMatchView(GameView, { view, preload: false })
     expect(wrapper.text()).toContain('Wolves win!')
@@ -106,6 +108,24 @@ describe('GameView', () => {
       configure: ({ matches }) => matches.failWith('sync', 'match-not-found')
     })
     await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/room/LUNA42'))
+  })
+
+  it('returns to the lobby when the room reopens and forgets the game', async () => {
+    sessionStorage.setItem(REVEALED_KEY, 'true')
+    sessionStorage.setItem('luna-llena.fool.LUNA42.2', 'true')
+    const view = playerViewOf({ players: matchPlayers(), outcome: outcomeOf({ winner: 'village' }) })
+    const { rooms, router, match, chats } = await mountMatchView(GameView, {
+      view,
+      preload: false,
+      configure: ({ chats: gateway }) => gateway.withHistory([messageOf({ text: 'old game' })])
+    })
+    await vi.waitFor(() => expect(match.view).not.toBeNull())
+    rooms.pushSnapshot(snapshotOf({ status: 'lobby' }))
+    await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/room/LUNA42'))
+    expect(match.view).toBeNull()
+    expect(sessionStorage.getItem(REVEALED_KEY)).toBeNull()
+    expect(sessionStorage.getItem('luna-llena.fool.LUNA42.2')).toBeNull()
+    expect(chats.commands()).toContain('history')
   })
 
   it('offers a retry when the village is unreachable', async () => {

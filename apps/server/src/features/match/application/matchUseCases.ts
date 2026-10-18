@@ -7,6 +7,8 @@ import { CloseLastWords } from './CloseLastWords'
 import { DescribeChatAudience } from './DescribeChatAudience'
 import { EndGame } from './EndGame'
 import { ExtendTimer } from './ExtendTimer'
+import { DiscardMatch } from './DiscardMatch'
+import { IsMatchOver } from './IsMatchOver'
 import { KeepPlaying } from './KeepPlaying'
 import type { MatchPublisher, MatchRepository } from './ports'
 import { LockVote } from './LockVote'
@@ -39,7 +41,9 @@ export const createMatchUseCases = ({ matches, publisher, clock, random }: Match
     takeRevenge: new TakeRevenge(access),
     skipRevenge: new SkipRevenge(access),
     describeChatAudience: new DescribeChatAudience(matches),
-    closeLastWords: new CloseLastWords(access)
+    closeLastWords: new CloseLastWords(access),
+    isMatchOver: new IsMatchOver(matches),
+    discardMatch: new DiscardMatch(matches)
   }
 }
 

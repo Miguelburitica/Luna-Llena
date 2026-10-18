@@ -11,4 +11,8 @@ export class InMemoryMatchRepository implements MatchRepository {
   async save(match: Match): Promise<void> {
     this.matches.set(match.code, match)
   }
+
+  async remove(code: string): Promise<void> {
+    this.matches.delete(code)
+  }
 }

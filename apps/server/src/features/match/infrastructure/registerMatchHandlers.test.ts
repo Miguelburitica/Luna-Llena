@@ -110,7 +110,7 @@ describe('match socket handlers', () => {
 
     unwrap(await narrator.client.emitWithAck('match:endGame', {}))
     const over = await nextView(first.views, (view) => view.outcome !== null)
-    expect(over.outcome).toEqual({ winner: 'village' })
+    expect(over.outcome).toMatchObject({ winner: 'village' })
     expect(Object.fromEntries(over.players.map((seat) => [seat.id, seat.revealedRole]))).toEqual(roles)
     expect(await narrator.client.emitWithAck('match:advance', {})).toEqual({ ok: false, error: { code: 'match-over' } })
   })
