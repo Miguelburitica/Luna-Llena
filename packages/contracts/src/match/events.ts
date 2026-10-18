@@ -1,4 +1,5 @@
 import type { Result } from '../result'
+import type { NightActionInput } from './night'
 import type { MatchView } from './views'
 import type { MatchError } from './vocabulary'
 
@@ -13,6 +14,7 @@ export interface MatchClientEvents {
   'match:setAlive': (input: { readonly memberId: string; readonly alive: boolean }, ack: MatchAck<void>) => void
   'match:endGame': (input: NoInput, ack: MatchAck<void>) => void
   'match:keepPlaying': (input: NoInput, ack: MatchAck<void>) => void
+  'match:act': (input: NightActionInput, ack: MatchAck<void>) => void
 }
 
 export interface MatchServerEvents {

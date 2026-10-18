@@ -14,7 +14,14 @@ export const MATCH_ERROR_CODES = [
   'member-not-found',
   'timer-not-running',
   'no-winner-yet',
-  'match-over'
+  'match-over',
+  'not-night',
+  'player-dead',
+  'not-your-action',
+  'target-invalid',
+  'already-inspected',
+  'protected-last-night',
+  'potion-used'
 ] as const
 export type MatchErrorCode = (typeof MATCH_ERROR_CODES)[number]
 
