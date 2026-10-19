@@ -47,4 +47,4 @@
 
 - [x] 8.1 Run `pnpm check` green
 - [x] 8.2 In the browser at phone width, with the network offline: set up 8 players, deal by passing through every privacy screen, play two nights and days logging every power and a vote, undo a mis-tap, reload mid-day and resume, use the soundboard and the table screen, and finish on the end summary
-- [ ] 8.3 Play one online game end to end to confirm the moved rules behave as before
+- [x] 8.3 Play one online game end to end to confirm the moved rules behave as before

@@ -164,7 +164,8 @@ Bots SHALL talk enough to give the humans someone to suspect, without flooding t
 ### Requirement: Bot speech
 A bot's chat line SHALL be phrased in the room's bot language and in its personality's voice. It SHALL say what its
 brain decided: an accusation, a defense, a claim, a reaction or an answer, which can be a lie when the bot is a wolf
-or the Fool. The line SHALL mention only real player names and facts the bot knows, and SHALL stay party-safe. When
+or the Fool. The line SHALL mention only real player names and facts the bot knows, and SHALL stay party-safe. Its humor SHALL be teasing and bluffing,
+not gross-out jokes about slime, snot, drool, warts or vomit. When
 no language model is configured, the model fails or times out, or the room has used its 150 model calls for the game,
 the bot SHALL use a scripted line for the same intent. A room SHALL not repeat a scripted line for an intent until it
 has used every line for that intent. The model SHALL be told not to copy lines from the chat it reads.
@@ -176,6 +177,11 @@ has used every line for that intent. The model SHALL be told not to copy lines f
 #### Scenario: No echo
 - **WHEN** two bot wolves announce their pick in the same night with scripted lines
 - **THEN** they use two different lines
+
+#### Scenario: No gross-out talk
+- **WHEN** a bot speaks with any personality, in either language, from the model or a scripted line
+- **THEN** its voice, its examples and its scripted lines hold no slime, snot, drool, wart or vomit jokes, and the
+  model is told to skip them
 
 #### Scenario: A bad answer from the model
 - **WHEN** the model answers with something that is not the expected JSON

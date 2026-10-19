@@ -2,7 +2,7 @@ import type { BotSpeech } from '../application/ports'
 import { parseSpokenLine, type BotPrompt } from '../domain/botPrompt'
 
 export const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
-export const DEFAULT_BOT_MODEL = 'z-ai/glm-5.3-flash'
+export const DEFAULT_BOT_MODEL = 'openai/gpt-6-luna'
 
 type Fetch = (url: string, init: RequestInit) => Promise<Response>
 
@@ -38,9 +38,8 @@ export class OpenRouterBotSpeech implements BotSpeech {
         },
         body: JSON.stringify({
           model: this.model,
-          temperature: 0.8,
           max_tokens: 400,
-          reasoning: { max_tokens: 1, exclude: true },
+          reasoning: { effort: 'none', exclude: true },
           messages: [
             { role: 'system', content: prompt.system },
             ...prompt.examples.flatMap((example) => [

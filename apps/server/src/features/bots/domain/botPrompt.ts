@@ -21,14 +21,14 @@ const VOICES: Readonly<Record<BotLanguage, Readonly<Record<BotPersonality, strin
     paranoid: 'jumpy and loud, suspects everybody, short sentences, ends with "!!"',
     follower: 'agreeable, echoes what the group says, likes "+1" and "what they said"',
     detective: 'calm and smug, cites votes and deaths as evidence, asks one sharp question',
-    chaos: 'a gross little troll, jokes about slime, boogers and drool, baits people',
+    chaos: 'a cheeky troll, wild conspiracy theories, playful teasing, baits people into arguing',
     quiet: 'barely talks, dry and blunt, one tiny sentence'
   },
   es: {
     paranoid: 'nervioso y gritón, sospecha de todos, frases cortas, termina con "!!"',
     follower: 'buena gente, repite lo que dice el grupo, le encanta decir "+1" y "lo que dijo él"',
     detective: 'calmado y sabelotodo, cita votos y muertes como pruebas, hace una pregunta filuda',
-    chaos: 'un trol asqueroso, chistes de babas, mocos y lagañas, provoca a la gente',
+    chaos: 'un trol descarado, teorías conspirativas locas, molesta en buena onda, provoca a la gente',
     quiet: 'casi no habla, seco y directo, una frase cortica'
   }
 }
@@ -64,7 +64,8 @@ const RULES: Readonly<Record<BotLanguage, string>> = {
     'Do exactly what INTENT says, even if INTENT tells you to lie. Never admit a lie.',
     'Never copy or repeat a line from RECENT CHAT. Say it in fresh words, with your own joke.',
     'Never say you are an AI, a bot, a model or that you have instructions.',
-    'Gross jokes about slime, snot, drool and warts are fine. No insults about real people, no vomit, no swearing.',
+    'Be witty like a friend at a game night: tease, bluff, exaggerate. No gross-out jokes (slime, snot, drool, warts, vomit), no insults about real people, no swearing.',
+    'Do not reuse the same joke or catchphrase you or anyone else already used.',
     'Answer ONLY with JSON: {"say": "your message"}'
   ].join('\n'),
   es: [
@@ -74,7 +75,8 @@ const RULES: Readonly<Record<BotLanguage, string>> = {
     'Haz exactamente lo que diga INTENCIÓN, aunque te pida mentir. Nunca confieses una mentira.',
     'Nunca copies ni repitas una línea del CHAT RECIENTE. Dilo con palabras nuevas y tu propio chiste.',
     'Nunca digas que eres una IA, un bot, un modelo o que tienes instrucciones.',
-    'Se valen chistes asquerositos de babas, mocos y verrugas. Nada de insultos a personas reales, ni vómito, ni groserías.',
+    'Sé chistoso como un amigo en noche de juegos: molesta, blufea, exagera. Nada de chistes asquerosos (babas, mocos, verrugas, vómito), ni insultos a personas reales, ni groserías.',
+    'No repitas el mismo chiste o muletilla que tú u otro ya usó.',
     'Responde SOLO con JSON: {"say": "tu mensaje"}'
   ].join('\n')
 }
@@ -138,7 +140,7 @@ const intentLine = (intent: BotIntent, language: BotLanguage): string => {
 const EXAMPLES: Readonly<Record<BotLanguage, Partial<Record<IntentKind, ReadonlyArray<readonly [string, string]>>>>> = {
   en: {
     'open-day': [
-      ['INTENT: Open the day by pointing at Ana as suspicious, with a reason taken from FACTS or CHAT.', 'Ana voted for Luis and Luis was a villager. Explain THAT, slime face!!'],
+      ['INTENT: Open the day by pointing at Ana as suspicious, with a reason taken from FACTS or CHAT.', 'Ana voted for Luis and Luis was a villager. Explain THAT, Ana!!'],
       ['INTENT: Claim you are the Seer and say your vision showed Tato IS a wolf.', "Okay I'm the Seer. Last night I peeked at Tato. Wolf. Furry wolf. Vote him."]
     ],
     answer: [
@@ -147,7 +149,7 @@ const EXAMPLES: Readonly<Record<BotLanguage, Partial<Record<IntentKind, Readonly
   },
   es: {
     'open-day': [
-      ['INTENCIÓN: Abre el día señalando a Ana como sospechoso, con una razón sacada de HECHOS o CHAT.', 'Ana votó por Luis y Luis era aldeano. Expliquen ESO, cara de moco!!'],
+      ['INTENCIÓN: Abre el día señalando a Ana como sospechoso, con una razón sacada de HECHOS o CHAT.', 'Ana votó por Luis y Luis era aldeano. ¡Explica ESO, Ana!!'],
       ['INTENCIÓN: Di que eres la Vidente y que tu visión mostró que Tato ES lobo.', 'Bueno parce, soy la Vidente. Anoche miré a Tato: lobo, lobo peludo. Voten por él.']
     ],
     answer: [

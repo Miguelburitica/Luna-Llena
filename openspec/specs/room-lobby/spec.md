@@ -22,12 +22,18 @@ identifies their seat.
 - **THEN** the system rejects it with error `room-name-invalid`
 
 ### Requirement: Room settings
-A room's settings SHALL consist of a theme, three phase timers, four house rules and a role deck. The theme SHALL be
-`classic` (other themes are announced but locked). Timers SHALL only take these values in seconds, where 0 means the
-narrator advances manually: night 0, 45, 60 or 90; day 0, 120, 180 or 300; vote 0, 30, 60 or 90. The house rules are
-ghost powers, last words, reveal role on death and anonymous votes, each on or off. The deck SHALL map known role ids
-to whole counts within each role's copies-per-deck limit from the role catalog, with a total of at most 15 cards. Only
-the narrator SHALL change settings, and only while the room is in the lobby.
+A room's settings SHALL consist of a theme, three phase timers, four house rules, a role deck and a bot language.
+- **Theme:** SHALL be `classic`. Other themes are announced but locked.
+- **Timers:** SHALL only take these values in seconds, where 0 means the narrator advances manually:
+  - night 0, 45, 60 or 90;
+  - day 0, 120, 180 or 300;
+  - vote 0, 30, 60 or 90.
+- **House rules:** ghost powers, last words, reveal role on death and anonymous votes, each on or off.
+- **Deck:** SHALL map known role ids to whole counts within each role's copies-per-deck limit from the role catalog,
+  with a total of at most 15 cards.
+- **Bot language:** SHALL be `es` or `en`, with `es` by default.
+
+Only the narrator SHALL change settings, and only while the room is in the lobby.
 
 #### Scenario: Narrator updates timers
 - **WHEN** the narrator sets the day timer to 300 seconds
@@ -47,6 +53,14 @@ the narrator SHALL change settings, and only while the room is in the lobby.
 
 #### Scenario: Role over its limit
 - **WHEN** the narrator sets the deck to 5 Werewolves
+- **THEN** the system rejects it with error `settings-invalid`
+
+#### Scenario: Bots speak English
+- **WHEN** the narrator sets the bot language to `en`
+- **THEN** every member sees the bot language `en`
+
+#### Scenario: Unknown bot language
+- **WHEN** the narrator sets the bot language to `fr`
 - **THEN** the system rejects it with error `settings-invalid`
 
 ### Requirement: Room lookup by code
@@ -115,18 +129,27 @@ same avatar.
 
 ### Requirement: Readiness
 Players SHALL be able to mark themselves ready or not ready while in the lobby. The narrator SHALL have no readiness.
+Bots SHALL always be ready.
 
 #### Scenario: Player gets ready
 - **WHEN** Caro marks themselves ready
 - **THEN** every member sees Caro as ready
 
+#### Scenario: Bots are ready
+- **WHEN** the narrator adds a bot
+- **THEN** every member sees the bot as ready
+
 ### Requirement: Presence
 The system SHALL mark a member as disconnected when their connection drops and as connected when they resume. A
-disconnected member SHALL keep their seat.
+disconnected member SHALL keep their seat. Bots SHALL always be connected.
 
 #### Scenario: Connection drops
 - **WHEN** Tato's connection drops
 - **THEN** every member sees Tato as reconnecting and Tato keeps the seat
+
+#### Scenario: Bots never drop
+- **WHEN** the game starts with bots
+- **THEN** every bot shows as connected
 
 ### Requirement: Leaving and kicking
 A player SHALL be able to leave the room while it is in the lobby, which frees their seat, name and avatar. Once the
@@ -196,13 +219,20 @@ Starting with unmet conditions SHALL be rejected with error `start-conditions-un
 - **THEN** Caro's app opens the game screen with the role card
 
 ### Requirement: Live lobby view
-Every member SHALL receive the full lobby state whenever it changes: code, room name, status, settings, the members
-(name, avatar, narrator or player, ready, connected) and the start readiness. Session tokens SHALL never be shared with
-other members.
+Every member SHALL receive the full lobby state whenever it changes:
+- code, room name, status and settings;
+- the members, each with name, avatar, narrator or player, bot or human, ready and connected;
+- the start readiness.
+
+Session tokens SHALL never be shared with other members.
 
 #### Scenario: Another player joins
 - **WHEN** Pipe joins while Caro is in the lobby
 - **THEN** Caro's lobby shows Pipe without reloading
+
+#### Scenario: A bot is labeled
+- **WHEN** the narrator adds a bot
+- **THEN** every member sees that member marked as a bot
 
 ### Requirement: Invite link and remembered seat
 The web app SHALL offer an invite link of the form `/join/<CODE>` that opens the join screen with the code filled in.
@@ -225,3 +255,32 @@ settings screen of a room. The app SHALL offer Spanish and English and remember 
 #### Scenario: Player opens the settings screen
 - **WHEN** a player opens the settings address of their room
 - **THEN** the app sends them back to the lobby
+
+### Requirement: Return to your seat
+When the device still holds a member's seat, the web app SHALL offer to return to it. The home page SHALL show a
+"Return to your seat" action with the room code. The join page SHALL show "Return to my seat" in place of the name form
+and the room's closed notice when the entered code matches the saved seat. Choosing it SHALL resume the seat and take
+the member to the lobby, or to the game when one is running. If the seat no longer exists, the app SHALL say "Your
+seat is gone. Join again with the code.", forget the saved seat and show the normal join form. A member who leaves the
+room on purpose SHALL no longer be offered the seat.
+
+#### Scenario: Back out mid-game
+- **WHEN** Caro is seated in a running game, presses back on their phone and lands on the join page for that room
+- **THEN** Caro sees "Return to my seat" instead of "This village is mid-game", and choosing it puts Caro back in the
+  game in the same seat
+
+#### Scenario: Home page remembers the seat
+- **WHEN** Caro opens the home page while the device holds Caro's seat in room ABCD
+- **THEN** the home page shows "Return to your seat" for room ABCD, and choosing it takes Caro back to that room
+
+#### Scenario: Seat is gone
+- **WHEN** Caro chooses to return to a seat that the room no longer has
+- **THEN** Caro is told the seat is gone, the return offer disappears and the join form is shown
+
+#### Scenario: Another room
+- **WHEN** Caro holds a seat in room ABCD and enters code WXYZ on the join page
+- **THEN** the join page shows the normal join form for WXYZ
+
+#### Scenario: Left on purpose
+- **WHEN** Caro leaves the lobby with the leave button and opens the home page
+- **THEN** no return offer is shown

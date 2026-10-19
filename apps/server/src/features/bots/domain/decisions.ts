@@ -170,8 +170,8 @@ export const revengeTargetOf = (mind: BotMind, view: PlayerMatchView, random: Ra
   mostSuspected(mind, nonAllies(mind, view), random)
 
 const WHISPERS: Readonly<Record<BotLanguage, readonly string[]>> = {
-  es: ['buuu', 'te veo', 'huele a lobo', 'mocos...'],
-  en: ['boooo', 'i see you', 'smells wolfy', 'slime...']
+  es: ['buuu', 'te veo', 'huele a lobo', 'sé lo que hiciste'],
+  en: ['boooo', 'i see you', 'smells wolfy', 'i know what you did']
 }
 
 export const hauntOf = (

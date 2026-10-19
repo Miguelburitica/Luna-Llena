@@ -1,10 +1,10 @@
-import type { ChatMessage } from '@luna/contracts'
+import { BOT_LANGUAGES, BOT_PERSONALITIES, type ChatMessage } from '@luna/contracts'
 import { describe, expect, it } from 'vitest'
 import { fixedRandom, mindOf, playerView, rosterFor, SELF } from './BotMind.fixtures'
 import { buildBotPrompt, parseSpokenLine } from './botPrompt'
 import { BOT_CHAT_LIMITS, ChatBudget } from './ChatBudget'
 import { nightActionOf, settledHuntOf, voteTargetOf } from './decisions'
-import { openingIntentOf, wolfPlanIntentOf } from './intents'
+import { openingIntentOf, wolfPlanIntentOf, type BotIntent } from './intents'
 import { lockDelayOf, nightDelayOf } from './pacing'
 import { scriptedLineOf } from './scriptedLines'
 import { observeChat, observeView } from './suspicion'
@@ -238,6 +238,45 @@ describe('scripted variety', () => {
     const lines = Array.from({ length: 5 }, (_, index) => scriptedLineOf(intent, 'es', 'detective', fixedRandom(index * 0.01), used))
     expect(new Set(lines).size).toBe(5)
     expect(scriptedLineOf(intent, 'es', 'detective', fixedRandom(0), used)).toContain('Ana')
+  })
+})
+
+const GROSS = /slime|booger|snot|drool|wart|vomit|bleh|baba|babos|moco|verruga|lagaña|vómito/i
+
+const EVERY_INTENT: readonly BotIntent[] = [
+  { kind: 'open-day', subject: 'Ana', claim: null, lie: false },
+  { kind: 'answer', asker: 'Caro', question: '?', subject: 'Ana', lie: false },
+  { kind: 'explain-vote', subject: 'Ana', lie: false },
+  { kind: 'react-dawn', deaths: ['Ana'] },
+  { kind: 'last-words', subject: 'Ana' },
+  { kind: 'wolf-plan', subject: 'Ana', against: null },
+  { kind: 'ghost', subject: 'Ana' }
+]
+
+describe('no gross-out talk', () => {
+  it('keeps every scripted line free of gross-out jokes', () => {
+    for (const language of BOT_LANGUAGES) {
+      for (const intent of EVERY_INTENT) {
+        const used = new Set<string>()
+        for (let turn = 0; turn < 8; turn += 1) {
+          expect(scriptedLineOf(intent, language, 'chaos', fixedRandom(0), used)).not.toMatch(GROSS)
+        }
+      }
+    }
+  })
+
+  it('gives the model clean voices and examples and tells it to skip gross-out jokes', () => {
+    for (const language of BOT_LANGUAGES) {
+      for (const personality of BOT_PERSONALITIES) {
+        for (const intent of EVERY_INTENT) {
+          const prompt = buildBotPrompt({ mind: mindOf({ personality }), view: playerView(), roster: rosterFor(language), intent, chat: [] })
+          expect(prompt.system.split(': ').at(-1)).not.toMatch(GROSS)
+          for (const example of prompt.examples) expect(example.assistant).not.toMatch(GROSS)
+        }
+      }
+    }
+    const english = buildBotPrompt({ mind: mindOf(), view: playerView(), roster: rosterFor('en'), intent: { kind: 'last-words', subject: 'Ana' }, chat: [] })
+    expect(english.system).toContain('No gross-out jokes')
   })
 })
 

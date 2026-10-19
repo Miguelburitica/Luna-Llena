@@ -25,4 +25,5 @@
 
 - [x] 6.1 Run `pnpm check` green
 - [x] 6.2 Play in the browser with a human and 5–6 bots at phone width without an API key (scripted lines); screenshot the lobby, a night, the narrator dashboard and a day chat where a bot answers a question
-- [x] 6.3 Check live `z-ai/glm-5.3-flash` lines in both languages with the real `OPENROUTER_API_KEY`
+- [x] 6.3 Check live `openai/gpt-6-luna` lines in both languages with the real `OPENROUTER_API_KEY`
+- [x] 6.4 Drop the gross-out humor from bot voices, prompt examples, scripted lines and ghost whispers; test "No gross-out talk"

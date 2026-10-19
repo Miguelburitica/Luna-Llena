@@ -22,7 +22,7 @@ the humans remain the stars.
   - haunts;
   - what each chat line should say.
 - **Pacing:** bots act after human-like delays, always before the phase timer runs out.
-- **Bot talk:** an LLM on OpenRouter (`glm-5.3-flash` by default) phrases each chat line from the intent the brain
+- **Bot talk:** an LLM on OpenRouter (`openai/gpt-6-luna` by default) phrases each chat line from the intent the brain
   chose and the facts the bot knows. A chat budget keeps bots from flooding the chat. Bots answer when a human names
   them in the chat. Scripted lines take over when there is no API key, the model fails, or the room hits its call cap.
 - **Web:**

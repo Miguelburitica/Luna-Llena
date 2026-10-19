@@ -19,7 +19,7 @@ const answering = (status: number, body: unknown) => {
 describe('OpenRouterBotSpeech', () => {
   it('sends the prompt to the configured model and returns the line', async () => {
     const stub = answering(200, { choices: [{ message: { content: '{"say": "Tato smells wolfy"}' } }] })
-    const speech = new OpenRouterBotSpeech({ apiKey: 'test-key', model: 'z-ai/glm-5.3-flash', fetch: stub.fetch })
+    const speech = new OpenRouterBotSpeech({ apiKey: 'test-key', model: 'openai/gpt-6-luna-pro', fetch: stub.fetch })
     expect(await speech.say(PROMPT)).toBe('Tato smells wolfy')
     const call = stub.calls[0]
     const body = JSON.parse(String(call?.init.body)) as {
@@ -28,10 +28,16 @@ describe('OpenRouterBotSpeech', () => {
       messages: Array<{ role: string; content: string }>
     }
     expect(call?.url).toBe(OPENROUTER_URL)
-    expect(body.model).toBe('z-ai/glm-5.3-flash')
-    expect(body.reasoning).toEqual({ max_tokens: 1, exclude: true })
+    expect(body.model).toBe('openai/gpt-6-luna-pro')
+    expect(body.reasoning).toEqual({ effort: 'none', exclude: true })
     expect(body.messages.map((message) => message.role)).toEqual(['system', 'user', 'assistant', 'user'])
     expect(body.messages.at(-1)?.content).toBe('INTENT: accuse Tato')
+  })
+
+  it('uses GPT-6 Luna when no model is configured', async () => {
+    const stub = answering(200, { choices: [{ message: { content: '{"say": "hi"}' } }] })
+    await new OpenRouterBotSpeech({ apiKey: 'test-key', fetch: stub.fetch }).say(PROMPT)
+    expect((JSON.parse(String(stub.calls[0]?.init.body)) as { model: string }).model).toBe('openai/gpt-6-luna')
   })
 
   it('returns nothing on a bad answer, an error status or a timeout', async () => {
