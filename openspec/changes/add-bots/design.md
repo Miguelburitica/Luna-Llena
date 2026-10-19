@@ -33,7 +33,8 @@ They reuse `chip`, `seg`, `btn`, `av` and the new `.bot-tag`.
 ### Contracts
 - **`bots/vocabulary.ts`:**
   - `BOT_PERSONALITIES`, `BOT_DIFFICULTIES`, `BOT_LANGUAGES` (`es`, `en`);
-  - `BOT_NAMES`: twelve sticker pun names of at most 20 characters, such as `Moco-Bot` and `Verruga 3000`;
+  - `BOT_CAST_IDS` and `BOT_CASTS`: six classic books with twelve character names each, in `es` and `en`, each at most
+    20 characters;
   - `BOT_LIMITS = { maxBots: 10, maxSpeechCallsPerGame: 150 }`;
   - `BotProfile { personality, difficulty }`.
 - **`MemberView.bot: BotProfile | null`.** The narrator and players see each bot's personality, which is part of the
@@ -50,7 +51,9 @@ They reuse `chip`, `seg`, `btn`, `av` and the new `.bot-tag`.
 - `Room.addBot(actorId, identity, profile)`:
   - requires the narrator in the lobby;
   - checks `room-full` and then `bot-limit`;
-  - takes the first free `BOT_NAMES` entry and the first free avatar.
+  - draws the room's book (`AddBot` picks it at random when the room has none), takes that book's first free name in
+    the bot language and the first free avatar, and exposes the book as `RoomSnapshot.botCast`. When the last bot
+    leaves, the room's book is cleared.
 - `Room.removeBot(actorId, memberId)` returns `not-a-bot` for humans.
 - `AddBot` and `RemoveBot` use cases go through `changeRoomAs`. `AddBot` takes `IdGenerator` and `RandomSource` to
   build the identity and pick a random personality.
@@ -69,7 +72,7 @@ They reuse `chip`, `seg`, `btn`, `av` and the new `.bot-tag`.
 | `ChatBudget` | Per room. Counts village lines per bot per day, wolf lines per bot per night, and the bot share of the last 10 village messages. |
 | `pacing.ts` | `nightDelayOf`, `voteDelayOf`, `lockAtOf` and `talkDelayOf`. Each returns milliseconds from the view times and randomness. |
 | `botPrompt.ts` | Builds `{ system, user }` from the persona card, language, rules, facts, the last 8 chat lines, the intent and few-shot examples. Exports `parseSpokenLine`. |
-| `scriptedLines.ts` | `scriptedLineOf(intent, language, personality, random)`: two to four templates per intent per language. |
+| `scriptedLines.ts` | `scriptedLineOf(intent, language, personality, random, used)`: four to six templates per intent per language. A room-wide `used` set stops a template from repeating until its pool is spent. |
 
 **Application:**
 - **Ports:**

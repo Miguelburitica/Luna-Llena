@@ -206,3 +206,13 @@ describe('pacing', () => {
     expect(lockDelayOf({ ...playerView({ phase: 'vote' }), serverNow: 0, phaseEndsAt: 30_000 })).toBe(25_000)
   })
 })
+
+describe('scripted variety', () => {
+  it('never repeats a scripted line in a room until the whole pool was used', () => {
+    const used = new Set<string>()
+    const intent = { kind: 'wolf-plan', subject: 'Ana' } as const
+    const lines = Array.from({ length: 5 }, (_, index) => scriptedLineOf(intent, 'es', 'detective', fixedRandom(index * 0.01), used))
+    expect(new Set(lines).size).toBe(5)
+    expect(scriptedLineOf(intent, 'es', 'detective', fixedRandom(0), used)).toContain('Ana')
+  })
+})

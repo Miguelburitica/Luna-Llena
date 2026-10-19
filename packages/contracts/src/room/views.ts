@@ -1,4 +1,4 @@
-import type { BotLanguage, BotProfile } from '../bots/vocabulary'
+import type { BotCastId, BotLanguage, BotProfile } from '../bots/vocabulary'
 import type { RoleId } from '../roles/catalog'
 import type { AvatarId, HouseRuleId, RoomStatus, StartCondition, ThemeId, TimerPhase } from './vocabulary'
 
@@ -43,6 +43,7 @@ export interface RoomSnapshot {
   readonly voiceCallUrl: string | null
   readonly settings: RoomSettingsView
   readonly members: readonly MemberView[]
+  readonly botCast: BotCastId | null
   readonly startReadiness: StartReadiness
 }
 

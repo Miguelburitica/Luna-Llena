@@ -24,6 +24,7 @@ export const toRoomSnapshot = (room: Room): RoomSnapshot => ({
     botLanguage: room.settings.botLanguage
   },
   members: room.members.map(toMemberView),
+  botCast: room.botCast,
   startReadiness: room.startReadiness,
   voiceCallUrl: room.voiceCall?.value ?? null
 })

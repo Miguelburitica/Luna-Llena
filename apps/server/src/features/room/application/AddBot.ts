@@ -1,4 +1,4 @@
-import { BOT_DIFFICULTIES, BOT_PERSONALITIES, err, roomError, type BotProfile, type Result, type RoomError } from '@luna/contracts'
+import { BOT_CAST_IDS, BOT_DIFFICULTIES, BOT_PERSONALITIES, err, roomError, type BotProfile, type Result, type RoomError } from '@luna/contracts'
 import type { IdGenerator } from '../../../shared/application/IdGenerator'
 import type { RandomSource } from '../../../shared/application/RandomSource'
 import type { Actor } from './ports'
@@ -19,8 +19,9 @@ export class AddBot {
   ): Promise<Result<void, RoomError>> {
     const profile = this.profileOf(input)
     if (profile === null) return Promise.resolve(err(roomError('settings-invalid')))
+    const cast = BOT_CAST_IDS[Math.floor(this.random.next() * BOT_CAST_IDS.length)] ?? 'solitude'
     return changeRoomAs(this.access, actor, (room) =>
-      room.addBot(actor.memberId, { id: this.ids.next(), token: this.ids.next() }, profile)
+      room.addBot(actor.memberId, { id: this.ids.next(), token: this.ids.next() }, profile, cast)
     )
   }
 

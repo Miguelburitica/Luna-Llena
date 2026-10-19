@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { unwrap } from '../domain/Room.fixtures'
 import { createRoomKit } from './roomUseCases.fixtures'
 
-const lobbyWithPlayers = async (names: readonly string[]) => {
-  const kit = createRoomKit()
+const lobbyWithPlayers = async (names: readonly string[], randomValue = 0) => {
+  const kit = createRoomKit(['LUNA42', 'NUBE77'], randomValue)
   const { session, narrator } = await kit.createRoom()
   const players = []
   for (const name of names) players.push(await kit.join(session.code, name))
@@ -18,7 +18,8 @@ describe('AddBot', () => {
     const members = publisher.latest?.members ?? []
     const bots = members.filter((member) => member.bot !== null)
     expect(members.filter((member) => !member.isNarrator)).toHaveLength(6)
-    expect(bots.map((bot) => bot.name)).toEqual(['Moco-Bot', 'Verruga 3000', 'Baba-Tron'])
+    expect(bots.map((bot) => bot.name)).toEqual(['Aureliano', 'José Arcadio', 'Úrsula'])
+    expect(publisher.latest?.botCast).toBe('solitude')
     expect(bots.every((bot) => bot.ready && bot.connected && bot.avatar !== null)).toBe(true)
     expect(publisher.latest?.startReadiness.playerCount).toBe(6)
   })
@@ -59,6 +60,31 @@ describe('AddBot', () => {
       ok: false,
       error: { code: 'settings-invalid' }
     })
+  })
+})
+
+describe('Bot names', () => {
+  it('takes every bot of a room from one classic book, in the bots language', async () => {
+    const { useCases, publisher, narrator } = await lobbyWithPlayers(['Ana'], 0.5)
+    unwrap(await useCases.updateSettings.execute(narrator, { settings: { botLanguage: 'en' } }))
+    for (let count = 0; count < 3; count += 1) unwrap(await useCases.addBot.execute(narrator, {}))
+    const names = publisher.latest?.members.filter((member) => member.bot !== null).map((member) => member.name)
+    expect(publisher.latest?.botCast).toBe('alice')
+    expect(names).toEqual(['Alice', 'Mad Hatter', 'March Hare'])
+  })
+
+  it('skips a name a human already took', async () => {
+    const { useCases, publisher, narrator } = await lobbyWithPlayers(['Aureliano'])
+    unwrap(await useCases.addBot.execute(narrator, {}))
+    expect(publisher.latest?.members.find((member) => member.bot !== null)?.name).toBe('José Arcadio')
+  })
+
+  it('draws a new book once every bot has left', async () => {
+    const { useCases, publisher, narrator } = await lobbyWithPlayers([])
+    unwrap(await useCases.addBot.execute(narrator, {}))
+    const bot = publisher.latest?.members.find((member) => member.bot !== null)
+    unwrap(await useCases.removeBot.execute(narrator, { memberId: bot?.id }))
+    expect(publisher.latest?.botCast).toBeNull()
   })
 })
 

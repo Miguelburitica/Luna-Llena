@@ -144,6 +144,16 @@ const en = {
     surprise: 'Surprise me',
     add: 'Add a bot',
     remove: 'Remove {name}',
+    cast: 'Characters from {book}',
+    castNext: 'The first bot picks a classic book for this room',
+    casts: {
+      solitude: 'One Hundred Years of Solitude',
+      musketeers: 'The Three Musketeers',
+      quixote: 'Don Quixote',
+      alice: 'Alice in Wonderland',
+      odyssey: 'The Odyssey',
+      oz: 'The Wizard of Oz'
+    },
     personalities: {
       paranoid: 'Paranoid',
       follower: 'Follower',
@@ -322,6 +332,16 @@ const es: typeof en = {
     surprise: 'Sorpréndeme',
     add: 'Añadir un bot',
     remove: 'Quitar a {name}',
+    cast: 'Personajes de {book}',
+    castNext: 'El primer bot escoge un libro clásico para esta sala',
+    casts: {
+      solitude: 'Cien años de soledad',
+      musketeers: 'Los tres mosqueteros',
+      quixote: 'Don Quijote de la Mancha',
+      alice: 'Alicia en el país de las maravillas',
+      odyssey: 'La Odisea',
+      oz: 'El mago de Oz'
+    },
     personalities: {
       paranoid: 'Paranoico',
       follower: 'Seguidor',

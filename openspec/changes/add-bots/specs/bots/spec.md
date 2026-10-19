@@ -6,7 +6,11 @@ and to remove a bot.
 - When no personality is given, the system SHALL pick one at random. When no difficulty is given, it SHALL be Normal.
 - The personalities are `paranoid`, `follower`, `detective`, `chaos` and `quiet`. The difficulties are `easy`,
   `normal` and `sharp`.
-- A new bot SHALL take the first free name from the bot name list and a free avatar. It SHALL be ready and connected.
+- Each room SHALL draw one classic book when its first bot is added: One Hundred Years of Solitude, The Three
+  Musketeers, Don Quixote, Alice in Wonderland, The Odyssey or The Wizard of Oz. Every bot in that room SHALL take the
+  first free character name from that book, in the room's bot language, plus a free avatar. Once every bot is removed,
+  the next bot draws a book again.
+- A new bot SHALL be ready and connected.
 - A room SHALL hold at most 10 bots, and adding a bot to a full room is rejected with `room-full`. Adding an 11th
   bot SHALL be rejected with `bot-limit`.
 - Only the narrator SHALL add or remove bots; anyone else gets `not-narrator`. Outside the lobby the system SHALL
@@ -16,6 +20,14 @@ and to remove a bot.
 #### Scenario: Filling the table
 - **WHEN** a lobby has 3 players and the narrator adds 3 bots
 - **THEN** every member sees 6 players, the 3 bots ready, connected and labeled as bots
+
+#### Scenario: One book per room
+- **WHEN** the narrator adds three bots to a room whose bots speak English and the room drew Alice in Wonderland
+- **THEN** the bots are called Alice, Mad Hatter and March Hare
+
+#### Scenario: A human took the name
+- **WHEN** Aureliano, a human, is in a room that drew One Hundred Years of Solitude and the narrator adds a bot
+- **THEN** the bot is called José Arcadio
 
 #### Scenario: Picked personality
 - **WHEN** the narrator adds a bot with the `detective` personality and `sharp` difficulty
@@ -143,11 +155,16 @@ A bot's chat line SHALL be phrased in the room's bot language and in its persona
 brain decided: an accusation, a defense, a claim, a reaction or an answer, which can be a lie when the bot is a wolf
 or the Fool. The line SHALL mention only real player names and facts the bot knows, and SHALL stay party-safe. When
 no language model is configured, the model fails or times out, or the room has used its 150 model calls for the game,
-the bot SHALL use a scripted line for the same intent.
+the bot SHALL use a scripted line for the same intent. A room SHALL not repeat a scripted line for an intent until it
+has used every line for that intent. The model SHALL be told not to copy lines from the chat it reads.
 
 #### Scenario: No model configured
 - **WHEN** the server runs without an OpenRouter key and a bot has to speak
 - **THEN** the bot writes a scripted line in the room's bot language
+
+#### Scenario: No echo
+- **WHEN** two bot wolves announce their pick in the same night with scripted lines
+- **THEN** they use two different lines
 
 #### Scenario: A bad answer from the model
 - **WHEN** the model answers with something that is not the expected JSON

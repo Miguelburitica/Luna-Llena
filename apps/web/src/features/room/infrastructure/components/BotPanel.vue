@@ -41,6 +41,10 @@ const addBot = () =>
       <span class="sbadge">{{ t('room.bots.count', { count: botCount, max: BOT_LIMITS.maxBots }) }}</span>
     </div>
     <p class="t-small t-muted bot-hint">{{ t('room.bots.hint') }}</p>
+    <p class="t-small bot-cast">
+      <LunaIcon name="scroll" size="sm" />
+      {{ snapshot.botCast === null ? t('room.bots.castNext') : t('room.bots.cast', { book: t(`room.bots.casts.${snapshot.botCast}`) }) }}
+    </p>
 
     <span class="label">{{ t('room.bots.personality') }}</span>
     <div class="bot-chips" role="radiogroup" :aria-label="t('room.bots.personality')">
@@ -119,6 +123,14 @@ const addBot = () =>
 
 .bot-hint {
   margin: 0;
+}
+
+.bot-cast {
+  margin: 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-weight: 800;
 }
 
 .bot-chips {

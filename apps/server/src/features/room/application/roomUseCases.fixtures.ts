@@ -45,7 +45,7 @@ export class RecordingGameStarter implements GameStarter {
   }
 }
 
-export const createRoomKit = (codes: readonly string[] = ['LUNA42', 'NUBE77']) => {
+export const createRoomKit = (codes: readonly string[] = ['LUNA42', 'NUBE77'], randomValue = 0) => {
   let idSequence = 0
   let codeSequence = 0
   const rooms = new InMemoryRoomRepository()
@@ -56,7 +56,7 @@ export const createRoomKit = (codes: readonly string[] = ['LUNA42', 'NUBE77']) =
     publisher,
     starter,
     ids: { next: () => `id-${(idSequence += 1)}` },
-    random: { next: () => 0 },
+    random: { next: () => randomValue },
     codes: { next: () => unwrap(RoomCode.parse(codes[codeSequence++ % codes.length])) }
   })
 

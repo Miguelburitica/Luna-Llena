@@ -1,13 +1,14 @@
 import {
   AVATAR_IDS,
+  BOT_CASTS,
   BOT_LIMITS,
-  BOT_NAMES,
   done,
   err,
   ok,
   roomError,
   ROOM_LIMITS,
   type AvatarId,
+  type BotCastId,
   type BotProfile,
   type Result,
   type RoomError,
@@ -38,6 +39,7 @@ export class Room {
   private currentStatus: RoomStatus = 'lobby'
   private currentSettings: RoomSettings
   private currentVoiceCall: VoiceCallUrl | null
+  private currentBotCast: BotCastId | null = null
 
   private constructor(
     readonly code: RoomCode,
@@ -85,6 +87,10 @@ export class Room {
     return this.currentStatus === 'lobby' && this.players.length < ROOM_LIMITS.maxPlayers
   }
 
+  get botCast(): BotCastId | null {
+    return this.currentBotCast
+  }
+
   get bots(): readonly Member[] {
     return this.seats.filter((member) => member.isBot)
   }
@@ -113,18 +119,26 @@ export class Room {
     return ok(member)
   }
 
-  addBot(actorId: string, identity: Omit<MemberIdentity, 'name'>, profile: BotProfile): Result<Member, RoomError> {
+  addBot(
+    actorId: string,
+    identity: Omit<MemberIdentity, 'name'>,
+    profile: BotProfile,
+    castWhenNone: BotCastId
+  ): Result<Member, RoomError> {
     const authority = this.requireNarratorInLobby(actorId)
     if (!authority.ok) return authority
     if (this.players.length >= ROOM_LIMITS.maxPlayers) return err(roomError('room-full'))
     if (this.bots.length >= BOT_LIMITS.maxBots) return err(roomError('bot-limit'))
-    const name = BOT_NAMES.map((candidate) => DisplayName.create(candidate))
+    const cast = this.currentBotCast ?? castWhenNone
+    const name = BOT_CASTS[cast][this.currentSettings.botLanguage]
+      .map((candidate) => DisplayName.create(candidate))
       .flatMap((candidate) => (candidate.ok ? [candidate.value] : []))
       .find((candidate) => !this.isNameTaken(candidate))
     if (name === undefined) return err(roomError('bot-limit'))
     const bot = new Member({ ...identity, name }, false, profile)
     bot.avatar = AVATAR_IDS.find((avatar) => !this.avatarsInUse.includes(avatar)) ?? null
     this.seats.push(bot)
+    this.currentBotCast = cast
     return ok(bot)
   }
 
@@ -236,6 +250,7 @@ export class Room {
 
   private removeSeat(member: Member): void {
     this.seats.splice(this.seats.indexOf(member), 1)
+    if (this.bots.length === 0) this.currentBotCast = null
   }
 
   private requireLobby(): Result<void, RoomError> {

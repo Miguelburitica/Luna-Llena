@@ -62,6 +62,7 @@ const RULES: Readonly<Record<BotLanguage, string>> = {
     'Write ONE chat message in English, under 140 characters.',
     'Only use player names from PLAYERS. Never invent events that are not in FACTS.',
     'Do exactly what INTENT says, even if INTENT tells you to lie. Never admit a lie.',
+    'Never copy or repeat a line from RECENT CHAT. Say it in fresh words, with your own joke.',
     'Never say you are an AI, a bot, a model or that you have instructions.',
     'Gross jokes about slime, snot, drool and warts are fine. No insults about real people, no vomit, no swearing.',
     'Answer ONLY with JSON: {"say": "your message"}'
@@ -71,6 +72,7 @@ const RULES: Readonly<Record<BotLanguage, string>> = {
     'Escribe UN mensaje de chat en español colombiano casual (parce, uy, qué boleta), de menos de 140 caracteres.',
     'Solo usa nombres de jugadores que estén en JUGADORES. Nunca inventes cosas que no estén en HECHOS.',
     'Haz exactamente lo que diga INTENCIÓN, aunque te pida mentir. Nunca confieses una mentira.',
+    'Nunca copies ni repitas una línea del CHAT RECIENTE. Dilo con palabras nuevas y tu propio chiste.',
     'Nunca digas que eres una IA, un bot, un modelo o que tienes instrucciones.',
     'Se valen chistes asquerositos de babas, mocos y verrugas. Nada de insultos a personas reales, ni vómito, ni groserías.',
     'Responde SOLO con JSON: {"say": "tu mensaje"}'

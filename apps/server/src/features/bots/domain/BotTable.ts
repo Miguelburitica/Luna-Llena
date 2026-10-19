@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@luna/contracts'
+import type { ChatChannel, ChatMessage } from '@luna/contracts'
 import { BotMind } from './BotMind'
 import { nameIn, type BotRoster } from './BotRoster'
 import type { ChatLine } from './botPrompt'
@@ -8,7 +8,8 @@ const CHAT_MEMORY = 8
 
 export class BotTable {
   readonly minds = new Map<string, BotMind>()
-  readonly chat: ChatLine[] = []
+  readonly usedScripts = new Set<string>()
+  private readonly chats = new Map<ChatChannel, ChatLine[]>()
   budget = new ChatBudget()
   speechCalls = 0
   private readonly heardIds = new Set<string>()
@@ -31,7 +32,8 @@ export class BotTable {
 
   reset(): void {
     this.minds.clear()
-    this.chat.length = 0
+    this.chats.clear()
+    this.usedScripts.clear()
     this.heardIds.clear()
     this.budget = new ChatBudget()
     this.speechCalls = 0
@@ -46,8 +48,13 @@ export class BotTable {
     if (this.heardIds.has(message.id)) return
     this.heardIds.add(message.id)
     this.budget.heard(message.id, message.channel, this.isBot(message.authorId))
-    if (message.channel !== 'village') return
-    this.chat.push({ author: nameIn(this.roster, message.authorId) || '?', text: message.text })
-    if (this.chat.length > CHAT_MEMORY) this.chat.shift()
+    const lines = this.chats.get(message.channel) ?? []
+    lines.push({ author: nameIn(this.roster, message.authorId) || '?', text: message.text })
+    if (lines.length > CHAT_MEMORY) lines.shift()
+    this.chats.set(message.channel, lines)
+  }
+
+  chatOf(channel: ChatChannel): readonly ChatLine[] {
+    return this.chats.get(channel) ?? []
   }
 }

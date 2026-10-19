@@ -18,6 +18,7 @@ export const snapshotOf = (overrides: Partial<RoomSnapshot> = {}): RoomSnapshot 
   voiceCallUrl: null,
   settings: DEFAULT_ROOM_SETTINGS,
   members: [memberView('Nico', { isNarrator: true }), memberView('Ana'), memberView('Caro')],
+  botCast: null,
   startReadiness: {
     canStart: false,
     unmet: ['not-enough-players', 'deck-mismatch', 'players-not-ready'],

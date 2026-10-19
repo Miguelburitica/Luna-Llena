@@ -48,11 +48,11 @@ export const speak = async (
   let text: string | null = null
   if (table.speechCalls < BOT_LIMITS.maxSpeechCallsPerGame) {
     table.speechCalls += 1
-    text = await context.speech.say(buildBotPrompt({ mind, view, roster: table.roster, intent, chat: table.chat }))
+    text = await context.speech.say(buildBotPrompt({ mind, view, roster: table.roster, intent, chat: table.chatOf(channel) }))
   }
   const fresh = mind.view
   if (fresh === null || mind.phaseKey !== phaseKey || !fresh.chat.write.includes(channel)) return
-  const line = text ?? scriptedLineOf(intent, table.roster.language, mind.profile.personality, context.random)
+  const line = text ?? scriptedLineOf(intent, table.roster.language, mind.profile.personality, context.random, table.usedScripts)
   await context.actions.say(actorOf(table, mind), channel, line)
 }
 

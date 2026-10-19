@@ -7,7 +7,7 @@ the humans remain the stars.
 
 ## What Changes
 
-- **Lobby:** the narrator can add and remove bots. A bot is a labeled player with a sticker pun name, a free avatar, a
+- **Lobby:** the narrator can add and remove bots. A bot is a labeled player named after a character from the room's classic book, with a free avatar, a
   personality and a difficulty. Bots are always ready and connected and count as players.
 - **Bot language:** a new room setting picks whether bots speak Spanish or English.
 - **Fair play:**
@@ -45,7 +45,8 @@ the humans remain the stars.
 
 - **Contracts:**
   - `MemberView.isBot`;
-  - bot vocabulary: `BOT_PERSONALITIES`, `BOT_DIFFICULTIES`, `BOT_NAMES`, `BOT_LANGUAGES`, `BOT_LIMITS`;
+  - bot vocabulary: `BOT_PERSONALITIES`, `BOT_DIFFICULTIES`, `BOT_CAST_IDS`, `BOT_CASTS`, `BOT_LANGUAGES`, `BOT_LIMITS`;
+  - `RoomSnapshot.botCast`;
   - `RoomSettings.botLanguage`;
   - events `room:addBot` and `room:removeBot`;
   - error codes `bot-limit` and `not-a-bot`.

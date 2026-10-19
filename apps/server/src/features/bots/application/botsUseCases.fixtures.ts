@@ -105,6 +105,7 @@ const snapshotOf = (bots: ReadonlyMap<string, BotProfile>, language: BotLanguage
     voiceCallUrl: null,
     settings: { ...DEFAULT_ROOM_SETTINGS, botLanguage: language },
     members: [member(NARRATOR_ID, true), member(HUMAN_ID, false), ...BOT_IDS.map((id) => member(id, false))],
+    botCast: 'solitude',
     startReadiness: { canStart: true, unmet: [], notReadyMemberIds: [], playerCount: 7, deckSize: 7 }
   }
 }
