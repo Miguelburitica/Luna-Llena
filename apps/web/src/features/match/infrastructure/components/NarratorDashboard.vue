@@ -14,7 +14,7 @@ import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import VoiceCallForm from '@/shared/infrastructure/ui/components/VoiceCallForm.vue'
 import { PACK_RING, teamClassFor, teamClassOf } from '@/shared/infrastructure/ui/teamClass'
-import { useCountdown } from '../../application/useCountdown'
+import { useMatchTimer } from '../../application/useCountdown'
 import { useMatchStore } from '../../application/useMatchStore'
 import { actionLineOf } from '../../domain/night'
 import { nextPhaseOf, phaseLook, stepperOf } from '../../domain/phases'
@@ -27,7 +27,7 @@ const props = defineProps<{ view: NarratorMatchView }>()
 const { t } = useI18n()
 const room = useRoomStore()
 const match = useMatchStore()
-const seconds = useCountdown()
+const { seconds, totalSeconds } = useMatchTimer()
 const { failure: callFailure, pending: callPending, run: runCall } = useRoomAction()
 const editingCall = ref(false)
 const voiceCallUrl = computed(() => room.snapshot?.voiceCallUrl ?? null)
@@ -137,7 +137,7 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
         <SoundToggle />
         <SettingsOverlay />
         <div class="dashboard-timer">
-          <PhaseTimer :phase="view.phase" />
+          <PhaseTimer :seconds="seconds" :total-seconds="totalSeconds" />
           <button
             type="button"
             class="btn btn-sm btn-ghost"

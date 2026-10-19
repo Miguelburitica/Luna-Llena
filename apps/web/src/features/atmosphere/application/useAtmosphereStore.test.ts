@@ -1,6 +1,7 @@
 import type { MatchView } from '@luna/contracts'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref } from 'vue'
 import { narratorViewOf, outcomeOf, playerViewOf } from '@/features/match/application/MatchGateway.fixtures'
 import { createMatchTestApp } from '@/features/match/application/matchApp.fixtures'
 import { soundSettingsDefaults, type AtmosphereSettings } from '../domain/soundSettings'
@@ -230,4 +231,41 @@ describe('useAtmosphereStore', () => {
     expect(atmosphere.settings.music).toBe(10)
     expect(atmosphere.reducedMotion).toBe(true)
   })
+
+  it('plays a cue only on this device with playHere', () => {
+    const { atmosphere, kit } = setup(settingsOn)
+    atmosphere.toggleSound()
+    atmosphere.playHere({ kind: 'sound', sound: 'thunder' })
+    atmosphere.playHere({ kind: 'effect', effect: 'lightning' })
+    expect(kit.engine.played()).toEqual(['thunder'])
+    expect(atmosphere.activeEffects.map((active) => active.effect)).toEqual(['lightning'])
+    expect(kit.cues.sent).toEqual([])
+  })
+
+  it('plays the alert only when sound is on', () => {
+    const { atmosphere, kit } = setup()
+    atmosphere.alertTimeUp()
+    expect(kit.engine.calls).toEqual([])
+    atmosphere.toggleSound()
+    atmosphere.alertTimeUp()
+    expect(kit.engine.calls.at(-1)).toEqual({ kind: 'alert', volume: 0.8 })
+  })
+
+  it('follows another scene for stings and ambient, then returns to the match', async () => {
+    const night = narratorViewOf({ code: 'TABLE', phase: 'night', round: 1 })
+    const { atmosphere, kit, match } = setup(settingsOn, false, playerViewOf({ phase: 'day' }))
+    atmosphere.toggleSound()
+    const table = ref<MatchView>(narratorViewOf({ code: 'TABLE', phase: 'execution', round: 1 }))
+    atmosphere.followScene(() => table.value)
+    await flushPromises()
+    table.value = night
+    await flushPromises()
+    expect(kit.engine.played()).toContain('howl')
+    expect(kit.engine.lastAmbient()?.id).toBe('night')
+
+    atmosphere.followScene(null)
+    await showView(match, playerViewOf({ phase: 'day' }))
+    expect(kit.engine.lastAmbient()?.id).toBe('day')
+  })
 })
+

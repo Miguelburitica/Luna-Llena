@@ -1,5 +1,5 @@
 import type { CueEffect, HauntEffect, MatchView, RoleId, TimerPhase } from '@luna/contracts'
-import type { Match } from '../domain/Match'
+import type { Match } from '@luna/rules'
 
 export interface MatchRepository {
   find(code: string): Promise<Match | undefined>

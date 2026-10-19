@@ -1,6 +1,6 @@
 import { done, err, matchError, ok, type MatchError, type MatchView, type Result } from '@luna/contracts'
 import type { Clock } from '../../../shared/application/Clock'
-import type { Match } from '../domain/Match'
+import type { Match } from '@luna/rules'
 import type { Actor, MatchPublisher, MatchRepository } from './ports'
 import { toMatchViewFor, toMatchViews } from './matchViews'
 

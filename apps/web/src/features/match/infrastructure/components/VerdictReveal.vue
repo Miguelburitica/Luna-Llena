@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PlayerMatchView } from '@luna/contracts'
+import type { MatchView } from '@luna/contracts'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
@@ -10,7 +10,7 @@ import { tallyBars, verdictOutcomeOf } from '../../domain/voting'
 
 const BAR_STAGGER_SECONDS = 0.12
 
-const props = defineProps<{ view: PlayerMatchView; seats: readonly Seat[] }>()
+const props = defineProps<{ view: MatchView; seats: readonly Seat[] }>()
 const { t } = useI18n()
 
 const verdict = computed(() => props.view.verdict)

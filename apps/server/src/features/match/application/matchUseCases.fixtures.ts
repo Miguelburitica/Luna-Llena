@@ -1,7 +1,7 @@
 import { DEFAULT_ROOM_SETTINGS, type CueEffect, type MatchView, type NarratorMatchView, type PlayerMatchView, type RoleId } from '@luna/contracts'
 import { FixedClock, SeededRandom, SequentialIds } from '../../../shared/application/clockAndRandom.fixtures'
 import { InMemoryMatchRepository } from '../infrastructure/InMemoryMatchRepository'
-import { NARRATOR_ID, START_TIME, unwrap } from '../domain/Match.fixtures'
+import { NARRATOR_ID, START_TIME, unwrap } from '@luna/rules/fixtures'
 import { createMatchUseCases } from './matchUseCases'
 import type { Actor, HauntDelivery, MatchOpening, MatchPublisher, MemberMatchView } from './ports'
 

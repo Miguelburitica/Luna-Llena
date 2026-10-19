@@ -1,5 +1,5 @@
 import { CHAT_CHANNELS, ROLE_CATALOG, type ChatChannel } from '@luna/contracts'
-import type { Match } from './Match'
+import type { Match } from '@luna/rules'
 
 export interface ChatPermissions {
   readonly read: readonly ChatChannel[]

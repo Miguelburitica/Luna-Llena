@@ -10,7 +10,8 @@ export interface Unreachable {
 
 export const REQUEST_TIMEOUT_MS = 8000
 
-export const createLunaSocket = (url?: string): LunaSocket => (url === undefined ? io() : io(url))
+export const createLunaSocket = (url?: string): LunaSocket =>
+  url === undefined ? io({ autoConnect: false }) : io(url, { autoConnect: false })
 
 export const reachOrFail = async <T, E>(send: () => Promise<Result<T, E>>): Promise<Result<T, E | Unreachable>> => {
   let timer: ReturnType<typeof setTimeout> | undefined

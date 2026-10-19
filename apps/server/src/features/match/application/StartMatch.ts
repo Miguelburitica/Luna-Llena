@@ -1,6 +1,5 @@
 import type { RandomSource } from '../../../shared/application/RandomSource'
-import { dealRoles } from '../domain/dealRoles'
-import { Match } from '../domain/Match'
+import { dealRoles, Match } from '@luna/rules'
 import { saveAndPublish, type MatchAccess } from './matchAccess'
 import type { MatchOpening } from './ports'
 

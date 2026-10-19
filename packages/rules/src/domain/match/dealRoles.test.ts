@@ -1,6 +1,6 @@
 import { ROLE_IDS, type RoleId } from '@luna/contracts'
 import { describe, expect, it } from 'vitest'
-import { SeededRandom } from '../../../shared/application/clockAndRandom.fixtures'
+import { SeededRandom } from './SeededRandom.fixtures'
 import { dealRoles } from './dealRoles'
 
 const sevenCardDeck: Record<RoleId, number> = {

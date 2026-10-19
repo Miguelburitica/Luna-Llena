@@ -26,6 +26,7 @@ export const atmosphereMessages = {
       ambientLabel: 'Ambient loop',
       volume: 'Soundboard volume',
       effectsTitle: 'Effects on every screen',
+      effectsHere: 'Effects on this screen',
       sounds: {
         howl: 'Howl',
         thunder: 'Thunder',
@@ -73,6 +74,7 @@ export const atmosphereMessages = {
       ambientLabel: 'Ambiente continuo',
       volume: 'Volumen de la mesa de sonidos',
       effectsTitle: 'Efectos en todas las pantallas',
+      effectsHere: 'Efectos en esta pantalla',
       sounds: {
         howl: 'Aullido',
         thunder: 'Trueno',

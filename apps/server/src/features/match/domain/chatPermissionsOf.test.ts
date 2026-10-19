@@ -1,8 +1,8 @@
 import { CHAT_LIMITS } from '@luna/contracts'
 import { describe, expect, it } from 'vitest'
 import { chatPermissionsOf } from './chatPermissionsOf'
-import type { Match } from './Match'
-import { beginMatch, constantRandom, NARRATOR_ID, START_TIME, unwrap } from './Match.fixtures'
+import type { Match } from '@luna/rules'
+import { beginMatch, constantRandom, NARRATOR_ID, START_TIME, unwrap } from '@luna/rules/fixtures'
 
 const WOLF_ONE = 'p1'
 const WOLF_TWO = 'p2'

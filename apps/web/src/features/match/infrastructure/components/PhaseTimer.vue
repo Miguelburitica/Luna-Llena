@@ -1,21 +1,12 @@
 <script setup lang="ts">
-import { PHASE_TIMERS, type Phase } from '@luna/contracts'
 import { computed } from 'vue'
-import { useRoomStore } from '@/features/room/application/useRoomStore'
-import { useCountdown } from '../../application/useCountdown'
 import { clockText, isTimerWarning, timerProgress } from '../../domain/phases'
 
 const RING_CIRCUMFERENCE = 138.2
 
-const props = defineProps<{ phase: Phase }>()
-const room = useRoomStore()
-const seconds = useCountdown()
+const props = defineProps<{ seconds: number | null; totalSeconds: number }>()
 
-const configuredSeconds = computed(() => {
-  const timer = PHASE_TIMERS[props.phase]
-  return timer === undefined ? 0 : (room.snapshot?.settings.timers[timer] ?? 0)
-})
-const offset = computed(() => RING_CIRCUMFERENCE * (1 - timerProgress(seconds.value ?? 0, configuredSeconds.value)))
+const offset = computed(() => RING_CIRCUMFERENCE * (1 - timerProgress(props.seconds ?? 0, props.totalSeconds)))
 </script>
 
 <template>

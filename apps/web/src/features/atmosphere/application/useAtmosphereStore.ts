@@ -1,6 +1,6 @@
-import type { CueEffect, CueInput, ScreenEffect, SoundCue } from '@luna/contracts'
+import type { CueEffect, CueInput, MatchView, ScreenEffect, SoundCue } from '@luna/contracts'
 import { defineStore } from 'pinia'
-import { computed, inject, onScopeDispose, ref, watch } from 'vue'
+import { computed, inject, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { useMatchStore } from '@/features/match/application/useMatchStore'
 import type { MatchFailure } from '@/features/match/application/ports'
 import { ambientFor, STING_SPACING_MS, stingsBetween } from '../domain/ambience'
@@ -41,7 +41,11 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
 
   const timers = new Set<ReturnType<typeof setTimeout>>()
   const seenCueIds = new Set<string>()
-  let previousView = match.view
+  const followMatch = () => match.view
+  const sceneSource = shallowRef<() => MatchView | null>(followMatch)
+  const scene = computed(() => sceneSource.value())
+  let previousView = scene.value
+  let hereCount = 0
 
   const soundState = computed<SoundState>(() => {
     if (!settings.value.soundOn) return 'off'
@@ -66,7 +70,7 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
 
   const syncAmbient = () => {
     if (!audible.value) return
-    const id = settings.value.ambientOn ? ambientFor(match.view) : 'none'
+    const id = settings.value.ambientOn ? ambientFor(scene.value) : 'none'
     engine.setAmbient(id, effectiveVolume(settings.value, 'music'))
   }
 
@@ -137,11 +141,24 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
     return result
   }
 
+  const playHere = (input: CueInput) => {
+    hereCount += 1
+    receiveCue({ ...input, id: `here-${hereCount}`, sentAt: Date.now() })
+  }
+
+  const alertTimeUp = () => {
+    if (audible.value) engine.playAlert(effectiveVolume(settings.value, 'effects'))
+  }
+
+  const followScene = (source: (() => MatchView | null) | null) => {
+    sceneSource.value = source ?? followMatch
+  }
+
   gateway.onCue(receiveCue)
   motion.apply(settings.value.reducedMotion)
 
   watch(
-    () => match.view,
+    scene,
     (next) => {
       const previous = previousView
       previousView = next
@@ -176,6 +193,9 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
     setVolume,
     setReducedMotion,
     setAmbientOn,
-    sendCue
+    sendCue,
+    playHere,
+    alertTimeUp,
+    followScene
   }
 })

@@ -3,14 +3,10 @@ import {
   DEFAULT_ROOM_SETTINGS,
   HOUSE_RULE_IDS,
   PLAYABLE_THEME_IDS,
-  ROLE_CATALOG,
-  ROLE_IDS,
-  ROLE_TEAMS,
   ROOM_LIMITS,
   THEME_IDS,
   TIMER_OPTIONS,
   TIMER_PHASES,
-  TEAM_IDS,
   type HouseRuleId,
   type RoleId,
   type RoomSettingsView,
@@ -21,18 +17,15 @@ import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import DeskHeader from '@/shared/infrastructure/ui/components/DeskHeader.vue'
-import LunaCounter from '@/shared/infrastructure/ui/components/LunaCounter.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import LunaSegmented from '@/shared/infrastructure/ui/components/LunaSegmented.vue'
 import LunaToggle from '@/shared/infrastructure/ui/components/LunaToggle.vue'
-import { roleArtClassOf } from '@/shared/infrastructure/ui/roleArt'
-import { teamClassFor, teamClassOf, teamIconFor } from '@/shared/infrastructure/ui/teamClass'
 import { useRoomAction } from '../../application/useRoomAction'
 import { useRoomEntry } from '../../application/useRoomEntry'
 import { useRoomStore } from '../../application/useRoomStore'
-import { balanceVerdictOf, suggestedDeckFor } from '../../domain/deckAdvice'
-import { deckSizeOf, teamCountsOf, timerLabelOf } from '../../domain/lobby'
+import { deckSizeOf, timerLabelOf } from '../../domain/lobby'
 import { normalizeRoomCode } from '../../domain/roomCode'
+import DeckBuilder from '../components/DeckBuilder.vue'
 import RoomFailureMessage from '../components/RoomFailureMessage.vue'
 
 const { t } = useI18n()
@@ -95,12 +88,6 @@ const timerOptions = (phase: TimerPhase) =>
 
 const phaseIcons: Record<TimerPhase, string> = { night: 'moon', day: 'sun', vote: 'vote' }
 
-const deckSize = computed(() => deckSizeOf(draft.deck))
-const teamCounts = computed(() => teamCountsOf(draft.deck))
-const roomCardsLeft = computed(() => ROOM_LIMITS.maxPlayers - deckSize.value)
-const verdict = computed(() => balanceVerdictOf(draft.deck, targetPlayers.value))
-const applySuggestedDeck = () => Object.assign(draft.deck, suggestedDeckFor(targetPlayers.value))
-const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, draft.deck[role] + roomCardsLeft.value)
 const canSubmit = computed(
   () => !pending.value && (editing || (roomName.value.trim() !== '' && narratorName.value.trim() !== ''))
 )
@@ -228,77 +215,7 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
           </section>
         </div>
 
-        <section class="panel setup-deck">
-          <div class="panel-h">
-            <div>
-              <h2 class="h2">{{ t('room.setup.deck') }}</h2>
-              <span class="t-small t-muted">{{ t('room.setup.deckHint') }}</span>
-            </div>
-            <span class="sbadge">{{ t('room.setup.cards', { count: deckSize }) }}</span>
-          </div>
-
-          <div class="setup-suggest">
-            <div class="setup-suggest-count">
-              <span class="setup-row-label"><LunaIcon name="users" />{{ t('room.setup.playersExpected') }}</span>
-              <LunaCounter
-                v-model="targetPlayers"
-                :min="ROOM_LIMITS.minPlayersToStart"
-                :max="ROOM_LIMITS.maxPlayers"
-                :fewer-label="t('room.setup.fewerPlayers')"
-                :more-label="t('room.setup.morePlayers')"
-              />
-            </div>
-            <button type="button" class="btn btn-secondary btn-sm" @click="applySuggestedDeck">
-              <LunaIcon name="wand" size="sm" />{{ t('room.setup.suggestedDeck', { players: targetPlayers }) }}
-            </button>
-          </div>
-
-          <div class="setup-balance">
-            <div class="setup-balance-head">
-              <div class="setup-balance-title">
-                <b>{{ t('room.setup.balance') }}</b>
-                <span class="sbadge" :class="verdict === 'balanced' ? 'is-ok' : 'is-warn'">
-                  <LunaIcon :name="verdict === 'balanced' ? 'check' : 'info'" size="sm" />{{ t(`room.setup.verdicts.${verdict}`) }}
-                </span>
-              </div>
-              <div class="setup-balance-legend">
-                <span v-for="team in TEAM_IDS" :key="team" :class="`legend-${team}`">
-                  <LunaIcon :name="teamIconFor(team)" size="sm" />{{ t(`teams.${team}`) }} {{ teamCounts[team] }}
-                </span>
-              </div>
-            </div>
-            <div class="setup-balance-bar" aria-hidden="true">
-              <i
-                v-for="team in TEAM_IDS"
-                :key="team"
-                :class="teamClassFor(team)"
-                :style="{ width: deckSize === 0 ? '0%' : `${(teamCounts[team] / deckSize) * 100}%` }"
-              />
-            </div>
-          </div>
-
-          <div class="setup-cards">
-            <div
-              v-for="role in ROLE_IDS"
-              :key="role"
-              class="setup-card"
-              :class="[teamClassOf(role), { 'is-on': draft.deck[role] > 0 }]"
-            >
-              <span class="rcard-art setup-card-art" :class="roleArtClassOf(role)" aria-hidden="true" />
-              <div class="setup-card-text">
-                <b>{{ t(`roles.${role}`) }}</b>
-                <div class="t-small setup-card-team">{{ t(`teams.${ROLE_TEAMS[role]}`) }}</div>
-              </div>
-              <LunaCounter
-                v-model="draft.deck[role]"
-                :min="0"
-                :max="maxCopiesOf(role)"
-                :fewer-label="t('room.setup.fewer', { role: t(`roles.${role}`) })"
-                :more-label="t('room.setup.more', { role: t(`roles.${role}`) })"
-              />
-            </div>
-          </div>
-        </section>
+        <DeckBuilder v-model:deck="draft.deck" v-model:players="targetPlayers" />
       </div>
       <RoomFailureMessage v-if="failure" :failure="failure" />
     </form>
@@ -449,121 +366,6 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
 .setup-seg {
   width: 260px;
   max-width: 100%;
-}
-
-.setup-deck {
-  flex: 999 1 560px;
-  min-width: 0;
-}
-
-.setup-suggest {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.setup-suggest-count {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.setup-balance-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.setup-balance {
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  margin-bottom: 16px;
-}
-
-.setup-balance-head {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.setup-balance-legend {
-  display: flex;
-  gap: 14px;
-  font: 700 13px var(--font-ui);
-}
-
-.setup-balance-legend span {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.legend-wolves {
-  color: var(--team-wolf-soft);
-}
-
-.legend-village {
-  color: var(--team-village-soft);
-}
-
-.legend-solo {
-  color: var(--team-solo-soft);
-}
-
-.setup-balance-bar {
-  display: flex;
-  height: 18px;
-  border-radius: 99px;
-  overflow: hidden;
-  gap: 3px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.setup-balance-bar i {
-  background: var(--team);
-  transition: width 0.3s;
-}
-
-.setup-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-}
-
-.setup-card {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  padding: 12px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 0 0 1px rgba(233, 230, 255, 0.1);
-}
-
-.setup-card.is-on {
-  box-shadow: inset 0 0 0 2px var(--team);
-}
-
-.setup-card-art {
-  width: 56px;
-  height: 56px;
-  box-shadow: 0 0 0 3px var(--team);
-}
-
-.setup-card-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.setup-card-team {
-  color: var(--team-soft);
 }
 
 .setup-footer {

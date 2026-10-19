@@ -1,7 +1,7 @@
 import type { MatchView, NarratorMatchView, RoomSession, RoomSnapshot } from '@luna/contracts'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { FixedClock, SeededRandom } from '../application/clockAndRandom.fixtures'
-import { START_TIME } from '../../features/match/domain/Match.fixtures'
+import { START_TIME } from '@luna/rules/fixtures'
 import { FRIENDS, unwrap } from '../../features/room/domain/Room.fixtures'
 import { createSocketKit, type Client } from './socketTestKit.fixtures'
 

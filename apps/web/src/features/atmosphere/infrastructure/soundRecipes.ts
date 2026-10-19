@@ -289,6 +289,14 @@ const trombone = (stage: Stage, output: AudioNode) => {
   })
 }
 
+const ALARM_BEEPS = [0, 0.22, 0.44, 0.9, 1.12, 1.34]
+
+export const alarm = (stage: Stage, output: AudioNode) => {
+  const start = stage.context.currentTime
+  const soft = lowPass(stage, output, 3200)
+  for (const offset of ALARM_BEEPS) blip(stage, soft, start + offset, 988, 0.16, 0.16, 'square')
+}
+
 export const STING_RECIPES: Readonly<Record<SoundCue, (stage: Stage, output: AudioNode) => void>> = {
   howl,
   thunder,

@@ -1,7 +1,7 @@
 import type { SoundCue } from '@luna/contracts'
 import type { SoundEngine } from '../application/ports'
 import type { AmbientId } from '../domain/ambience'
-import { AMBIENT_RECIPES, STING_RECIPES, type RunningLoop, type Stage } from './soundRecipes'
+import { alarm, AMBIENT_RECIPES, STING_RECIPES, type RunningLoop, type Stage } from './soundRecipes'
 
 export const CROSSFADE_SECONDS = 1.5
 
@@ -63,13 +63,21 @@ export class WebAudioSoundEngine implements SoundEngine {
   }
 
   play(sound: SoundCue, volume: number): void {
+    this.playRecipe(STING_RECIPES[sound], volume)
+  }
+
+  playAlert(volume: number): void {
+    this.playRecipe(alarm, volume)
+  }
+
+  private playRecipe(recipe: (stage: Stage, output: AudioNode) => void, volume: number): void {
     const stage = this.stage
     const bus = this.bus
     if (stage === null || bus === null) return
     const level = stage.context.createGain()
     level.gain.value = volume
     level.connect(bus.effects)
-    STING_RECIPES[sound](stage, level)
+    recipe(stage, level)
   }
 
   stopAll(): void {

@@ -1,5 +1,5 @@
 import type { MatchRepository } from '../application/ports'
-import type { Match } from '../domain/Match'
+import type { Match } from '@luna/rules'
 
 export class InMemoryMatchRepository implements MatchRepository {
   private readonly matches = new Map<string, Match>()

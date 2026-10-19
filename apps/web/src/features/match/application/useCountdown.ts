@@ -1,4 +1,6 @@
+import { PHASE_TIMERS } from '@luna/contracts'
 import { computed, onScopeDispose, ref } from 'vue'
+import { useRoomStore } from '@/features/room/application/useRoomStore'
 import { secondsLeft } from '../domain/phases'
 import { useMatchStore } from './useMatchStore'
 
@@ -20,4 +22,15 @@ export const useCountdown = () => {
     if (view === null) return null
     return secondsLeft(view.phaseEndsAt, view.serverNow, match.receivedAt, Math.max(now.value, match.receivedAt))
   })
+}
+
+export const useMatchTimer = () => {
+  const match = useMatchStore()
+  const room = useRoomStore()
+  const seconds = useCountdown()
+  const totalSeconds = computed(() => {
+    const timer = match.view === null ? undefined : PHASE_TIMERS[match.view.phase]
+    return timer === undefined ? 0 : (room.snapshot?.settings.timers[timer] ?? 0)
+  })
+  return { seconds, totalSeconds }
 }

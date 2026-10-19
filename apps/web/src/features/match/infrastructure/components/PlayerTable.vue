@@ -14,6 +14,7 @@ import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import RoleCard from '@/shared/infrastructure/ui/components/RoleCard.vue'
 import { PACK_RING, teamClassOf } from '@/shared/infrastructure/ui/teamClass'
+import { useMatchTimer } from '../../application/useCountdown'
 import { phaseLook, sceneBackgroundOf, seatPositions } from '../../domain/phases'
 import { aliveCountOf, seatsOf } from '../../domain/seating'
 import { revengeStanceOf } from '../../domain/voting'
@@ -31,6 +32,7 @@ import VoteDock from './VoteDock.vue'
 const DENSE_SEAT_COUNT = 10
 
 const props = defineProps<{ view: PlayerMatchView }>()
+const { seconds, totalSeconds } = useMatchTimer()
 const { t } = useI18n()
 const room = useRoomStore()
 const peeking = ref(false)
@@ -70,7 +72,7 @@ const votingOpen = computed(
       >
         <LunaIcon name="card" />
       </button>
-      <PhaseTimer :phase="view.phase" />
+      <PhaseTimer :seconds="seconds" :total-seconds="totalSeconds" />
     </div>
 
     <div class="table-tools">

@@ -7,6 +7,7 @@ import LunaToggle from '@/shared/infrastructure/ui/components/LunaToggle.vue'
 import { useAtmosphereStore } from '../../application/useAtmosphereStore'
 import { EFFECT_ICONS, SOUND_ICONS } from '../../domain/soundboard'
 
+const props = withDefaults(defineProps<{ local?: boolean }>(), { local: false })
 const { t, te } = useI18n()
 const atmosphere = useAtmosphereStore()
 
@@ -21,7 +22,7 @@ const failureText = computed(() => {
   return t(te(`atmosphere.errors.${code}`) ? `atmosphere.errors.${code}` : 'atmosphere.errors.generic')
 })
 
-const send = (input: CueInput) => atmosphere.sendCue(input)
+const send = (input: CueInput) => (props.local ? atmosphere.playHere(input) : atmosphere.sendCue(input))
 const setMaster = (event: Event) => atmosphere.setVolume('master', Number((event.target as HTMLInputElement).value))
 </script>
 
@@ -56,7 +57,7 @@ const setMaster = (event: Event) => atmosphere.setVolume('master', Number((event
 
   <section class="panel soundboard">
     <div class="panel-h">
-      <h2 class="h3 soundboard-heading">{{ t('atmosphere.soundboard.effectsTitle') }}</h2>
+      <h2 class="h3 soundboard-heading">{{ t(local ? 'atmosphere.soundboard.effectsHere' : 'atmosphere.soundboard.effectsTitle') }}</h2>
     </div>
     <div class="soundboard-effects">
       <button v-for="effect in SCREEN_EFFECTS" :key="effect" type="button" class="fx" @click="send({ kind: 'effect', effect })">

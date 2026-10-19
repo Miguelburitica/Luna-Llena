@@ -1,6 +1,6 @@
 import { done, type HauntEffect, type MatchError, type Result } from '@luna/contracts'
 import type { IdGenerator } from '../../../shared/application/IdGenerator'
-import type { HauntOutcome, Match } from '../domain/Match'
+import type { HauntOutcome, Match } from '@luna/rules'
 import { findActorMatch, saveAndPublish, type MatchAccess } from './matchAccess'
 import type { Actor, HauntDelivery } from './ports'
 

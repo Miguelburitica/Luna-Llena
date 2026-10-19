@@ -2,26 +2,27 @@
 import type { RoleId, TeamId } from '@luna/contracts'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoomStore } from '@/features/room/application/useRoomStore'
-import { memberWithId } from '@/features/room/domain/lobby'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import RoleCard from '@/shared/infrastructure/ui/components/RoleCard.vue'
+import type { PackMember } from '../../domain/seating'
 
-const props = defineProps<{ role: RoleId; team: TeamId; packIds: readonly string[] }>()
+const props = withDefaults(
+  defineProps<{
+    role: RoleId
+    team: TeamId
+    me: Omit<PackMember, 'id'> | null
+    pack: readonly PackMember[]
+    doneLabel?: string | null
+    peekHint?: boolean
+  }>(),
+  { doneLabel: null, peekHint: true }
+)
 const emit = defineEmits<{ done: [] }>()
 const { t } = useI18n()
-const room = useRoomStore()
 const flipped = ref(false)
 
 const isWolf = computed(() => props.team === 'wolves')
-const packmates = computed(() =>
-  props.packIds.flatMap((memberId) => {
-    const member = room.snapshot === null ? null : memberWithId(room.snapshot, memberId)
-    return member === null ? [] : [member]
-  })
-)
-const me = computed(() => room.me)
 </script>
 
 <template>
@@ -52,7 +53,7 @@ const me = computed(() => room.me)
           <LunaAvatar :avatar="me.avatar" :name="me.name" size="md" you />
           <span class="av-name">{{ t('match.reveal.you', { name: me.name }) }}</span>
         </div>
-        <div v-for="member in packmates" :key="member.id" class="reveal-pack-member">
+        <div v-for="member in pack" :key="member.id" class="reveal-pack-member">
           <LunaAvatar :avatar="member.avatar" :name="member.name" size="md" ring="#FF8F94" />
           <span class="av-name">{{ member.name }}</span>
         </div>
@@ -63,11 +64,11 @@ const me = computed(() => room.me)
     <footer class="reveal-foot">
       <span v-if="!flipped" class="sbadge"><LunaIcon name="hand" size="sm" />{{ t('match.reveal.tapToFlip') }}</span>
       <template v-else>
-        <div v-if="!isWolf" class="card reveal-peek">
+        <div v-if="!isWolf && peekHint" class="card reveal-peek">
           <span class="btn btn-icon btn-secondary" aria-hidden="true"><LunaIcon name="card" /></span>
           <span class="t-small">{{ t('match.reveal.peekHint') }}</span>
         </div>
-        <button type="button" class="btn btn-primary btn-lg btn-block" @click="emit('done')">{{ t('match.reveal.gotIt') }}</button>
+        <button type="button" class="btn btn-primary btn-lg btn-block" @click="emit('done')">{{ doneLabel ?? t('match.reveal.gotIt') }}</button>
       </template>
     </footer>
   </main>

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { FixedClock, SeededRandom } from '../../../shared/application/clockAndRandom.fixtures'
 import { createSocketKit, type Client } from '../../../shared/infrastructure/socketTestKit.fixtures'
 import { FRIENDS, unwrap } from '../../room/domain/Room.fixtures'
-import { START_TIME } from '../domain/Match.fixtures'
+import { START_TIME } from '@luna/rules/fixtures'
 
 const kit = createSocketKit()
 const NAMES = FRIENDS.slice(0, 6)

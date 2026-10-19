@@ -10,6 +10,18 @@ export interface Seat {
   readonly isPack: boolean
 }
 
+export interface PackMember {
+  readonly id: string
+  readonly name: string
+  readonly avatar: AvatarId | null
+}
+
+export const packMembersOf = (members: readonly MemberView[], memberIds: readonly string[]): PackMember[] =>
+  memberIds.flatMap((memberId) => {
+    const member = members.find((candidate) => candidate.id === memberId)
+    return member === undefined ? [] : [{ id: member.id, name: member.name, avatar: member.avatar }]
+  })
+
 export const seatsOf = (
   view: MatchView,
   members: readonly MemberView[],

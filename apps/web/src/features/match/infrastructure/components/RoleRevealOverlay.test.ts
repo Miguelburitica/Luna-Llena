@@ -5,7 +5,7 @@ import RoleRevealOverlay from './RoleRevealOverlay.vue'
 describe('RoleRevealOverlay', () => {
   it('shows the card face down until it is tapped', async () => {
     const { wrapper } = await mountMatchView(RoleRevealOverlay, {
-      props: { role: 'seer', team: 'village', packIds: [] }
+      props: { role: 'seer', team: 'village', me: { name: 'Ana', avatar: 'ana' }, pack: [] }
     })
     expect(wrapper.find('.rcard-back').exists()).toBe(true)
     expect(wrapper.text()).toContain('Your secret role')
@@ -14,7 +14,7 @@ describe('RoleRevealOverlay', () => {
 
   it('flips to the role, its team, its power and the win condition', async () => {
     const { wrapper } = await mountMatchView(RoleRevealOverlay, {
-      props: { role: 'seer', team: 'village', packIds: [] }
+      props: { role: 'seer', team: 'village', me: { name: 'Ana', avatar: 'ana' }, pack: [] }
     })
     await wrapper.find('[aria-label="Reveal your role"]').trigger('click')
     const card = wrapper.find('.rcard')
@@ -28,7 +28,7 @@ describe('RoleRevealOverlay', () => {
 
   it('tells the player when they are done', async () => {
     const { wrapper } = await mountMatchView(RoleRevealOverlay, {
-      props: { role: 'villager', team: 'village', packIds: [] }
+      props: { role: 'villager', team: 'village', me: { name: 'Ana', avatar: 'ana' }, pack: [] }
     })
     await wrapper.find('[aria-label="Reveal your role"]').trigger('click')
     await wrapper.findAll('button').find((button) => button.text() === 'Got it')?.trigger('click')
@@ -37,7 +37,7 @@ describe('RoleRevealOverlay', () => {
 
   it('shows the wolf pack after the flip', async () => {
     const { wrapper } = await mountMatchView(RoleRevealOverlay, {
-      props: { role: 'werewolf', team: 'wolves', packIds: ['id-Tato'] }
+      props: { role: 'werewolf', team: 'wolves', me: { name: 'Ana', avatar: 'ana' }, pack: [{ id: 'id-Tato', name: 'Tato', avatar: 'tato' }] }
     })
     expect(wrapper.text()).not.toContain('Your pack')
     await wrapper.find('[aria-label="Reveal your role"]').trigger('click')
@@ -45,5 +45,14 @@ describe('RoleRevealOverlay', () => {
     expect(wrapper.text()).toContain('Your pack')
     expect(wrapper.text()).toContain('Tato')
     expect(wrapper.text()).toContain('Ana (you)')
+  })
+
+  it('can say another done label and hide the peek hint', async () => {
+    const { wrapper } = await mountMatchView(RoleRevealOverlay, {
+      props: { role: 'seer', team: 'village', me: null, pack: [], doneLabel: 'I’ve seen it', peekHint: false }
+    })
+    await wrapper.find('[aria-label="Reveal your role"]').trigger('click')
+    expect(wrapper.text()).toContain('I’ve seen it')
+    expect(wrapper.find('.reveal-peek').exists()).toBe(false)
   })
 })

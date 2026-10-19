@@ -5,7 +5,9 @@ const en = {
     create: 'Create a room',
     join: 'Join with code',
     returnToSeat: 'Return to your seat',
-    seatRoom: 'Room {code}'
+    seatRoom: 'Room {code}',
+    inPerson: 'Play in person',
+    resumeTable: 'Resume table game'
   },
   join: {
     step: 'Step 1 of 2',
@@ -161,7 +163,9 @@ const es: typeof en = {
     create: 'Crear una sala',
     join: 'Unirse con código',
     returnToSeat: 'Volver a tu puesto',
-    seatRoom: 'Sala {code}'
+    seatRoom: 'Sala {code}',
+    inPerson: 'Jugar en persona',
+    resumeTable: 'Retomar la partida en persona'
   },
   join: {
     step: 'Paso 1 de 2',

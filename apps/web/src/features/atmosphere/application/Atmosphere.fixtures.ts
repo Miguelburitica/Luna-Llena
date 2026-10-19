@@ -18,6 +18,7 @@ export type EngineCall =
   | { readonly kind: 'unlock' }
   | { readonly kind: 'ambient'; readonly id: AmbientId; readonly volume: number }
   | { readonly kind: 'play'; readonly sound: SoundCue; readonly volume: number }
+  | { readonly kind: 'alert'; readonly volume: number }
   | { readonly kind: 'stop' }
 
 export class FakeSoundEngine implements SoundEngine {
@@ -33,6 +34,10 @@ export class FakeSoundEngine implements SoundEngine {
 
   play(sound: SoundCue, volume: number) {
     this.calls.push({ kind: 'play', sound, volume })
+  }
+
+  playAlert(volume: number) {
+    this.calls.push({ kind: 'alert', volume })
   }
 
   stopAll() {

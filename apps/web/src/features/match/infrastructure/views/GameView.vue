@@ -17,6 +17,7 @@ import NarratorDashboard from '../components/NarratorDashboard.vue'
 import PlayerTable from '../components/PlayerTable.vue'
 import RoleRevealOverlay from '../components/RoleRevealOverlay.vue'
 import WhisperToast from '../components/WhisperToast.vue'
+import { packMembersOf } from '../../domain/seating'
 import GameOverView from './GameOverView.vue'
 
 const isRevealed = (value: unknown): value is true => value === true
@@ -36,6 +37,8 @@ const revealed = ref(readStored(revealedKey.value, isRevealed, 'tab') === true)
 
 const view = computed(() => (match.view?.code === code.value ? match.view : null))
 const failure = computed<{ readonly code: string } | null>(() => entry.failure.value ?? match.failure)
+
+const packOf = (packIds: readonly string[]) => packMembersOf(room.snapshot?.members ?? [], packIds)
 
 const dismissReveal = () => {
   writeStored(revealedKey.value, true, 'tab')
@@ -96,7 +99,8 @@ watch(reopened, (isReopened) => isReopened && backToLobby())
       v-else-if="!revealed"
       :role="view.you.role"
       :team="view.you.team"
-      :pack-ids="view.you.packIds"
+      :me="room.me"
+      :pack="packOf(view.you.packIds)"
       @done="dismissReveal"
     />
     <PlayerTable v-else :view="view" />

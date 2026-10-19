@@ -8,6 +8,7 @@ export interface SoundEngine {
   unlock(): void
   setAmbient(id: AmbientId, volume: number): void
   play(sound: SoundCue, volume: number): void
+  playAlert(volume: number): void
   stopAll(): void
 }
 

@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import SettingsOverlay from '@/features/atmosphere/infrastructure/components/SettingsOverlay.vue'
+import { useTableStore } from '@/features/table/application/useTableStore'
 import LanguageSwitch from '@/shared/infrastructure/ui/components/LanguageSwitch.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import SlimeWordmark from '@/shared/infrastructure/ui/components/SlimeWordmark.vue'
@@ -12,6 +13,7 @@ import RoomFailureMessage from '../components/RoomFailureMessage.vue'
 const { t } = useI18n()
 const router = useRouter()
 const store = useRoomStore()
+const table = useTableStore()
 const { failure, pending, run } = useRoomAction()
 
 const returnToSeat = async () => {
@@ -55,6 +57,12 @@ const returnToSeat = async () => {
       </RouterLink>
       <RouterLink :to="{ name: 'join' }" class="btn btn-secondary btn-lg btn-block home-join">
         <LunaIcon name="link" />{{ t('room.home.join') }}
+      </RouterLink>
+      <RouterLink v-if="table.hasSaved" :to="{ name: 'table-resume' }" class="btn btn-secondary btn-lg btn-block">
+        <LunaIcon name="arrow-right" />{{ t('room.home.resumeTable') }}
+      </RouterLink>
+      <RouterLink :to="{ name: 'table-setup' }" class="btn btn-ghost btn-lg btn-block">
+        <LunaIcon name="users" />{{ t('room.home.inPerson') }}
       </RouterLink>
     </nav>
   </main>

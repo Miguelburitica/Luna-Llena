@@ -2,7 +2,7 @@ import type { ChatMessage, MatchView, NarratorMatchView, RoomSession } from '@lu
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { FixedClock, SeededRandom } from '../../../shared/application/clockAndRandom.fixtures'
 import { createSocketKit, type Client } from '../../../shared/infrastructure/socketTestKit.fixtures'
-import { START_TIME } from '../../match/domain/Match.fixtures'
+import { START_TIME } from '@luna/rules/fixtures'
 import { FRIENDS, unwrap } from '../../room/domain/Room.fixtures'
 
 const kit = createSocketKit()
