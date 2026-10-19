@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { snapshotOf } from '../../domain/snapshot.fixtures'
+import { memberView, snapshotOf } from '../../domain/snapshot.fixtures'
 import { mountRoomView } from '../mountRoomView.fixtures'
 import PlayerLobby from './PlayerLobby.vue'
 
@@ -17,5 +17,15 @@ describe('PlayerLobby', () => {
     const { wrapper } = await mountRoomView(PlayerLobby, { props: { snapshot: snapshotOf(), memberId: 'id-Ana' } })
     expect(wrapper.find('a.join-call').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('Add a voice call')
+  })
+
+  it('marks bots in the member list with their personality', async () => {
+    const bot = memberView('Moco-Bot', { ready: true, bot: { personality: 'paranoid', difficulty: 'normal' } })
+    const snapshot = snapshotOf({ members: [memberView('Nico', { isNarrator: true }), memberView('Ana'), bot] })
+    const { wrapper } = await mountRoomView(PlayerLobby, { props: { snapshot, memberId: 'id-Ana' } })
+    const row = wrapper.findAll('.lobby-row').find((candidate) => candidate.text().includes('Moco-Bot'))
+    expect(row?.find('.bot-tag').text()).toBe('BOT')
+    expect(row?.text()).toContain('Paranoid')
+    expect(wrapper.findAll('.lobby-row .bot-tag')).toHaveLength(1)
   })
 })

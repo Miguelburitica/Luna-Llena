@@ -1,18 +1,22 @@
 import {
   AVATAR_IDS,
+  BOT_CASTS,
+  BOT_LIMITS,
   done,
   err,
   ok,
   roomError,
   ROOM_LIMITS,
   type AvatarId,
+  type BotCastId,
+  type BotProfile,
   type Result,
   type RoomError,
   type RoomStatus,
   type StartReadiness
 } from '@luna/contracts'
 import { alternativeNames } from './alternativeNames'
-import type { DisplayName } from './DisplayName'
+import { DisplayName } from './DisplayName'
 import { Member, type MemberIdentity } from './Member'
 import type { RoomCode } from './RoomCode'
 import type { RoomName } from './RoomName'
@@ -35,6 +39,7 @@ export class Room {
   private currentStatus: RoomStatus = 'lobby'
   private currentSettings: RoomSettings
   private currentVoiceCall: VoiceCallUrl | null
+  private currentBotCast: BotCastId | null = null
 
   private constructor(
     readonly code: RoomCode,
@@ -82,6 +87,14 @@ export class Room {
     return this.currentStatus === 'lobby' && this.players.length < ROOM_LIMITS.maxPlayers
   }
 
+  get botCast(): BotCastId | null {
+    return this.currentBotCast
+  }
+
+  get bots(): readonly Member[] {
+    return this.seats.filter((member) => member.isBot)
+  }
+
   get avatarsInUse(): AvatarId[] {
     return this.seats.flatMap((member) => (member.avatar === null ? [] : [member.avatar]))
   }
@@ -106,6 +119,39 @@ export class Room {
     return ok(member)
   }
 
+  addBot(
+    actorId: string,
+    identity: Omit<MemberIdentity, 'name'>,
+    profile: BotProfile,
+    castWhenNone: BotCastId
+  ): Result<Member, RoomError> {
+    const authority = this.requireNarratorInLobby(actorId)
+    if (!authority.ok) return authority
+    if (this.players.length >= ROOM_LIMITS.maxPlayers) return err(roomError('room-full'))
+    if (this.bots.length >= BOT_LIMITS.maxBots) return err(roomError('bot-limit'))
+    const cast = this.currentBotCast ?? castWhenNone
+    const name = BOT_CASTS[cast][this.currentSettings.botLanguage]
+      .map((candidate) => DisplayName.create(candidate))
+      .flatMap((candidate) => (candidate.ok ? [candidate.value] : []))
+      .find((candidate) => !this.isNameTaken(candidate))
+    if (name === undefined) return err(roomError('bot-limit'))
+    const bot = new Member({ ...identity, name }, false, profile)
+    bot.avatar = AVATAR_IDS.find((avatar) => !this.avatarsInUse.includes(avatar)) ?? null
+    this.seats.push(bot)
+    this.currentBotCast = cast
+    return ok(bot)
+  }
+
+  removeBot(actorId: string, memberId: unknown): Result<Member, RoomError> {
+    const authority = this.requireNarratorInLobby(actorId)
+    if (!authority.ok) return authority
+    const target = this.players.find((player) => player.id === memberId)
+    if (target === undefined) return err(roomError('member-not-found'))
+    if (!target.isBot) return err(roomError('not-a-bot'))
+    this.removeSeat(target)
+    return ok(target)
+  }
+
   resume(token: unknown): Result<Member, RoomError> {
     const member = this.seats.find((seat) => seat.holdsToken(token))
     if (member === undefined) return err(roomError('session-invalid'))
@@ -115,7 +161,7 @@ export class Room {
 
   disconnect(memberId: string): void {
     const member = this.memberWithId(memberId)
-    if (member !== undefined) member.connected = false
+    if (member !== undefined && !member.isBot) member.connected = false
   }
 
   chooseAvatar(memberId: string, avatar: unknown): Result<void, RoomError> {
@@ -195,7 +241,7 @@ export class Room {
 
   reopen(): void {
     this.currentStatus = 'lobby'
-    for (const player of this.players) player.ready = false
+    for (const player of this.players) player.ready = player.isBot
   }
 
   private isNameTaken(name: DisplayName): boolean {
@@ -204,6 +250,7 @@ export class Room {
 
   private removeSeat(member: Member): void {
     this.seats.splice(this.seats.indexOf(member), 1)
+    if (this.bots.length === 0) this.currentBotCast = null
   }
 
   private requireLobby(): Result<void, RoomError> {

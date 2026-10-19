@@ -103,12 +103,14 @@ const leave = async () => {
           :name="member.name"
           size="sm"
           :you="member.id === memberId"
+          :bot="member.bot !== null"
           :offline="!member.connected"
           :ring="member.isNarrator ? 'var(--moon)' : undefined"
         />
         <b class="lobby-member">
           {{ member.name }}
           <span v-if="member.isNarrator" class="t-small t-muted">· {{ t('room.lobby.narrator') }}</span>
+          <span v-else-if="member.bot" class="t-small t-muted">· {{ t(`room.bots.personalities.${member.bot.personality}`) }}</span>
           <span v-else-if="!member.connected" class="t-small t-muted">· {{ t('room.lobby.reconnecting') }}</span>
           <span v-else-if="member.id === memberId" class="t-small lobby-you">· {{ t('room.lobby.you') }}</span>
         </b>

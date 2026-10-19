@@ -1,6 +1,7 @@
 export * from './result'
 export * from './socket'
 export * from './roles/catalog'
+export * from './bots/vocabulary'
 export * from './room/vocabulary'
 export * from './room/errors'
 export * from './room/views'

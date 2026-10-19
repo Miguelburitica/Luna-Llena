@@ -1,6 +1,7 @@
 import type { Result } from '../result'
 import type { RoomError } from './errors'
 import type { RoomSession, RoomSettingsInput, RoomSnapshot, RoomSummary } from './views'
+import type { BotDifficulty, BotPersonality } from '../bots/vocabulary'
 import type { AvatarId } from './vocabulary'
 
 export type RoomAck<T> = (result: Result<T, RoomError>) => void
@@ -21,6 +22,11 @@ export interface RoomClientEvents {
   'room:setReady': (input: { readonly ready: boolean }, ack: RoomAck<void>) => void
   'room:updateSettings': (input: { readonly settings: RoomSettingsInput }, ack: RoomAck<void>) => void
   'room:kick': (input: { readonly memberId: string }, ack: RoomAck<void>) => void
+  'room:addBot': (
+    input: { readonly personality?: BotPersonality; readonly difficulty?: BotDifficulty },
+    ack: RoomAck<void>
+  ) => void
+  'room:removeBot': (input: { readonly memberId: string }, ack: RoomAck<void>) => void
   'room:leave': (input: Record<string, never>, ack: RoomAck<void>) => void
   'room:start': (input: Record<string, never>, ack: RoomAck<void>) => void
   'room:playAgain': (input: Record<string, never>, ack: RoomAck<void>) => void

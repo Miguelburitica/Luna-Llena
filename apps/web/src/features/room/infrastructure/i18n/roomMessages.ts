@@ -136,6 +136,36 @@ const en = {
     unreachableBody: 'We can’t reach the village. Your seat is saved — come back any time.',
     tryAgain: 'Try again'
   },
+  bots: {
+    title: 'Bots',
+    count: '{count} of {max}',
+    hint: 'Short on friends? Bots play their role, vote and chat. They can’t hear the call, so name them in the chat to grill them.',
+    personality: 'Personality',
+    difficulty: 'Difficulty',
+    language: 'Bots speak',
+    surprise: 'Surprise me',
+    add: 'Add a bot',
+    remove: 'Remove {name}',
+    cast: 'Characters from {book}',
+    castNext: 'The first bot picks a classic book for this room',
+    casts: {
+      solitude: 'One Hundred Years of Solitude',
+      musketeers: 'The Three Musketeers',
+      quixote: 'Don Quixote',
+      alice: 'Alice in Wonderland',
+      odyssey: 'The Odyssey',
+      oz: 'The Wizard of Oz'
+    },
+    personalities: {
+      paranoid: 'Paranoid',
+      follower: 'Follower',
+      detective: 'Detective',
+      chaos: 'Chaos goblin',
+      quiet: 'Quiet one'
+    },
+    difficulties: { easy: 'Easy', normal: 'Normal', sharp: 'Sharp' },
+    languages: { es: 'Español', en: 'English' }
+  },
   errors: {
     'room-name-invalid': 'Give your room a name (up to 40 characters).',
     'name-invalid': 'Names need 1 to 20 characters.',
@@ -152,6 +182,8 @@ const en = {
     'start-conditions-unmet': 'The village is not ready yet.',
     'voice-call-invalid': 'That does not look like a secure link. Use an https:// address.',
     'game-not-over': 'The game is still going. Play again once it ends.',
+    'bot-limit': 'That’s the most bots a village can hold.',
+    'not-a-bot': 'Only bots can be removed that way.',
     unreachable: 'We can’t reach the village. Check your connection.'
   }
 }
@@ -294,6 +326,36 @@ const es: typeof en = {
     unreachableBody: 'No logramos llegar a la aldea. Tu puesto sigue guardado, vuelve cuando quieras.',
     tryAgain: 'Intentar de nuevo'
   },
+  bots: {
+    title: 'Bots',
+    count: '{count} de {max}',
+    hint: '¿Faltan amigos? Los bots juegan su rol, votan y chatean. No oyen la llamada: nómbralos en el chat para interrogarlos.',
+    personality: 'Personalidad',
+    difficulty: 'Dificultad',
+    language: 'Los bots hablan',
+    surprise: 'Sorpréndeme',
+    add: 'Añadir un bot',
+    remove: 'Quitar a {name}',
+    cast: 'Personajes de {book}',
+    castNext: 'El primer bot escoge un libro clásico para esta sala',
+    casts: {
+      solitude: 'Cien años de soledad',
+      musketeers: 'Los tres mosqueteros',
+      quixote: 'Don Quijote de la Mancha',
+      alice: 'Alicia en el país de las maravillas',
+      odyssey: 'La Odisea',
+      oz: 'El mago de Oz'
+    },
+    personalities: {
+      paranoid: 'Paranoico',
+      follower: 'Seguidor',
+      detective: 'Detective',
+      chaos: 'Duende del caos',
+      quiet: 'Callado'
+    },
+    difficulties: { easy: 'Fácil', normal: 'Normal', sharp: 'Avispado' },
+    languages: { es: 'Español', en: 'English' }
+  },
   errors: {
     'room-name-invalid': 'Ponle un nombre a tu sala (hasta 40 caracteres).',
     'name-invalid': 'El nombre debe tener entre 1 y 20 caracteres.',
@@ -310,6 +372,8 @@ const es: typeof en = {
     'start-conditions-unmet': 'La aldea aún no está lista.',
     'voice-call-invalid': 'Ese no parece un enlace seguro. Usa una dirección https://.',
     'game-not-over': 'El juego sigue en marcha. Vuelvan a jugar cuando termine.',
+    'bot-limit': 'Esa es la mayor cantidad de bots que cabe en una aldea.',
+    'not-a-bot': 'Así solo se pueden quitar bots.',
     unreachable: 'No logramos llegar a la aldea. Revisa tu conexión.'
   }
 }

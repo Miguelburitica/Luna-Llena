@@ -8,6 +8,7 @@ import EndStory from './EndStory.vue'
 
 const seat = (name: string): Seat => ({
   id: `id-${name}`,
+  bot: false,
   name,
   avatar: null,
   alive: true,

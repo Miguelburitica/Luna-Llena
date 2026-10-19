@@ -17,7 +17,8 @@ export const tableSeatsOf = (
       alive: player.alive,
       revealedRole: player.revealedRole,
       isYou: false,
-      isPack: view.roles[player.id] === 'werewolf'
+      isPack: view.roles[player.id] === 'werewolf',
+      bot: false
     }
   })
 

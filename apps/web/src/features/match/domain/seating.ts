@@ -8,6 +8,7 @@ export interface Seat {
   readonly revealedRole: RoleId | null
   readonly isYou: boolean
   readonly isPack: boolean
+  readonly bot: boolean
 }
 
 export interface PackMember {
@@ -37,7 +38,8 @@ export const seatsOf = (
       alive: player.alive,
       revealedRole: player.revealedRole,
       isYou: player.id === myId,
-      isPack: packIds.includes(player.id)
+      isPack: packIds.includes(player.id),
+      bot: member !== undefined && member.bot !== null
     }
   })
 

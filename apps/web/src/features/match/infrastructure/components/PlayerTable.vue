@@ -98,6 +98,7 @@ const votingOpen = computed(
           :name="seat.name"
           :size="dense ? 'md' : undefined"
           :you="seat.isYou"
+          :bot="seat.bot"
           :ring="seat.isPack ? PACK_RING : undefined"
           :class="{ 'is-dead': !seat.alive }"
         >

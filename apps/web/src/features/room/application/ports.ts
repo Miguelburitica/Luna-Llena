@@ -1,5 +1,7 @@
 import type {
   AvatarId,
+  BotDifficulty,
+  BotPersonality,
   CreateRoomInput,
   Result,
   RoomError,
@@ -12,6 +14,11 @@ import type { InjectionKey } from 'vue'
 
 export type RoomFailure = RoomError | { readonly code: 'unreachable' }
 
+export interface BotChoice {
+  readonly personality?: BotPersonality
+  readonly difficulty?: BotDifficulty
+}
+
 export type RoomResult<T> = Promise<Result<T, RoomFailure>>
 
 export interface RoomGateway {
@@ -23,6 +30,8 @@ export interface RoomGateway {
   setReady(ready: boolean): RoomResult<void>
   updateSettings(settings: RoomSettingsInput): RoomResult<void>
   kick(memberId: string): RoomResult<void>
+  addBot(choice: BotChoice): RoomResult<void>
+  removeBot(memberId: string): RoomResult<void>
   setVoiceCall(url: string | null): RoomResult<void>
   leave(): RoomResult<void>
   start(): RoomResult<void>

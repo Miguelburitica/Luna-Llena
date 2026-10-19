@@ -74,4 +74,40 @@ describe('NarratorLobby', () => {
     const row = wrapper.findAll('.narrator-checks li').find((item) => item.text().includes('Werewolf'))
     expect(row?.classes()).toContain('tone-bad')
   })
+
+  it('adds a bot with the picked personality and difficulty', async () => {
+    const snapshot = snapshotOf({ members: [memberView('Nico', { isNarrator: true }), memberView('Ana')] })
+    const { wrapper, gateway } = await mountRoomView(NarratorLobby, { props: { snapshot, memberId: 'id-Nico' } })
+    const panel = wrapper.find('.bot-panel')
+    await panel.findAll('.chip').find((chip) => chip.text() === 'Detective')?.trigger('click')
+    await panel.findAll('.seg button').find((option) => option.text() === 'Sharp')?.trigger('click')
+    await panel.find('.bot-add').trigger('click')
+    expect(gateway.calls.find((call) => call.command === 'addBot')?.input).toEqual({ personality: 'detective', difficulty: 'sharp' })
+  })
+
+  it('lets surprise me leave the personality to chance', async () => {
+    const snapshot = snapshotOf({ members: [memberView('Nico', { isNarrator: true })] })
+    const { wrapper, gateway } = await mountRoomView(NarratorLobby, { props: { snapshot, memberId: 'id-Nico' } })
+    await wrapper.find('.bot-add').trigger('click')
+    expect(gateway.calls.find((call) => call.command === 'addBot')?.input).toEqual({ difficulty: 'normal' })
+  })
+
+  it('labels bots and removes them without asking', async () => {
+    const bot = memberView('Moco-Bot', { ready: true, bot: { personality: 'chaos', difficulty: 'easy' } })
+    const snapshot = snapshotOf({ members: [memberView('Nico', { isNarrator: true }), bot], botCast: 'quixote' })
+    const { wrapper, gateway } = await mountRoomView(NarratorLobby, { props: { snapshot, memberId: 'id-Nico' } })
+    const row = wrapper.findAll('.pcard').find((card) => card.text().includes('Moco-Bot'))
+    expect(row?.find('.bot-tag').text()).toBe('BOT')
+    expect(row?.text()).toContain('Chaos goblin · Easy')
+    expect(wrapper.find('.bot-cast').text()).toBe('Characters from Don Quixote')
+    await row?.find('[aria-label="Remove Moco-Bot"]').trigger('click')
+    expect(gateway.calls.find((call) => call.command === 'removeBot')?.input).toBe('id-Moco-Bot')
+  })
+
+  it('switches the bots to English', async () => {
+    const snapshot = snapshotOf({ members: [memberView('Nico', { isNarrator: true })] })
+    const { wrapper, gateway } = await mountRoomView(NarratorLobby, { props: { snapshot, memberId: 'id-Nico' } })
+    await wrapper.findAll('.bot-panel .seg button').find((option) => option.text() === 'English')?.trigger('click')
+    expect(gateway.calls.find((call) => call.command === 'updateSettings')?.input).toEqual({ botLanguage: 'en' })
+  })
 })

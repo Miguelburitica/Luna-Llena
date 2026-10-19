@@ -12,6 +12,7 @@ import { useRoomStore } from '../../application/useRoomStore'
 import { suggestedDeckFor } from '../../domain/deckAdvice'
 import { cardsInDeck, namesOf, playersOf, readyPlayerCount } from '../../domain/lobby'
 import { useInviteLink } from '../useInviteLink'
+import BotPanel from './BotPanel.vue'
 import RoomFailureMessage from './RoomFailureMessage.vue'
 import VoiceCallPanel from './VoiceCallPanel.vue'
 
@@ -55,6 +56,12 @@ const canSuggest = computed(() => readiness.value.playerCount >= ROOM_LIMITS.min
 const useSuggestedDeck = () => run(() => store.updateSettings({ deck: suggestedDeckFor(readiness.value.playerCount) }))
 
 const statusOf = (member: MemberView) => {
+  if (member.bot !== null) {
+    return {
+      tone: 'ok',
+      label: `${t(`room.bots.personalities.${member.bot.personality}`)} · ${t(`room.bots.difficulties.${member.bot.difficulty}`)}`
+    }
+  }
   if (!member.connected) return { tone: 'warn', label: t('room.narratorLobby.reconnecting') }
   if (member.ready) return { tone: 'ok', label: t('room.narratorLobby.ready') }
   return { tone: 'muted', label: t('room.narratorLobby.notReady') }
@@ -109,6 +116,7 @@ const closeRoom = async () => {
               :name="member.name"
               size="md"
               :offline="!member.connected"
+              :bot="member.bot !== null"
               :ring="member.isNarrator ? 'var(--moon)' : undefined"
             />
             <div class="pcard-text">
@@ -119,7 +127,17 @@ const closeRoom = async () => {
               <div v-else class="t-small" :class="`tone-${statusOf(member).tone}`">{{ statusOf(member).label }}</div>
             </div>
             <button
-              v-if="!member.isNarrator"
+              v-if="member.bot !== null"
+              type="button"
+              class="btn btn-icon btn-ghost"
+              :aria-label="t('room.bots.remove', { name: member.name })"
+              :disabled="pending"
+              @click="run(() => store.removeBot(member.id))"
+            >
+              <LunaIcon name="x" />
+            </button>
+            <button
+              v-else-if="!member.isNarrator"
               type="button"
               class="btn btn-icon"
               :class="member.connected ? 'btn-ghost' : 'btn-danger'"
@@ -151,6 +169,8 @@ const closeRoom = async () => {
 
       <aside class="narrator-aside">
         <VoiceCallPanel :url="snapshot.voiceCallUrl" :code="snapshot.code" />
+
+        <BotPanel :snapshot="snapshot" />
 
         <section class="panel" :class="{ 'is-mismatch': !deckMatches }">
           <div class="panel-h">

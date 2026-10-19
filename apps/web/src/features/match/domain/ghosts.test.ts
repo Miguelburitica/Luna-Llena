@@ -61,6 +61,7 @@ describe('hauntLine', () => {
 
 const seat = (name: string, overrides: Partial<Seat> = {}): Seat => ({
   id: `id-${name}`,
+  bot: false,
   name,
   avatar: null,
   alive: true,

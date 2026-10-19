@@ -7,6 +7,7 @@ const toMemberView = (member: Member): MemberView => ({
   name: member.name.value,
   avatar: member.avatar,
   isNarrator: member.isNarrator,
+  bot: member.bot,
   ready: member.ready,
   connected: member.connected
 })
@@ -19,9 +20,11 @@ export const toRoomSnapshot = (room: Room): RoomSnapshot => ({
     theme: room.settings.theme,
     timers: room.settings.timers,
     houseRules: room.settings.houseRules,
-    deck: room.settings.deck
+    deck: room.settings.deck,
+    botLanguage: room.settings.botLanguage
   },
   members: room.members.map(toMemberView),
+  botCast: room.botCast,
   startReadiness: room.startReadiness,
   voiceCallUrl: room.voiceCall?.value ?? null
 })
