@@ -20,7 +20,7 @@ export class OpenRouterBotSpeech implements BotSpeech {
 
   constructor(private readonly options: OpenRouterOptions) {
     this.model = options.model ?? DEFAULT_BOT_MODEL
-    this.timeoutMs = options.timeoutMs ?? 6000
+    this.timeoutMs = options.timeoutMs ?? 12_000
     this.send = options.fetch ?? ((url, init) => fetch(url, init))
   }
 
