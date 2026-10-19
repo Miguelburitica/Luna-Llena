@@ -120,6 +120,11 @@ const intentLine = (intent: BotIntent, language: BotLanguage): string => {
         ? `You were just killed. Say dramatic last words and blame ${intent.subject}.`
         : `Te acaban de matar. Di unas últimas palabras dramáticas y culpa a ${intent.subject}.`
     case 'wolf-plan':
+      if (intent.against !== null) {
+        return en
+          ? `Your packmate wants ${intent.against}, but you want ${intent.subject}. Argue with your pack for ${intent.subject}, with one reason.`
+          : `Tu compañero de manada quiere a ${intent.against}, pero tú quieres a ${intent.subject}. Discute con tu manada por ${intent.subject}, con una razón.`
+      }
       return en
         ? `Whisper to your wolf pack that you picked ${intent.subject} as tonight's snack.`
         : `Susúrrale a tu manada que escogiste a ${intent.subject} como la cena de esta noche.`

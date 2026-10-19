@@ -14,7 +14,7 @@ export type BotIntent =
   | { readonly kind: 'explain-vote'; readonly subject: string; readonly lie: boolean }
   | { readonly kind: 'react-dawn'; readonly deaths: readonly string[] }
   | { readonly kind: 'last-words'; readonly subject: string }
-  | { readonly kind: 'wolf-plan'; readonly subject: string }
+  | { readonly kind: 'wolf-plan'; readonly subject: string; readonly against: string | null }
   | { readonly kind: 'ghost'; readonly subject: string }
 
 export type IntentKind = BotIntent['kind']
@@ -83,10 +83,12 @@ export const lastWordsIntentOf = (
   random: RandomNumbers
 ): BotIntent => ({ kind: 'last-words', subject: nameIn(roster, blameTargetOf(mind, view, random)) })
 
-export const wolfPlanIntentOf = (view: PlayerMatchView, roster: BotRoster): BotIntent | null => {
+export const wolfPlanIntentOf = (view: PlayerMatchView, roster: BotRoster, selfId: string): BotIntent | null => {
   const night = view.you.night
   if (night?.action !== 'hunt' || night.targetId === null) return null
-  return { kind: 'wolf-plan', subject: nameIn(roster, night.targetId) }
+  const mine = night.targetId
+  const rival = Object.entries(night.packPicks).find(([wolfId, targetId]) => wolfId !== selfId && targetId !== mine)
+  return { kind: 'wolf-plan', subject: nameIn(roster, mine), against: rival === undefined ? null : nameIn(roster, rival[1]) }
 }
 
 export const ghostIntentOf = (

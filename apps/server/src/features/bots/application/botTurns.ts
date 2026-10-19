@@ -2,7 +2,7 @@ import { BOT_LIMITS, type ChatChannel, type PlayerMatchView } from '@luna/contra
 import type { BotMind } from '../domain/BotMind'
 import type { BotTable } from '../domain/BotTable'
 import { buildBotPrompt } from '../domain/botPrompt'
-import { hauntOf, nightActionOf, revengeTargetOf, voteTargetOf } from '../domain/decisions'
+import { hauntOf, nightActionOf, revengeTargetOf, settledHuntOf, voteTargetOf } from '../domain/decisions'
 import {
   answerIntentOf,
   dawnIntentOf,
@@ -66,9 +66,16 @@ const planNight = (context: BotContext, table: BotTable, mind: BotMind, view: Pl
     if (input !== null) await context.actions.act(actorOf(table, mind), input)
   })
   if (view.you.packIds.length === 0) return
+  const settleAt = view.phaseEndsAt === null ? 35_000 : Math.max(delay + 4000, view.phaseEndsAt - view.serverNow - 6000)
+  later(context, table, settleAt, async () => {
+    const current = currentView(mind, phaseKey)
+    if (current === null || !mind.isAlive) return
+    const input = settledHuntOf(mind, current, new Set(table.roster.bots.keys()), context.random)
+    if (input !== null) await context.actions.act(actorOf(table, mind), input)
+  })
   later(context, table, delay + talkDelayOf(2, 5, context.random), async () => {
     const current = currentView(mind, phaseKey)
-    const intent = current === null ? null : wolfPlanIntentOf(current, table.roster)
+    const intent = current === null ? null : wolfPlanIntentOf(current, table.roster, mind.memberId)
     if (intent !== null) await speak(context, table, mind, 'wolves', intent)
   })
 }

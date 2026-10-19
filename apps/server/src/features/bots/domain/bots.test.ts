@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { fixedRandom, mindOf, playerView, rosterFor, SELF } from './BotMind.fixtures'
 import { buildBotPrompt, parseSpokenLine } from './botPrompt'
 import { BOT_CHAT_LIMITS, ChatBudget } from './ChatBudget'
-import { nightActionOf, voteTargetOf } from './decisions'
-import { openingIntentOf } from './intents'
+import { nightActionOf, settledHuntOf, voteTargetOf } from './decisions'
+import { openingIntentOf, wolfPlanIntentOf } from './intents'
 import { lockDelayOf, nightDelayOf } from './pacing'
 import { scriptedLineOf } from './scriptedLines'
 import { observeChat, observeView } from './suspicion'
@@ -21,8 +21,8 @@ const village = (authorId: string, text: string, id = text): ChatMessage => ({
 })
 
 describe('night decisions', () => {
-  it('joins the victim the pack already picked', () => {
-    const mind = mindOf()
+  it('often joins the pack pick when agreeable', () => {
+    const mind = mindOf({ personality: 'follower' })
     const view = playerView({
       role: 'werewolf',
       team: 'wolves',
@@ -30,7 +30,31 @@ describe('night decisions', () => {
       night: { action: 'hunt', targetId: null, packPicks: { tato: 'ana' }, packVictimId: 'ana' }
     })
     observeView(mind, view, fixedRandom(0.5))
-    expect(nightActionOf(mind, view, NO_BOTS, fixedRandom(0.9))).toEqual({ kind: 'hunt', targetId: 'ana' })
+    expect(nightActionOf(mind, view, NO_BOTS, fixedRandom(0))).toEqual({ kind: 'hunt', targetId: 'ana' })
+  })
+
+  it('picks its own victim when it does not go along with the pack', () => {
+    const mind = mindOf({ personality: 'chaos' })
+    const view = playerView({
+      role: 'werewolf',
+      team: 'wolves',
+      packIds: ['tato'],
+      night: { action: 'hunt', targetId: null, packPicks: { tato: 'ana' }, packVictimId: 'ana' }
+    })
+    observeView(mind, view, fixedRandom(0.5))
+    const action = nightActionOf(mind, view, NO_BOTS, fixedRandom(0.9))
+    expect(action).toEqual({ kind: 'hunt', targetId: 'baba' })
+  })
+
+  it('may give in to the pack late in the night, or hold its ground', () => {
+    const night = { action: 'hunt' as const, targetId: 'baba', packPicks: { tato: 'ana', bot: 'baba' }, packVictimId: 'baba' }
+    const view = playerView({ role: 'werewolf', team: 'wolves', packIds: ['tato'], night })
+    const follower = mindOf({ personality: 'follower' })
+    observeView(follower, view, fixedRandom(0.5))
+    expect(settledHuntOf(follower, view, NO_BOTS, fixedRandom(0))).toEqual({ kind: 'hunt', targetId: 'ana' })
+    const chaos = mindOf({ personality: 'chaos' })
+    observeView(chaos, view, fixedRandom(0.5))
+    expect(settledHuntOf(chaos, view, NO_BOTS, fixedRandom(0.9))).toBeNull()
   })
 
   it('prefers a bot as the first victim so humans get to play', () => {
@@ -210,9 +234,28 @@ describe('pacing', () => {
 describe('scripted variety', () => {
   it('never repeats a scripted line in a room until the whole pool was used', () => {
     const used = new Set<string>()
-    const intent = { kind: 'wolf-plan', subject: 'Ana' } as const
+    const intent = { kind: 'wolf-plan', subject: 'Ana', against: null } as const
     const lines = Array.from({ length: 5 }, (_, index) => scriptedLineOf(intent, 'es', 'detective', fixedRandom(index * 0.01), used))
     expect(new Set(lines).size).toBe(5)
     expect(scriptedLineOf(intent, 'es', 'detective', fixedRandom(0), used)).toContain('Ana')
+  })
+})
+
+describe('wolf chat', () => {
+  it('argues for its own pick when the packmate wants someone else', () => {
+    const view = playerView({
+      role: 'werewolf',
+      team: 'wolves',
+      packIds: ['tato'],
+      night: { action: 'hunt', targetId: 'baba', packPicks: { tato: 'ana', [SELF]: 'baba' }, packVictimId: 'baba' }
+    })
+    expect(wolfPlanIntentOf(view, rosterFor(), SELF)).toEqual({ kind: 'wolf-plan', subject: 'Baba-Tron', against: 'Ana' })
+    const agreed = playerView({
+      role: 'werewolf',
+      team: 'wolves',
+      packIds: ['tato'],
+      night: { action: 'hunt', targetId: 'ana', packPicks: { tato: 'ana', [SELF]: 'ana' }, packVictimId: 'ana' }
+    })
+    expect(wolfPlanIntentOf(agreed, rosterFor(), SELF)).toEqual({ kind: 'wolf-plan', subject: 'Ana', against: null })
   })
 })

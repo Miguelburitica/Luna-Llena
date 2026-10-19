@@ -1,4 +1,4 @@
-import type { BotLanguage, HauntInput, NightActionInput, PlayerMatchView } from '@luna/contracts'
+import type { BotLanguage, BotPersonality, HauntInput, NightActionInput, PlayerMatchView } from '@luna/contracts'
 import type { BotMind, RandomNumbers } from './BotMind'
 
 export const STRONG_SUSPICION = 0.85
@@ -50,22 +50,57 @@ const mostPicked = (picks: Readonly<Record<string, string>>, selfId: string): st
   return [...counts].sort((first, second) => second[1] - first[1])[0]?.[0] ?? null
 }
 
+export const PACK_AGREEMENT: Readonly<Record<BotPersonality, number>> = {
+  follower: 0.85,
+  detective: 0.6,
+  quiet: 0.6,
+  paranoid: 0.4,
+  chaos: 0.3
+}
+
+const preyOf = (mind: BotMind, view: PlayerMatchView, botIds: ReadonlySet<string>): string[] => {
+  const everyone = nonAllies(mind, view)
+  const botPrey = everyone.filter((candidate) => botIds.has(candidate))
+  return view.round === 1 && botPrey.length > 0 ? botPrey : everyone
+}
+
+const packChoiceOf = (mind: BotMind, view: PlayerMatchView, prey: readonly string[]): string | null => {
+  const night = view.you.night
+  if (night?.action !== 'hunt') return null
+  const choice = mostPicked(night.packPicks, mind.memberId)
+  return choice !== null && prey.includes(choice) ? choice : null
+}
+
+const ownPreyOf = (mind: BotMind, prey: readonly string[], random: RandomNumbers): string | null => {
+  const claimed = claimedAmong(mind, prey)
+  if (claimed.length > 0 && random.next() < 0.7) return pickRandom(claimed, random)
+  return pickRandom(prey, random)
+}
+
 const huntTargetOf = (
   mind: BotMind,
   view: PlayerMatchView,
   botIds: ReadonlySet<string>,
   random: RandomNumbers
 ): string | null => {
+  if (view.you.night?.action !== 'hunt') return null
+  const prey = preyOf(mind, view, botIds)
+  const packChoice = packChoiceOf(mind, view, prey)
+  if (packChoice !== null && random.next() < PACK_AGREEMENT[mind.profile.personality]) return packChoice
+  return ownPreyOf(mind, prey, random)
+}
+
+export const settledHuntOf = (
+  mind: BotMind,
+  view: PlayerMatchView,
+  botIds: ReadonlySet<string>,
+  random: RandomNumbers
+): NightActionInput | null => {
   const night = view.you.night
-  if (night?.action !== 'hunt') return null
-  const everyone = nonAllies(mind, view)
-  const botPrey = everyone.filter((candidate) => botIds.has(candidate))
-  const prey = view.round === 1 && botPrey.length > 0 ? botPrey : everyone
-  const packChoice = mostPicked(night.packPicks, mind.memberId) ?? night.packVictimId
-  if (packChoice !== null && prey.includes(packChoice)) return packChoice
-  const claimed = claimedAmong(mind, prey)
-  if (claimed.length > 0) return pickRandom(claimed, random)
-  return pickRandom(prey, random)
+  if (night?.action !== 'hunt' || night.targetId === null) return null
+  const packChoice = packChoiceOf(mind, view, preyOf(mind, view, botIds))
+  if (packChoice === null || packChoice === night.targetId) return null
+  return random.next() < PACK_AGREEMENT[mind.profile.personality] ? { kind: 'hunt', targetId: packChoice } : null
 }
 
 const inspectTargetOf = (mind: BotMind, view: PlayerMatchView, random: RandomNumbers): string | null => {

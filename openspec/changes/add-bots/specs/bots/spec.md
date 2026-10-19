@@ -64,8 +64,11 @@ advance the phase.
 
 ### Requirement: Night play
 During the night every living bot SHALL perform its role's action:
-- A Werewolf bot SHALL hunt a living non-wolf, joining a victim the pack already picked when there is one. Otherwise
-  it prefers players who claimed a role. On the first night it prefers bots as victims, so the humans get to play.
+- A Werewolf bot SHALL hunt a living non-wolf. It forms its own pick, preferring players who claimed a role. When the
+  pack already picked someone, it joins that pick only by its personality's agreeableness: a `follower` almost
+  always, a `chaos` bot rarely. Late in the night, a wolf that still disagrees MAY give in to the pack's pick. The
+  pack's rule (most picks, then the latest pick) settles any split that remains. On the first night it prefers bots as
+  victims, so the humans get to play.
 - A Seer or Drunk bot SHALL inspect the living player it has no vision of and suspects most.
 - A Doctor bot SHALL protect a player other than the one it may not protect, preferring a player who claimed a role.
 - A Witch bot SHALL heal the pack's victim on the first night, or when the victim claimed a role, if the heal is left.
@@ -74,8 +77,16 @@ During the night every living bot SHALL perform its role's action:
 - Other bots SHALL suspect the living player they suspect most.
 
 #### Scenario: The pack agrees
-- **WHEN** a human Werewolf picks Ana as the victim and a bot Werewolf acts afterwards
-- **THEN** the bot also picks Ana
+- **WHEN** a human Werewolf picks Ana as the victim and an agreeable `follower` bot Werewolf acts afterwards
+- **THEN** the bot usually also picks Ana
+
+#### Scenario: Wolves argue
+- **WHEN** a `chaos` bot Werewolf acts after its packmate picked Ana
+- **THEN** it usually picks a victim of its own, and both picks show in the pack's view
+
+#### Scenario: Giving in
+- **WHEN** a bot Werewolf still disagrees with its packmate late in the night
+- **THEN** it may switch to the packmate's pick before dawn
 
 #### Scenario: The witch reconsiders
 - **WHEN** a bot Witch acted on Night 1 before the wolves picked, and the wolves then pick Ana
