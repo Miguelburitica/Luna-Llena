@@ -22,9 +22,14 @@ describe('OpenRouterBotSpeech', () => {
     const speech = new OpenRouterBotSpeech({ apiKey: 'test-key', model: 'z-ai/glm-5.3-flash', fetch: stub.fetch })
     expect(await speech.say(PROMPT)).toBe('Tato smells wolfy')
     const call = stub.calls[0]
-    const body = JSON.parse(String(call?.init.body)) as { model: string; messages: Array<{ role: string; content: string }> }
+    const body = JSON.parse(String(call?.init.body)) as {
+      model: string
+      reasoning: unknown
+      messages: Array<{ role: string; content: string }>
+    }
     expect(call?.url).toBe(OPENROUTER_URL)
     expect(body.model).toBe('z-ai/glm-5.3-flash')
+    expect(body.reasoning).toEqual({ max_tokens: 1, exclude: true })
     expect(body.messages.map((message) => message.role)).toEqual(['system', 'user', 'assistant', 'user'])
     expect(body.messages.at(-1)?.content).toBe('INTENT: accuse Tato')
   })

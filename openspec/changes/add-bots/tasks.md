@@ -25,4 +25,4 @@
 
 - [x] 6.1 Run `pnpm check` green
 - [x] 6.2 Play in the browser with a human and 5–6 bots at phone width without an API key (scripted lines); screenshot the lobby, a night, the narrator dashboard and a day chat where a bot answers a question
-- [ ] 6.3 Play once with a real `OPENROUTER_API_KEY` and check the `z-ai/glm-5.3-flash` lines in both languages
+- [x] 6.3 Check live `z-ai/glm-5.3-flash` lines in both languages with the real `OPENROUTER_API_KEY`

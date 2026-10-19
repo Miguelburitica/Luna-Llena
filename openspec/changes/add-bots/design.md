@@ -92,7 +92,9 @@ They reuse `chip`, `seg`, `btn`, `av` and the new `.bot-tag`.
 **Infrastructure:**
 - `OpenRouterBotSpeech` uses `fetch` against `https://openrouter.ai/api/v1/chat/completions`:
   - model from `OPENROUTER_MODEL`, default `z-ai/glm-5.3-flash`;
-  - temperature 0.8, `max_tokens` 160;
+  - temperature 0.8, `max_tokens` 400;
+  - `reasoning: { max_tokens: 1, exclude: true }`. GLM 5.3 Flash always reasons and can't switch it off. Left
+    alone, the reasoning used up the whole token budget and no line came out, so the cap keeps it to a single token;
   - a 6 s `AbortController` timeout;
   - reads `choices[0].message.content` and returns `parseSpokenLine`, or null.
 - `NoBotSpeech` returns null. It's used when `OPENROUTER_API_KEY` is missing.

@@ -39,7 +39,8 @@ export class OpenRouterBotSpeech implements BotSpeech {
         body: JSON.stringify({
           model: this.model,
           temperature: 0.8,
-          max_tokens: 160,
+          max_tokens: 400,
+          reasoning: { max_tokens: 1, exclude: true },
           messages: [
             { role: 'system', content: prompt.system },
             ...prompt.examples.flatMap((example) => [
