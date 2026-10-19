@@ -56,6 +56,7 @@ export const createRoomKit = (codes: readonly string[] = ['LUNA42', 'NUBE77']) =
     publisher,
     starter,
     ids: { next: () => `id-${(idSequence += 1)}` },
+    random: { next: () => 0 },
     codes: { next: () => unwrap(RoomCode.parse(codes[codeSequence++ % codes.length])) }
   })
 

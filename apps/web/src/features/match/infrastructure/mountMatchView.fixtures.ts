@@ -20,9 +20,11 @@ import { matchRoutes } from './matchRoutes'
 
 export const PLAYER_NAMES = ['Ana', 'Juan', 'Marta', 'Luis', 'Sofi', 'Caro', 'Tato', 'Pipe']
 
-export const rosterMembers = (): MemberView[] => [
+export const rosterMembers = (bots: readonly string[] = []): MemberView[] => [
   memberView('Nico', { isNarrator: true, avatar: 'nico' }),
-  ...PLAYER_NAMES.map((name) => memberView(name, { ready: true }))
+  ...PLAYER_NAMES.map((name) =>
+    memberView(name, { ready: true, bot: bots.includes(name) ? { personality: 'chaos', difficulty: 'normal' } : null })
+  )
 ]
 
 export const matchPlayers = (overrides: Record<string, Partial<MatchPlayerView>> = {}): MatchPlayerView[] =>
@@ -36,6 +38,7 @@ interface MountOptions {
   readonly view?: MatchView
   readonly memberId?: string
   readonly voiceCallUrl?: string | null
+  readonly bots?: readonly string[]
   readonly preload?: boolean
   readonly resume?: boolean
   readonly atmosphereSettings?: AtmosphereSettings
@@ -44,7 +47,7 @@ interface MountOptions {
 
 export const mountMatchView = async (
   component: Component,
-  { path = '/room/LUNA42/game', props = {}, view = playerViewOf(), memberId = 'id-Ana', voiceCallUrl = null, preload = true, resume = false, atmosphereSettings, configure }: MountOptions = {}
+  { path = '/room/LUNA42/game', props = {}, view = playerViewOf(), memberId = 'id-Ana', voiceCallUrl = null, bots = [], preload = true, resume = false, atmosphereSettings, configure }: MountOptions = {}
 ) => {
   const rooms = new FakeRoomGateway()
   const matches = new FakeMatchGateway(view)
@@ -59,7 +62,7 @@ export const mountMatchView = async (
   for (const key of Object.getOwnPropertySymbols(provide)) host.provide(key, provide[key])
   const room = host.runWithContext(() => useRoomStore())
   const match = host.runWithContext(() => useMatchStore())
-  const session = sessionFor(memberId, snapshotOf({ status: 'in-game', voiceCallUrl, members: rosterMembers() }))
+  const session = sessionFor(memberId, snapshotOf({ status: 'in-game', voiceCallUrl, members: rosterMembers(bots) }))
   if (resume) {
     sessions.save({ code: session.code, memberId, token: session.token })
     rooms.answer('resume', ok(session))

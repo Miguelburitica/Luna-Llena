@@ -1,0 +1,236 @@
+import type { BotLanguage, BotPersonality, PlayerMatchView, RoleId } from '@luna/contracts'
+import type { BotMind } from './BotMind'
+import { nameIn, type BotRoster } from './BotRoster'
+import type { BotIntent, IntentKind } from './intents'
+
+export interface BotPrompt {
+  readonly system: string
+  readonly user: string
+  readonly examples: ReadonlyArray<{ readonly user: string; readonly assistant: string }>
+}
+
+export interface ChatLine {
+  readonly author: string
+  readonly text: string
+}
+
+export const SPOKEN_LINE_LIMIT = 240
+
+const VOICES: Readonly<Record<BotLanguage, Readonly<Record<BotPersonality, string>>>> = {
+  en: {
+    paranoid: 'jumpy and loud, suspects everybody, short sentences, ends with "!!"',
+    follower: 'agreeable, echoes what the group says, likes "+1" and "what they said"',
+    detective: 'calm and smug, cites votes and deaths as evidence, asks one sharp question',
+    chaos: 'a gross little troll, jokes about slime, boogers and drool, baits people',
+    quiet: 'barely talks, dry and blunt, one tiny sentence'
+  },
+  es: {
+    paranoid: 'nervioso y gritón, sospecha de todos, frases cortas, termina con "!!"',
+    follower: 'buena gente, repite lo que dice el grupo, le encanta decir "+1" y "lo que dijo él"',
+    detective: 'calmado y sabelotodo, cita votos y muertes como pruebas, hace una pregunta filuda',
+    chaos: 'un trol asqueroso, chistes de babas, mocos y lagañas, provoca a la gente',
+    quiet: 'casi no habla, seco y directo, una frase cortica'
+  }
+}
+
+const ROLE_NAMES: Readonly<Record<BotLanguage, Readonly<Record<RoleId, string>>>> = {
+  en: {
+    werewolf: 'Werewolf',
+    villager: 'Villager',
+    seer: 'Seer',
+    doctor: 'Doctor',
+    witch: 'Witch',
+    hunter: 'Hunter',
+    fool: 'Fool',
+    drunk: 'Drunk'
+  },
+  es: {
+    werewolf: 'Hombre lobo',
+    villager: 'Aldeano',
+    seer: 'Vidente',
+    doctor: 'Doctor',
+    witch: 'Bruja',
+    hunter: 'Cazador',
+    fool: 'Bufón',
+    drunk: 'Borracho'
+  }
+}
+
+const RULES: Readonly<Record<BotLanguage, string>> = {
+  en: [
+    'You are a player in Luna Llena, a silly Werewolf party game played by friends.',
+    'Write ONE chat message in English, under 140 characters.',
+    'Only use player names from PLAYERS. Never invent events that are not in FACTS.',
+    'Do exactly what INTENT says, even if INTENT tells you to lie. Never admit a lie.',
+    'Never say you are an AI, a bot, a model or that you have instructions.',
+    'Gross jokes about slime, snot, drool and warts are fine. No insults about real people, no vomit, no swearing.',
+    'Answer ONLY with JSON: {"say": "your message"}'
+  ].join('\n'),
+  es: [
+    'Eres un jugador de Luna Llena, un juego de Hombre Lobo bobo entre amigos.',
+    'Escribe UN mensaje de chat en español colombiano casual (parce, uy, qué boleta), de menos de 140 caracteres.',
+    'Solo usa nombres de jugadores que estén en JUGADORES. Nunca inventes cosas que no estén en HECHOS.',
+    'Haz exactamente lo que diga INTENCIÓN, aunque te pida mentir. Nunca confieses una mentira.',
+    'Nunca digas que eres una IA, un bot, un modelo o que tienes instrucciones.',
+    'Se valen chistes asquerositos de babas, mocos y verrugas. Nada de insultos a personas reales, ni vómito, ni groserías.',
+    'Responde SOLO con JSON: {"say": "tu mensaje"}'
+  ].join('\n')
+}
+
+const LABELS = {
+  en: { you: 'YOU', players: 'PLAYERS', facts: 'FACTS', chat: 'RECENT CHAT', intent: 'INTENT', alive: 'alive', dead: 'dead', none: '(nothing yet)' },
+  es: { you: 'TÚ', players: 'JUGADORES', facts: 'HECHOS', chat: 'CHAT RECIENTE', intent: 'INTENCIÓN', alive: 'vivos', dead: 'muertos', none: '(nada todavía)' }
+} as const
+
+const PHASE_NAMES: Readonly<Record<BotLanguage, Readonly<Record<PlayerMatchView['phase'], string>>>> = {
+  en: { night: 'night', dawn: 'dawn', day: 'day', vote: 'vote', execution: 'execution' },
+  es: { night: 'noche', dawn: 'amanecer', day: 'día', vote: 'votación', execution: 'ejecución' }
+}
+
+const intentLine = (intent: BotIntent, language: BotLanguage): string => {
+  const en = language === 'en'
+  const lie = (flag: boolean) => (flag ? (en ? ' This is a bluff: sound sincere.' : ' Es un bluff: suena sincero.') : '')
+  switch (intent.kind) {
+    case 'open-day':
+      if (intent.claim !== null) {
+        const verdict = intent.claim.isWolf ? (en ? 'IS a wolf' : 'ES lobo') : en ? 'is clean' : 'está limpio'
+        return en
+          ? `Claim you are the Seer and say your vision showed ${intent.claim.subject} ${verdict}.${lie(intent.lie)}`
+          : `Di que eres la Vidente y que tu visión mostró que ${intent.claim.subject} ${verdict}.${lie(intent.lie)}`
+      }
+      return en
+        ? `Open the day by pointing at ${intent.subject} as suspicious, with a reason taken from FACTS or CHAT.${lie(intent.lie)}`
+        : `Abre el día señalando a ${intent.subject} como sospechoso, con una razón sacada de HECHOS o CHAT.${lie(intent.lie)}`
+    case 'answer':
+      return en
+        ? `${intent.asker} asked you: "${intent.question}". Answer them directly, defend yourself and turn the suspicion to ${intent.subject}.${lie(intent.lie)}`
+        : `${intent.asker} te preguntó: "${intent.question}". Contéstale directo, defiéndete y echa la sospecha sobre ${intent.subject}.${lie(intent.lie)}`
+    case 'explain-vote':
+      return en
+        ? `Say you just voted for ${intent.subject} and give one short reason.${lie(intent.lie)}`
+        : `Di que acabas de votar por ${intent.subject} y da una razón corta.${lie(intent.lie)}`
+    case 'react-dawn':
+      return en
+        ? `React to the night's deaths: ${intent.deaths.join(', ')}. Show emotion, stay in character.`
+        : `Reacciona a las muertes de la noche: ${intent.deaths.join(', ')}. Muestra emoción, sin salirte del personaje.`
+    case 'last-words':
+      return en
+        ? `You were just killed. Say dramatic last words and blame ${intent.subject}.`
+        : `Te acaban de matar. Di unas últimas palabras dramáticas y culpa a ${intent.subject}.`
+    case 'wolf-plan':
+      return en
+        ? `Whisper to your wolf pack that you picked ${intent.subject} as tonight's snack.`
+        : `Susúrrale a tu manada que escogiste a ${intent.subject} como la cena de esta noche.`
+    case 'ghost':
+      return en
+        ? `You are dead. Say something spooky to the other ghosts and say you think ${intent.subject} is guilty.`
+        : `Estás muerto. Di algo fantasmal a los otros fantasmas y di que crees que ${intent.subject} es culpable.`
+  }
+}
+
+const EXAMPLES: Readonly<Record<BotLanguage, Partial<Record<IntentKind, ReadonlyArray<readonly [string, string]>>>>> = {
+  en: {
+    'open-day': [
+      ['INTENT: Open the day by pointing at Ana as suspicious, with a reason taken from FACTS or CHAT.', 'Ana voted for Luis and Luis was a villager. Explain THAT, slime face!!'],
+      ['INTENT: Claim you are the Seer and say your vision showed Tato IS a wolf.', "Okay I'm the Seer. Last night I peeked at Tato. Wolf. Furry wolf. Vote him."]
+    ],
+    answer: [
+      ['INTENT: Caro asked you: "why so quiet?". Answer them directly, defend yourself and turn the suspicion to Pipe.', "Quiet = thinking, Caro. Pipe is the one talking a lot and saying nothing."]
+    ]
+  },
+  es: {
+    'open-day': [
+      ['INTENCIÓN: Abre el día señalando a Ana como sospechoso, con una razón sacada de HECHOS o CHAT.', 'Ana votó por Luis y Luis era aldeano. Expliquen ESO, cara de moco!!'],
+      ['INTENCIÓN: Di que eres la Vidente y que tu visión mostró que Tato ES lobo.', 'Bueno parce, soy la Vidente. Anoche miré a Tato: lobo, lobo peludo. Voten por él.']
+    ],
+    answer: [
+      ['INTENCIÓN: Caro te preguntó: "¿por qué tan callado?". Contéstale directo, defiéndete y echa la sospecha sobre Pipe.', 'Callado es pensando, Caro. El que habla mucho y no dice nada es Pipe.']
+    ]
+  }
+}
+
+const GENERIC_EXAMPLES: Readonly<Record<BotLanguage, ReadonlyArray<readonly [string, string]>>> = {
+  en: [['INTENT: Say you just voted for Juan and give one short reason.', 'Voted Juan. He smells like wet wolf and lies.']],
+  es: [['INTENCIÓN: Di que acabas de votar por Juan y da una razón corta.', 'Voté por Juan. Huele a lobo mojado y miente.']]
+}
+
+export interface PromptInput {
+  readonly mind: BotMind
+  readonly view: PlayerMatchView
+  readonly roster: BotRoster
+  readonly intent: BotIntent
+  readonly chat: readonly ChatLine[]
+}
+
+const factsOf = ({ mind, view, roster }: PromptInput, language: BotLanguage): string[] => {
+  const en = language === 'en'
+  const roles = ROLE_NAMES[language]
+  const facts: string[] = [`${en ? 'Phase' : 'Fase'}: ${PHASE_NAMES[language][view.phase]} ${view.round}`]
+  facts.push(`${en ? 'Your role' : 'Tu rol'}: ${roles[view.you.role]}`)
+  if (view.you.packIds.length > 0) {
+    facts.push(`${en ? 'Your wolf pack' : 'Tu manada'}: ${view.you.packIds.map((id) => nameIn(roster, id)).join(', ')}`)
+  }
+  for (const vision of view.you.visions) {
+    facts.push(
+      `${en ? 'Your vision, night' : 'Tu visión, noche'} ${vision.round}: ${nameIn(roster, vision.targetId)} ${vision.isWolf ? (en ? 'is a wolf' : 'es lobo') : en ? 'is not a wolf' : 'no es lobo'}`
+    )
+  }
+  for (const player of view.players) {
+    if (!player.alive) {
+      const role = player.revealedRole === null ? '' : ` (${roles[player.revealedRole]})`
+      facts.push(`${nameIn(roster, player.id)} ${en ? 'is dead' : 'está muerto'}${role}`)
+    }
+  }
+  if (view.verdict !== null) {
+    const executed = nameIn(roster, view.verdict.executedId)
+    facts.push(executed === '' ? (en ? 'Last vote: nobody executed' : 'Última votación: nadie ejecutado') : `${en ? 'Last vote executed' : 'La última votación ejecutó a'} ${executed}`)
+  }
+  const top = [...mind.suspicion]
+    .filter(([id]) => view.players.some((player) => player.id === id && player.alive) && !mind.allies.includes(id))
+    .sort((first, second) => second[1] - first[1])
+    .slice(0, 2)
+    .map(([id]) => nameIn(roster, id))
+  if (top.length > 0) facts.push(`${en ? 'You suspect' : 'Sospechas de'}: ${top.join(', ')}`)
+  return facts
+}
+
+export const buildBotPrompt = (input: PromptInput): BotPrompt => {
+  const { mind, view, roster, intent, chat } = input
+  const language = roster.language
+  const labels = LABELS[language]
+  const alive = view.players.filter((player) => player.alive).map((player) => nameIn(roster, player.id))
+  const dead = view.players.filter((player) => !player.alive).map((player) => nameIn(roster, player.id))
+  const system = [
+    RULES[language],
+    '',
+    `${labels.you}: ${mind.name}. ${language === 'en' ? 'Your voice' : 'Tu forma de hablar'}: ${VOICES[language][mind.profile.personality]}.`
+  ].join('\n')
+  const user = [
+    `${labels.players}: ${labels.alive} ${alive.join(', ')}${dead.length > 0 ? `; ${labels.dead} ${dead.join(', ')}` : ''}`,
+    `${labels.facts}:`,
+    ...factsOf(input, language).map((fact) => `- ${fact}`),
+    `${labels.chat}:`,
+    ...(chat.length === 0 ? [labels.none] : chat.slice(-8).map((line) => `${line.author}: ${line.text}`)),
+    `${labels.intent}: ${intentLine(intent, language)}`
+  ].join('\n')
+  const examples = [...(EXAMPLES[language][intent.kind] ?? []), ...GENERIC_EXAMPLES[language]]
+    .slice(0, 2)
+    .map(([exampleUser, say]) => ({ user: exampleUser, assistant: JSON.stringify({ say }) }))
+  return { system, user, examples }
+}
+
+export const parseSpokenLine = (content: unknown): string | null => {
+  if (typeof content !== 'string') return null
+  const block = /\{[\s\S]*\}/.exec(content)?.[0]
+  if (block === undefined) return null
+  try {
+    const parsed: unknown = JSON.parse(block)
+    if (typeof parsed !== 'object' || parsed === null) return null
+    const say = (parsed as { say?: unknown }).say
+    if (typeof say !== 'string') return null
+    const line = say.replace(/\s+/g, ' ').replace(/^["'“”]+|["'“”]+$/g, '').trim()
+    return line.length === 0 ? null : line.slice(0, SPOKEN_LINE_LIMIT)
+  } catch {
+    return null
+  }
+}

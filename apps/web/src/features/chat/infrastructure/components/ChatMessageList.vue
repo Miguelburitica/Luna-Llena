@@ -31,6 +31,7 @@ const entries = computed(() =>
       style,
       name,
       avatar: author?.avatar ?? null,
+      bot: author !== null && author.bot !== null,
       own: style === 'msg-own',
       who: style === 'msg-own' ? null : whoOf(message, name)
     }
@@ -51,9 +52,9 @@ watch(
   <div ref="list" class="msgs chat-list" role="log" :aria-label="t('chat.sheet.messages')">
     <p v-if="entries.length === 0" class="t-small t-muted t-center chat-empty">{{ t('chat.empty') }}</p>
     <div v-for="entry in entries" :key="entry.message.id" class="msg" :class="entry.style">
-      <LunaAvatar v-if="!entry.own" :avatar="entry.avatar" :name="entry.name" size="sm" />
+      <LunaAvatar v-if="!entry.own" :avatar="entry.avatar" :name="entry.name" size="sm" :bot="entry.bot" />
       <div class="bubble" :class="{ 'chat-bubble-wide': monitor }">
-        <span v-if="entry.who" class="who">{{ entry.who }}</span>{{ entry.message.text }}
+        <span v-if="entry.who" class="who">{{ entry.who }}<span v-if="entry.bot" class="bot-tag is-inline">BOT</span></span>{{ entry.message.text }}
       </div>
     </div>
   </div>

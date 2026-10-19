@@ -12,7 +12,7 @@ import { defineStore } from 'pinia'
 import { computed, inject, ref } from 'vue'
 import { memberWithId } from '../domain/lobby'
 import { normalizeRoomCode } from '../domain/roomCode'
-import { ROOM_GATEWAY, SESSION_STORE, type RoomFailure, type StoredSession } from './ports'
+import { ROOM_GATEWAY, SESSION_STORE, type BotChoice, type RoomFailure, type StoredSession } from './ports'
 
 export type RoomEnding = 'kicked' | 'closed'
 
@@ -92,6 +92,8 @@ export const useRoomStore = defineStore('room', () => {
     setReady: (ready: boolean) => gateway.setReady(ready),
     updateSettings: (settings: RoomSettingsInput) => gateway.updateSettings(settings),
     kick: (memberId: string) => gateway.kick(memberId),
+    addBot: (choice: BotChoice) => gateway.addBot(choice),
+    removeBot: (memberId: string) => gateway.removeBot(memberId),
     setVoiceCall: (url: string | null) => gateway.setVoiceCall(url),
     start: () => gateway.start(),
     playAgain: () => gateway.playAgain(),

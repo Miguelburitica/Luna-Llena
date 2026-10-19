@@ -1,4 +1,5 @@
 import {
+  BOT_LANGUAGES,
   DEFAULT_ROOM_SETTINGS,
   err,
   HOUSE_RULE_IDS,
@@ -10,6 +11,7 @@ import {
   ROOM_LIMITS,
   TIMER_OPTIONS,
   TIMER_PHASES,
+  type BotLanguage,
   type HouseRuleId,
   type Result,
   type RoleId,
@@ -74,17 +76,23 @@ const mergeDeck = (current: Deck, input: unknown): Result<Deck, RoomError> => {
   return sizeOf(merged) <= ROOM_LIMITS.maxPlayers ? ok(merged) : invalid()
 }
 
+const mergeBotLanguage = (current: BotLanguage, input: unknown): Result<BotLanguage, RoomError> => {
+  if (input === undefined) return ok(current)
+  return includes(BOT_LANGUAGES, input) ? ok(input) : invalid()
+}
+
 export class RoomSettings {
   private constructor(
     readonly theme: ThemeId,
     readonly timers: Timers,
     readonly houseRules: HouseRules,
-    readonly deck: Deck
+    readonly deck: Deck,
+    readonly botLanguage: BotLanguage
   ) {}
 
   static defaults(): RoomSettings {
-    const { theme, timers, houseRules, deck } = DEFAULT_ROOM_SETTINGS
-    return new RoomSettings(theme, timers, houseRules, deck)
+    const { theme, timers, houseRules, deck, botLanguage } = DEFAULT_ROOM_SETTINGS
+    return new RoomSettings(theme, timers, houseRules, deck, botLanguage)
   }
 
   static fromInput(input: unknown): Result<RoomSettings, RoomError> {
@@ -101,7 +109,9 @@ export class RoomSettings {
     if (!houseRules.ok) return houseRules
     const deck = mergeDeck(this.deck, input.deck)
     if (!deck.ok) return deck
-    return ok(new RoomSettings(theme.value, timers.value, houseRules.value, deck.value))
+    const botLanguage = mergeBotLanguage(this.botLanguage, input.botLanguage)
+    if (!botLanguage.ok) return botLanguage
+    return ok(new RoomSettings(theme.value, timers.value, houseRules.value, deck.value, botLanguage.value))
   }
 
   get deckSize(): number {

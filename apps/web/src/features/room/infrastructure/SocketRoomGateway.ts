@@ -1,6 +1,6 @@
 import type { AvatarId, CreateRoomInput, RoomSettingsInput, RoomSnapshot } from '@luna/contracts'
 import { reachOrFail, type LunaSocket } from '@/shared/infrastructure/socket/lunaSocket'
-import type { RoomGateway } from '../application/ports'
+import type { BotChoice, RoomGateway } from '../application/ports'
 
 export class SocketRoomGateway implements RoomGateway {
   constructor(private readonly socket: LunaSocket) {}
@@ -35,6 +35,14 @@ export class SocketRoomGateway implements RoomGateway {
 
   kick(memberId: string) {
     return reachOrFail(() => this.socket.emitWithAck('room:kick', { memberId }))
+  }
+
+  addBot(choice: BotChoice) {
+    return reachOrFail(() => this.socket.emitWithAck('room:addBot', choice))
+  }
+
+  removeBot(memberId: string) {
+    return reachOrFail(() => this.socket.emitWithAck('room:removeBot', { memberId }))
   }
 
   setVoiceCall(url: string | null) {

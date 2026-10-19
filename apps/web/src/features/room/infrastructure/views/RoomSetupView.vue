@@ -11,6 +11,7 @@ import {
   TIMER_OPTIONS,
   TIMER_PHASES,
   TEAM_IDS,
+  type BotLanguage,
   type HouseRuleId,
   type RoleId,
   type RoomSettingsView,
@@ -52,7 +53,8 @@ const draftOf = (settings: RoomSettingsView) => ({
   theme: settings.theme as ThemeId,
   timers: { ...settings.timers } as Record<TimerPhase, number>,
   houseRules: { ...settings.houseRules } as Record<HouseRuleId, boolean>,
-  deck: { ...settings.deck } as Record<RoleId, number>
+  deck: { ...settings.deck } as Record<RoleId, number>,
+  botLanguage: settings.botLanguage as BotLanguage
 })
 
 const draft = reactive(draftOf(DEFAULT_ROOM_SETTINGS))

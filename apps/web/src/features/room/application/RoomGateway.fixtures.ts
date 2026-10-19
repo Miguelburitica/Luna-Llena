@@ -74,6 +74,14 @@ export class FakeRoomGateway implements RoomGateway {
     return this.respond<undefined>('kick', memberId, ok(undefined))
   }
 
+  addBot(choice: unknown) {
+    return this.respond<undefined>('addBot', choice, ok(undefined))
+  }
+
+  removeBot(memberId: string) {
+    return this.respond<undefined>('removeBot', memberId, ok(undefined))
+  }
+
   setVoiceCall(url: string | null) {
     return this.respond<undefined>('setVoiceCall', url, ok(undefined))
   }

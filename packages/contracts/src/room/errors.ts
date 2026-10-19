@@ -15,7 +15,9 @@ export const ROOM_ERROR_CODES = [
   'settings-invalid',
   'start-conditions-unmet',
   'game-not-over',
-  'voice-call-invalid'
+  'voice-call-invalid',
+  'bot-limit',
+  'not-a-bot'
 ] as const
 export type RoomErrorCode = (typeof ROOM_ERROR_CODES)[number]
 

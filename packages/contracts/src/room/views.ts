@@ -1,3 +1,4 @@
+import type { BotLanguage, BotProfile } from '../bots/vocabulary'
 import type { RoleId } from '../roles/catalog'
 import type { AvatarId, HouseRuleId, RoomStatus, StartCondition, ThemeId, TimerPhase } from './vocabulary'
 
@@ -6,6 +7,7 @@ export interface RoomSettingsView {
   readonly timers: Readonly<Record<TimerPhase, number>>
   readonly houseRules: Readonly<Record<HouseRuleId, boolean>>
   readonly deck: Readonly<Record<RoleId, number>>
+  readonly botLanguage: BotLanguage
 }
 
 export interface RoomSettingsInput {
@@ -13,6 +15,7 @@ export interface RoomSettingsInput {
   readonly timers?: Partial<Record<TimerPhase, number>>
   readonly houseRules?: Partial<Record<HouseRuleId, boolean>>
   readonly deck?: Partial<Record<RoleId, number>>
+  readonly botLanguage?: BotLanguage
 }
 
 export interface MemberView {
@@ -20,6 +23,7 @@ export interface MemberView {
   readonly name: string
   readonly avatar: AvatarId | null
   readonly isNarrator: boolean
+  readonly bot: BotProfile | null
   readonly ready: boolean
   readonly connected: boolean
 }

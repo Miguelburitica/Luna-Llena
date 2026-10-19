@@ -29,6 +29,8 @@ export const narratorOf = (snapshot: RoomSnapshot): MemberView | null =>
 
 export const playersOf = (snapshot: RoomSnapshot): MemberView[] => snapshot.members.filter((member) => !member.isNarrator)
 
+export const botsOf = (snapshot: RoomSnapshot): MemberView[] => snapshot.members.filter((member) => member.bot !== null)
+
 export const readyPlayerCount = (snapshot: RoomSnapshot): number => playersOf(snapshot).filter((player) => player.ready).length
 
 export const avatarChoices = (snapshot: RoomSnapshot, myId: string | undefined): AvatarChoice[] =>

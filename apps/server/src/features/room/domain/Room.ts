@@ -1,18 +1,21 @@
 import {
   AVATAR_IDS,
+  BOT_LIMITS,
+  BOT_NAMES,
   done,
   err,
   ok,
   roomError,
   ROOM_LIMITS,
   type AvatarId,
+  type BotProfile,
   type Result,
   type RoomError,
   type RoomStatus,
   type StartReadiness
 } from '@luna/contracts'
 import { alternativeNames } from './alternativeNames'
-import type { DisplayName } from './DisplayName'
+import { DisplayName } from './DisplayName'
 import { Member, type MemberIdentity } from './Member'
 import type { RoomCode } from './RoomCode'
 import type { RoomName } from './RoomName'
@@ -82,6 +85,10 @@ export class Room {
     return this.currentStatus === 'lobby' && this.players.length < ROOM_LIMITS.maxPlayers
   }
 
+  get bots(): readonly Member[] {
+    return this.seats.filter((member) => member.isBot)
+  }
+
   get avatarsInUse(): AvatarId[] {
     return this.seats.flatMap((member) => (member.avatar === null ? [] : [member.avatar]))
   }
@@ -106,6 +113,31 @@ export class Room {
     return ok(member)
   }
 
+  addBot(actorId: string, identity: Omit<MemberIdentity, 'name'>, profile: BotProfile): Result<Member, RoomError> {
+    const authority = this.requireNarratorInLobby(actorId)
+    if (!authority.ok) return authority
+    if (this.players.length >= ROOM_LIMITS.maxPlayers) return err(roomError('room-full'))
+    if (this.bots.length >= BOT_LIMITS.maxBots) return err(roomError('bot-limit'))
+    const name = BOT_NAMES.map((candidate) => DisplayName.create(candidate))
+      .flatMap((candidate) => (candidate.ok ? [candidate.value] : []))
+      .find((candidate) => !this.isNameTaken(candidate))
+    if (name === undefined) return err(roomError('bot-limit'))
+    const bot = new Member({ ...identity, name }, false, profile)
+    bot.avatar = AVATAR_IDS.find((avatar) => !this.avatarsInUse.includes(avatar)) ?? null
+    this.seats.push(bot)
+    return ok(bot)
+  }
+
+  removeBot(actorId: string, memberId: unknown): Result<Member, RoomError> {
+    const authority = this.requireNarratorInLobby(actorId)
+    if (!authority.ok) return authority
+    const target = this.players.find((player) => player.id === memberId)
+    if (target === undefined) return err(roomError('member-not-found'))
+    if (!target.isBot) return err(roomError('not-a-bot'))
+    this.removeSeat(target)
+    return ok(target)
+  }
+
   resume(token: unknown): Result<Member, RoomError> {
     const member = this.seats.find((seat) => seat.holdsToken(token))
     if (member === undefined) return err(roomError('session-invalid'))
@@ -115,7 +147,7 @@ export class Room {
 
   disconnect(memberId: string): void {
     const member = this.memberWithId(memberId)
-    if (member !== undefined) member.connected = false
+    if (member !== undefined && !member.isBot) member.connected = false
   }
 
   chooseAvatar(memberId: string, avatar: unknown): Result<void, RoomError> {
@@ -195,7 +227,7 @@ export class Room {
 
   reopen(): void {
     this.currentStatus = 'lobby'
-    for (const player of this.players) player.ready = false
+    for (const player of this.players) player.ready = player.isBot
   }
 
   private isNameTaken(name: DisplayName): boolean {

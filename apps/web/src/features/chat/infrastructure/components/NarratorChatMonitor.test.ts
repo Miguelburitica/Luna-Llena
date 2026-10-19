@@ -76,3 +76,22 @@ describe('narrator chat monitor', () => {
     expect(chats.calls.at(-1)).toEqual({ command: 'send', input: { channel: 'village', text: 'The baker saw something.' } })
   })
 })
+
+describe('bot messages', () => {
+  it('tags a message written by a bot', async () => {
+    const view = narratorViewOf({ players: matchPlayers(), chat: narratorAccess })
+    const { wrapper } = await mountMatchView(NarratorDashboard, {
+      view,
+      props: { view },
+      memberId: 'id-Nico',
+      bots: ['Pipe'],
+      configure: ({ chats }) => chats.withHistory(history)
+    })
+    await flushPromises()
+    const pipe = wrapper.findAll('.chat-list .msg').find((message) => message.text().includes('Sofi is being weird'))
+    const tato = wrapper.findAll('.chat-list .msg').find((message) => message.text().includes('too smart'))
+    expect(pipe?.find('.who .bot-tag').text()).toBe('BOT')
+    expect(pipe?.find('.av .bot-tag').exists()).toBe(true)
+    expect(tato?.find('.bot-tag').exists()).toBe(false)
+  })
+})

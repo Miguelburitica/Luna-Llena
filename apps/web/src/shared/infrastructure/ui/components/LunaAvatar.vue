@@ -9,6 +9,7 @@ const props = defineProps<{
   you?: boolean
   offline?: boolean
   ring?: string
+  bot?: boolean
 }>()
 
 const initials = computed(() =>
@@ -29,6 +30,7 @@ const initials = computed(() =>
   >
     <span v-if="avatar" class="face" :class="`f-${avatar}`" role="img" :aria-label="name" />
     <span v-else class="face is-initials" role="img" :aria-label="name">{{ initials }}</span>
+    <span v-if="bot" class="bot-tag">BOT</span>
     <slot />
   </span>
 </template>

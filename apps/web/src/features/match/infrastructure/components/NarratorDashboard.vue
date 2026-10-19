@@ -182,6 +182,7 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
               :avatar="row.avatar"
               :name="row.name"
               size="md"
+              :bot="row.bot"
               :ring="row.role === 'werewolf' ? PACK_RING : undefined"
               :class="{ 'is-dead': !row.alive }"
             />

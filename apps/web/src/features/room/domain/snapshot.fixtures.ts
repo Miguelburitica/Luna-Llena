@@ -5,6 +5,7 @@ export const memberView = (name: string, overrides: Partial<MemberView> = {}): M
   name,
   avatar: null,
   isNarrator: false,
+  bot: null,
   ready: false,
   connected: true,
   ...overrides
