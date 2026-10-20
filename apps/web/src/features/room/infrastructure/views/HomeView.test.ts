@@ -68,5 +68,12 @@ describe('HomeView', () => {
     const { wrapper } = await mountRoomView(HomeView, { stubs, tableJournal: journalWith() })
     expect(wrapper.text()).toContain('Resume table game')
   })
-})
 
+  it('offers Find a game, which opens the public games screen', async () => {
+    const { wrapper, router } = await mountRoomView(HomeView, { stubs })
+    const link = wrapper.findAll('a').find((anchor) => anchor.text() === 'Find a game')
+    expect(link?.attributes('href')).toBe('/games')
+    await link?.trigger('click')
+    await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('public-games'))
+  })
+})

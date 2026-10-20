@@ -1,4 +1,4 @@
-import type { AvatarId, CreateRoomInput, RoomSettingsInput, RoomSnapshot } from '@luna/contracts'
+import type { AvatarId, CreateRoomInput, RoomSettingsInput, RoomSnapshot, SeatTakeover } from '@luna/contracts'
 import { reachOrFail, type LunaSocket } from '@/shared/infrastructure/socket/lunaSocket'
 import type { BotChoice, RoomGateway } from '../application/ports'
 
@@ -37,6 +37,10 @@ export class SocketRoomGateway implements RoomGateway {
     return reachOrFail(() => this.socket.emitWithAck('room:kick', { memberId }))
   }
 
+  mute(memberId: string, muted: boolean) {
+    return reachOrFail(() => this.socket.emitWithAck('room:mute', { memberId, muted }))
+  }
+
   addBot(choice: BotChoice) {
     return reachOrFail(() => this.socket.emitWithAck('room:addBot', choice))
   }
@@ -71,6 +75,10 @@ export class SocketRoomGateway implements RoomGateway {
 
   onClosed(listener: () => void): void {
     this.socket.on('room:closed', listener)
+  }
+
+  onSeatTakenOver(listener: (takeover: SeatTakeover) => void): void {
+    this.socket.on('room:seatTakenOver', listener)
   }
 
   onReconnected(listener: () => void): void {

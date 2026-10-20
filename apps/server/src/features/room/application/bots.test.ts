@@ -24,6 +24,14 @@ describe('AddBot', () => {
     expect(publisher.latest?.startReadiness.playerCount).toBe(6)
   })
 
+  it('spreads surprise personalities across the table', async () => {
+    const { useCases, publisher, narrator } = await lobbyWithPlayers(['Ana'], 0.1)
+    unwrap(await useCases.addBot.execute(narrator, {}))
+    unwrap(await useCases.addBot.execute(narrator, {}))
+    const bots = publisher.latest?.members.filter((member) => member.bot !== null) ?? []
+    expect(bots.map((bot) => bot.bot?.personality)).toEqual(['paranoid', 'follower'])
+  })
+
   it('keeps the picked personality and difficulty', async () => {
     const { useCases, publisher, narrator } = await lobbyWithPlayers(['Ana'])
     unwrap(await useCases.addBot.execute(narrator, { personality: 'detective', difficulty: 'sharp' }))

@@ -9,13 +9,15 @@ const toMemberView = (member: Member): MemberView => ({
   isNarrator: member.isNarrator,
   bot: member.bot,
   ready: member.ready,
-  connected: member.connected
+  connected: member.connected,
+  muted: member.muted
 })
 
 export const toRoomSnapshot = (room: Room): RoomSnapshot => ({
   code: room.code.value,
   name: room.name.value,
   status: room.status,
+  visibility: room.visibility,
   settings: {
     theme: room.settings.theme,
     timers: room.settings.timers,

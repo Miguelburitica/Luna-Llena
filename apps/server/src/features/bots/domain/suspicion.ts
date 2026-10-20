@@ -58,6 +58,18 @@ const applyVerdict = (mind: BotMind, view: PlayerMatchView): void => {
   for (const voter of voters) mind.nudge(voter, delta)
 }
 
+const applyAttack = (mind: BotMind, view: PlayerMatchView): void => {
+  const night = view.you.night
+  if (view.phase === 'night' && night?.action === 'hunt' && night.packVictimId !== null) {
+    mind.attack = { round: view.round, targetId: night.packVictimId }
+  }
+  const attack = mind.attack
+  if (attack === null || view.dawn === null || view.dawn.round !== attack.round) return
+  mind.attack = null
+  const target = view.players.find((player) => player.id === attack.targetId)
+  if (target?.alive === true) mind.survivors.set(attack.targetId, attack.round)
+}
+
 export const observeView = (mind: BotMind, view: PlayerMatchView, random: RandomNumbers): void => {
   const isNewDay = view.phase === 'day' && mind.view?.phase !== 'day'
   mind.view = view
@@ -65,6 +77,7 @@ export const observeView = (mind: BotMind, view: PlayerMatchView, random: Random
   seedScores(mind, view, random)
   applyVerdict(mind, view)
   applyKnowledge(mind, view)
+  applyAttack(mind, view)
 }
 
 const lower = (text: string): string => text.toLocaleLowerCase()
@@ -79,6 +92,14 @@ export const mentionsName = (text: string, name: string): boolean => {
 export const mentionedIds = (text: string, roster: BotRoster, exceptId: string): string[] =>
   [...roster.names].filter(([id, name]) => id !== exceptId && mentionsName(text, name)).map(([id]) => id)
 
+export const accuses = (text: string): boolean => {
+  const normalized = lower(text)
+  return !DEFENSE.test(normalized) && ACCUSATION.test(normalized)
+}
+
+const targetsPack = (mind: BotMind, targetId: string): boolean =>
+  mind.isWolf && (targetId === mind.memberId || mind.allies.includes(targetId))
+
 export const observeChat = (mind: BotMind, message: ChatMessage, roster: BotRoster): void => {
   if (message.channel !== 'village' || message.authorId === mind.memberId) return
   const text = lower(message.text)
@@ -91,6 +112,7 @@ export const observeChat = (mind: BotMind, message: ChatMessage, roster: BotRost
     else if (ACCUSATION.test(text)) {
       mind.nudge(targetId, ACCUSATION_WEIGHT * weight)
       mind.accusedToday.set(targetId, (mind.accusedToday.get(targetId) ?? 0) + 1)
+      if (targetsPack(mind, targetId)) mind.threats.set(message.authorId, (mind.threats.get(message.authorId) ?? 0) + 1)
     }
   }
 }

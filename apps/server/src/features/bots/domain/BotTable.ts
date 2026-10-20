@@ -3,6 +3,8 @@ import { BotMind } from './BotMind'
 import { nameIn, type BotRoster } from './BotRoster'
 import type { ChatLine } from './botPrompt'
 import { ChatBudget } from './ChatBudget'
+import { ChatFloor } from './ChatFloor'
+import { SpeechAllowance } from './SpeechAllowance'
 
 const CHAT_MEMORY = 8
 
@@ -11,7 +13,8 @@ export class BotTable {
   readonly usedScripts = new Set<string>()
   private readonly chats = new Map<ChatChannel, ChatLine[]>()
   budget = new ChatBudget()
-  speechCalls = 0
+  floor = new ChatFloor()
+  readonly allowance = new SpeechAllowance()
   private readonly heardIds = new Set<string>()
 
   constructor(public roster: BotRoster) {
@@ -36,7 +39,8 @@ export class BotTable {
     this.usedScripts.clear()
     this.heardIds.clear()
     this.budget = new ChatBudget()
-    this.speechCalls = 0
+    this.floor = new ChatFloor()
+    this.allowance.newGame()
     this.sync(this.roster)
   }
 

@@ -8,6 +8,7 @@ export const memberView = (name: string, overrides: Partial<MemberView> = {}): M
   bot: null,
   ready: false,
   connected: true,
+  muted: false,
   ...overrides
 })
 
@@ -15,6 +16,7 @@ export const snapshotOf = (overrides: Partial<RoomSnapshot> = {}): RoomSnapshot 
   code: 'LUNA42',
   name: 'Los Primos · Viernes',
   status: 'lobby',
+  visibility: 'private',
   voiceCallUrl: null,
   settings: DEFAULT_ROOM_SETTINGS,
   members: [memberView('Nico', { isNarrator: true }), memberView('Ana'), memberView('Caro')],

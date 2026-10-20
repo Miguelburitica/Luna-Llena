@@ -13,9 +13,14 @@ export const createSocketKit = () => {
     return running
   }
 
-  const newClient = async (): Promise<Client> => {
+  const newClient = async (options: { readonly device?: string; readonly cookie?: string } = {}): Promise<Client> => {
     if (running === undefined) throw new Error('Start the server first')
-    const client: Client = connect(`http://localhost:${running.port}`, { transports: ['websocket'], forceNew: true })
+    const client: Client = connect(`http://localhost:${running.port}`, {
+      transports: ['websocket'],
+      forceNew: true,
+      ...(options.device === undefined ? {} : { auth: { device: options.device } }),
+      ...(options.cookie === undefined ? {} : { extraHeaders: { cookie: options.cookie } })
+    })
     clients.push(client)
     await new Promise<void>((resolve) => client.on('connect', () => resolve()))
     return client
@@ -27,5 +32,10 @@ export const createSocketKit = () => {
     running = undefined
   }
 
-  return { start, newClient, stop }
+  const server = (): RunningServer => {
+    if (running === undefined) throw new Error('Start the server first')
+    return running
+  }
+
+  return { start, newClient, stop, server }
 }

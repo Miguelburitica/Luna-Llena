@@ -5,16 +5,18 @@ export const BOT_CHAT_LIMITS = {
   wolfLinesPerNight: 2,
   ghostLines: 1,
   recentWindow: 10,
-  botLinesInWindow: 4
+  botLinesInWindow: 6
 } as const
 
 export class ChatBudget {
   private readonly spent = new Map<string, number>()
-  private readonly recent: boolean[] = []
+  private recent: boolean[] = []
+  private windowRound = 0
   private readonly seen = new Set<string>()
 
   allows(botId: string, channel: ChatChannel, round: number, answering = false): boolean {
     if (channel === 'village') {
+      this.rollTo(round)
       const botLines = this.recent.filter(Boolean).length
       const withinShare = answering || botLines < BOT_CHAT_LIMITS.botLinesInWindow
       return this.count(botId, channel, round) < BOT_CHAT_LIMITS.villageLinesPerDay && withinShare
@@ -26,7 +28,10 @@ export class ChatBudget {
   reserve(botId: string, channel: ChatChannel, round: number): void {
     const key = this.keyOf(botId, channel, channel === 'ghosts' ? 0 : round)
     this.spent.set(key, (this.spent.get(key) ?? 0) + 1)
-    if (channel === 'village') this.remember(true)
+    if (channel === 'village') {
+      this.rollTo(round)
+      this.remember(true)
+    }
   }
 
   heard(messageId: string, channel: ChatChannel, byBot: boolean): void {
@@ -37,6 +42,12 @@ export class ChatBudget {
 
   villageLinesOf(botId: string, round: number): number {
     return this.count(botId, 'village', round)
+  }
+
+  private rollTo(round: number): void {
+    if (round === this.windowRound) return
+    this.windowRound = round
+    this.recent = []
   }
 
   private remember(byBot: boolean): void {

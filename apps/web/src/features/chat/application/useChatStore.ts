@@ -32,6 +32,7 @@ export const useChatStore = defineStore('chat', () => {
   const failure = ref<ChatFailure | null>(null)
   const reloadOnResume = ref(false)
   const loadedChannels = ref<readonly ChatChannel[]>([])
+  const removedIds = ref<ReadonlySet<string>>(new Set())
 
   const access = computed(() => match.view?.chat ?? null)
   const myId = computed(() => room.session?.memberId)
@@ -89,9 +90,13 @@ export const useChatStore = defineStore('chat', () => {
     failure.value = null
     reloadOnResume.value = false
     loadedChannels.value = []
+    removedIds.value = new Set()
   }
 
   gateway.onMessage(receive)
+  gateway.onRemoved((messageId) => {
+    removedIds.value = new Set([...removedIds.value, messageId])
+  })
   gateway.onReconnected(() => {
     reloadOnResume.value = true
   })
@@ -128,6 +133,7 @@ export const useChatStore = defineStore('chat', () => {
     unread,
     open,
     failure,
+    removedIds,
     loadHistory,
     reset,
     send,

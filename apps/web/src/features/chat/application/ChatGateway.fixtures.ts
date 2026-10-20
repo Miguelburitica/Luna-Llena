@@ -30,6 +30,15 @@ export class FakeChatGateway implements ChatGateway {
   sendResult: Result<ChatMessage, ChatFailure> | null = null
   private readonly messageListeners: Array<(message: ChatMessage) => void> = []
   private readonly reconnectedListeners: Array<() => void> = []
+  private readonly removedListeners: Array<(messageId: string) => void> = []
+
+  onRemoved(listener: (messageId: string) => void) {
+    this.removedListeners.push(listener)
+  }
+
+  pushRemoved(messageId: string) {
+    for (const listener of this.removedListeners) listener(messageId)
+  }
 
   history() {
     this.calls.push({ command: 'history', input: undefined })

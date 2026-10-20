@@ -1,4 +1,4 @@
-import type { RoomSnapshot } from '@luna/contracts'
+import type { RoomSnapshot, SeatTakeover } from '@luna/contracts'
 import type { LunaServer } from '../../../shared/infrastructure/socketTypes'
 import type { RoomPublisher } from '../application/ports'
 import { memberChannel, roomChannel } from '../../../shared/infrastructure/socketChannels'
@@ -13,6 +13,10 @@ export class SocketRoomPublisher implements RoomPublisher {
   notifyKicked(code: string, memberId: string): void {
     this.io.to(memberChannel(memberId)).emit('room:kicked')
     this.io.in(memberChannel(memberId)).socketsLeave([roomChannel(code), memberChannel(memberId)])
+  }
+
+  notifySeatTakenOver(code: string, takeover: SeatTakeover): void {
+    this.io.to(roomChannel(code)).emit('room:seatTakenOver', takeover)
   }
 
   notifyClosed(code: string): void {

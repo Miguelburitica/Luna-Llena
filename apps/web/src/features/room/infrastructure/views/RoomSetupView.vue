@@ -4,6 +4,7 @@ import {
   HOUSE_RULE_IDS,
   PLAYABLE_THEME_IDS,
   ROOM_LIMITS,
+  ROOM_VISIBILITIES,
   THEME_IDS,
   TIMER_OPTIONS,
   TIMER_PHASES,
@@ -11,6 +12,7 @@ import {
   type HouseRuleId,
   type RoleId,
   type RoomSettingsView,
+  type RoomVisibility,
   type ThemeId,
   type TimerPhase
 } from '@luna/contracts'
@@ -42,6 +44,10 @@ const entry = editing ? useRoomEntry(code) : null
 const roomName = ref('')
 const voiceCallUrl = ref('')
 const narratorName = ref('')
+const visibility = ref<RoomVisibility>('private')
+const visibilityOptions = computed(() =>
+  ROOM_VISIBILITIES.map((value) => ({ value, label: t(`room.setup.visibilities.${value}`) }))
+)
 const draftOf = (settings: RoomSettingsView) => ({
   theme: settings.theme as ThemeId,
   timers: { ...settings.timers } as Record<TimerPhase, number>,
@@ -108,7 +114,8 @@ const submit = async () => {
       roomName: roomName.value,
       narratorName: narratorName.value,
       settings: settingsInput(),
-      voiceCallUrl: voiceCallUrl.value.trim() || undefined
+      voiceCallUrl: voiceCallUrl.value.trim() || undefined,
+      visibility: visibility.value
     })
   )
   if (result.ok) await router.push({ name: 'lobby', params: { code: result.value.code } })
@@ -162,6 +169,11 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
                 :placeholder="t('voiceCall.placeholder')"
               >
             </label>
+            <div class="field setup-visibility">
+              <span class="label">{{ t('room.setup.visibility') }}</span>
+              <LunaSegmented v-model="visibility" :options="visibilityOptions" :label="t('room.setup.visibility')" />
+              <span class="t-small t-muted">{{ t(`room.setup.visibilityHints.${visibility}`) }}</span>
+            </div>
           </section>
 
           <section class="panel">

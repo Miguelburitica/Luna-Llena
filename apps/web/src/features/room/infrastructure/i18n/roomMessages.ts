@@ -4,6 +4,7 @@ const en = {
     tagline: 'Someone in the village is a wolf. Probably your cousin.',
     create: 'Create a room',
     join: 'Join with code',
+    findGame: 'Find a game',
     returnToSeat: 'Return to your seat',
     seatRoom: 'Room {code}',
     inPerson: 'Play in person',
@@ -48,6 +49,8 @@ const en = {
     leave: 'Leave the room'
   },
   narratorLobby: {
+    publicBadge: 'Public',
+    privateBadge: 'Private',
     lobby: 'Lobby',
     editSettings: 'Edit settings',
     closeRoom: 'Close room',
@@ -78,6 +81,29 @@ const en = {
     start: 'Start game',
     startHint: 'Enabled when the deck matches and everyone is ready'
   },
+  publicGames: {
+    eyebrow: 'Public games',
+    title: 'Find a game',
+    intro: 'Villages looking for more players. Tap one to join.',
+    waitingOnly: 'Waiting to start',
+    freeSeatsOnly: 'Free seats',
+    narratedBy: 'Narrated by {name}',
+    players: '{count} of {capacity}',
+    bots: 'No bots | 1 bot | {count} bots',
+    cards: '{count} cards',
+    status: { waiting: 'Waiting', 'in-progress': 'In progress', full: 'Full' },
+    emptyTitle: 'No open games right now',
+    emptyHint: 'Be the first: host a village and it shows up here.',
+    createRoom: 'Create a room',
+    hostOwn: 'Host your own',
+    report: 'Report {name}',
+    reportTitle: 'Report “{name}”?',
+    reportHint: 'Reports from three different networks hide a room from this list.',
+    reportConfirm: 'Report room',
+    reported: 'Reported',
+    loading: 'Looking for villages…'
+  },
+  takeover: '{formerName} was kicked. {botName} (bot) takes the seat.',
   setup: {
     newRoom: 'New room',
     step: 'Narrator · step 1 of 2',
@@ -91,6 +117,9 @@ const en = {
     comingSoon: 'Coming soon',
     timers: 'Timers',
     timersHint: 'Off = you advance manually',
+    visibility: 'Who can find this room?',
+    visibilities: { private: 'Private', public: 'Public' },
+    visibilityHints: { private: 'Only people with the code', public: 'Listed in Find a game' },
     phases: { night: 'Night', day: 'Day discussion', vote: 'Vote' },
     off: 'Off',
     seconds: '{value}s',
@@ -184,6 +213,12 @@ const en = {
     'game-not-over': 'The game is still going. Play again once it ends.',
     'bot-limit': 'That’s the most bots a village can hold.',
     'not-a-bot': 'Only bots can be removed that way.',
+    'public-room-limit': 'You already host 2 public rooms. Close one first.',
+    'room-not-public': 'Only public rooms can be reported.',
+    kicked: 'The narrator removed you from this village.',
+    'name-blocked': 'That name is not allowed here. Pick another one.',
+    'room-name-blocked': 'That room name is not allowed in public games.',
+    banned: 'You can’t join games until {until}.',
     unreachable: 'We can’t reach the village. Check your connection.'
   }
 }
@@ -194,6 +229,7 @@ const es: typeof en = {
     tagline: 'Alguien en la aldea es un lobo. Seguro es tu primo.',
     create: 'Crear una sala',
     join: 'Unirse con código',
+    findGame: 'Buscar partida',
     returnToSeat: 'Volver a tu puesto',
     seatRoom: 'Sala {code}',
     inPerson: 'Jugar en persona',
@@ -238,6 +274,8 @@ const es: typeof en = {
     leave: 'Salir de la sala'
   },
   narratorLobby: {
+    publicBadge: 'Pública',
+    privateBadge: 'Privada',
     lobby: 'Sala de espera',
     editSettings: 'Editar ajustes',
     closeRoom: 'Cerrar sala',
@@ -268,6 +306,29 @@ const es: typeof en = {
     start: 'Empezar juego',
     startHint: 'Se activa cuando el mazo cuadra y todos están listos'
   },
+  publicGames: {
+    eyebrow: 'Partidas públicas',
+    title: 'Buscar partida',
+    intro: 'Aldeas que buscan más jugadores. Toca una para unirte.',
+    waitingOnly: 'Por empezar',
+    freeSeatsOnly: 'Con puestos libres',
+    narratedBy: 'Narra {name}',
+    players: '{count} de {capacity}',
+    bots: 'Sin bots | 1 bot | {count} bots',
+    cards: '{count} cartas',
+    status: { waiting: 'Esperando', 'in-progress': 'En juego', full: 'Llena' },
+    emptyTitle: 'No hay partidas abiertas ahora',
+    emptyHint: 'Sé el primero: crea una aldea y aparecerá aquí.',
+    createRoom: 'Crear una sala',
+    hostOwn: 'Crear la tuya',
+    report: 'Reportar {name}',
+    reportTitle: '¿Reportar “{name}”?',
+    reportHint: 'Con reportes desde tres redes distintas la sala desaparece de esta lista.',
+    reportConfirm: 'Reportar sala',
+    reported: 'Reportada',
+    loading: 'Buscando aldeas…'
+  },
+  takeover: '{formerName} fue expulsado. {botName} (bot) toma su puesto.',
   setup: {
     newRoom: 'Sala nueva',
     step: 'Narrador · paso 1 de 2',
@@ -281,6 +342,9 @@ const es: typeof en = {
     comingSoon: 'Muy pronto',
     timers: 'Tiempos',
     timersHint: 'Apagado = tú avanzas a mano',
+    visibility: '¿Quién puede encontrar esta sala?',
+    visibilities: { private: 'Privada', public: 'Pública' },
+    visibilityHints: { private: 'Solo quien tenga el código', public: 'Aparece en Buscar partida' },
     phases: { night: 'Noche', day: 'Debate de día', vote: 'Votación' },
     off: 'No',
     seconds: '{value}s',
@@ -374,6 +438,12 @@ const es: typeof en = {
     'game-not-over': 'El juego sigue en marcha. Vuelvan a jugar cuando termine.',
     'bot-limit': 'Esa es la mayor cantidad de bots que cabe en una aldea.',
     'not-a-bot': 'Así solo se pueden quitar bots.',
+    'public-room-limit': 'Ya tienes 2 salas públicas. Cierra una primero.',
+    'room-not-public': 'Solo se pueden reportar salas públicas.',
+    kicked: 'El narrador te sacó de esta aldea.',
+    'name-blocked': 'Ese nombre no está permitido aquí. Elige otro.',
+    'room-name-blocked': 'Ese nombre de sala no está permitido en partidas públicas.',
+    banned: 'No puedes unirte a partidas hasta las {until}.',
     unreachable: 'No logramos llegar a la aldea. Revisa tu conexión.'
   }
 }

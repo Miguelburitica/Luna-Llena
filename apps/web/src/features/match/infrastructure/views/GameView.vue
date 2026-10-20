@@ -17,6 +17,7 @@ import NarratorDashboard from '../components/NarratorDashboard.vue'
 import PlayerTable from '../components/PlayerTable.vue'
 import RoleRevealOverlay from '../components/RoleRevealOverlay.vue'
 import WhisperToast from '../components/WhisperToast.vue'
+import SeatTakeoverToast from '@/features/room/infrastructure/components/SeatTakeoverToast.vue'
 import { packMembersOf } from '../../domain/seating'
 import GameOverView from './GameOverView.vue'
 
@@ -70,8 +71,12 @@ watch(reopened, (isReopened) => isReopened && backToLobby())
 
 <template>
   <div class="game-root" :class="{ 'a-shake': atmosphere.shaking }">
-    <LunaNotice v-if="room.ending" icon="home" :title="t('match.lost.closedTitle')">
-      {{ t('match.lost.closedBody') }}
+    <LunaNotice
+      v-if="room.ending"
+      :icon="room.ending === 'kicked' ? 'user-x' : 'home'"
+      :title="room.ending === 'kicked' ? t('match.lost.kickedTitle') : t('match.lost.closedTitle')"
+    >
+      {{ room.ending === 'kicked' ? t('match.lost.kickedBody') : t('match.lost.closedBody') }}
       <template #actions>
         <RouterLink :to="{ name: 'home' }" class="btn btn-secondary btn-block">{{ t('common.backHome') }}</RouterLink>
       </template>
@@ -108,6 +113,7 @@ watch(reopened, (isReopened) => isReopened && backToLobby())
   <template v-if="view && !view.outcome">
     <FlickerOverlay />
     <WhisperToast />
+    <SeatTakeoverToast />
     <ScreenEffects />
   </template>
 </template>

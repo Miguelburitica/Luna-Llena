@@ -10,7 +10,7 @@ describe('CreateRoom', () => {
     expect(session.code).toBe('LUNA42')
     expect(session.token).toMatch(/^id-/)
     expect(session.snapshot.members).toEqual([
-      { id: session.memberId, name: 'Nico', avatar: null, isNarrator: true, bot: null, ready: false, connected: true }
+      { id: session.memberId, name: 'Nico', avatar: null, isNarrator: true, bot: null, ready: false, connected: true, muted: false }
     ])
     expect(session.snapshot.settings.timers).toEqual({ night: 60, day: 180, vote: 60 })
   })

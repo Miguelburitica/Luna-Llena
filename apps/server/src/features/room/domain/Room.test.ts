@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { FRIENDS, identityOf, openRoom, readyRoomOf, roomWith, settingsWithDeckOf, unwrap } from './Room.fixtures'
+import { surprisePersonalityOf, surpriseWeightsOf } from './botPersonality'
+import { FRIENDS, identityOf, openRoom, readyRoomOf, roomWith, SEAT_BOT, settingsWithDeckOf, unwrap } from './Room.fixtures'
 
 describe('Room opening', () => {
   it('makes the creator the only member and the narrator', () => {
@@ -72,7 +73,7 @@ describe('Resuming', () => {
 
   it('rejects the token of a kicked player', () => {
     const room = roomWith(['Tato'])
-    unwrap(room.kick('id-Nico', 'id-Tato'))
+    unwrap(room.kick('id-Nico', 'id-Tato', SEAT_BOT))
     expect(room.resume('token-Tato')).toEqual({ ok: false, error: { code: 'session-invalid' } })
   })
 })
@@ -149,14 +150,14 @@ describe('Leaving and kicking', () => {
 
   it('lets the narrator kick a player', () => {
     const room = roomWith(['Tato'])
-    expect(unwrap(room.kick('id-Nico', 'id-Tato')).name.value).toBe('Tato')
+    expect(unwrap(room.kick('id-Nico', 'id-Tato', SEAT_BOT)).member.name.value).toBe('Tato')
     expect(room.players).toEqual([])
   })
 
   it('rejects kicks from players and kicks of the narrator', () => {
     const room = roomWith(['Ana', 'Tato'])
-    expect(room.kick('id-Ana', 'id-Tato')).toEqual({ ok: false, error: { code: 'not-narrator' } })
-    expect(room.kick('id-Nico', 'id-Nico')).toEqual({ ok: false, error: { code: 'member-not-found' } })
+    expect(room.kick('id-Ana', 'id-Tato', SEAT_BOT)).toEqual({ ok: false, error: { code: 'not-narrator' } })
+    expect(room.kick('id-Nico', 'id-Nico', SEAT_BOT)).toEqual({ ok: false, error: { code: 'member-not-found' } })
   })
 })
 
@@ -311,5 +312,21 @@ describe('Reopening after a game', () => {
     unwrap(room.start('id-Nico'))
     expect(room.permitReplay('id-Ana')).toEqual({ ok: false, error: { code: 'not-narrator' } })
     expect(room.permitReplay('ghost')).toEqual({ ok: false, error: { code: 'session-invalid' } })
+  })
+})
+
+describe('Surprise me', () => {
+  it('makes every other personality four times as likely as one already at the table', () => {
+    const weights = new Map(surpriseWeightsOf(['paranoid']))
+    for (const personality of ['follower', 'detective', 'chaos'] as const) {
+      expect((weights.get(personality) ?? 0) / (weights.get('paranoid') ?? 1)).toBe(4)
+    }
+    expect(weights.get('quiet')).toBe(0.6)
+  })
+
+  it('walks the weights with the roll', () => {
+    expect(surprisePersonalityOf([], 0)).toBe('paranoid')
+    expect(surprisePersonalityOf(['paranoid'], 0.1)).toBe('follower')
+    expect(surprisePersonalityOf([], 0.999)).toBe('quiet')
   })
 })

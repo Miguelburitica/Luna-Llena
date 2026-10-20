@@ -1,6 +1,6 @@
-import { err, ok, type Result, type RoomSession, type RoomSnapshot, type RoomSummary } from '@luna/contracts'
+import { err, ok, type PublicRoomCard, type Result, type RoomSession, type RoomSnapshot, type RoomSummary, type SeatTakeover } from '@luna/contracts'
 import { snapshotOf } from '../domain/snapshot.fixtures'
-import type { RoomFailure, RoomGateway, SessionStore, StoredSession } from './ports'
+import type { PublicGamesGateway, RoomFailure, RoomGateway, SessionStore, StoredSession } from './ports'
 
 type Listener<T extends unknown[] = []> = (...args: T) => void
 
@@ -31,6 +31,7 @@ export class FakeRoomGateway implements RoomGateway {
   private readonly kickedListeners: Listener[] = []
   private readonly closedListeners: Listener[] = []
   private readonly reconnectedListeners: Listener[] = []
+  private readonly takeoverListeners: Array<Listener<[SeatTakeover]>> = []
 
   answer(command: string, result: Result<unknown, RoomFailure>): this {
     this.responses[command] = result
@@ -78,6 +79,10 @@ export class FakeRoomGateway implements RoomGateway {
     return this.respond<undefined>('addBot', choice, ok(undefined))
   }
 
+  mute(memberId: string, muted: boolean) {
+    return this.respond<undefined>('mute', { memberId, muted }, ok(undefined))
+  }
+
   removeBot(memberId: string) {
     return this.respond<undefined>('removeBot', memberId, ok(undefined))
   }
@@ -110,6 +115,14 @@ export class FakeRoomGateway implements RoomGateway {
     this.closedListeners.push(listener)
   }
 
+  onSeatTakenOver(listener: Listener<[SeatTakeover]>) {
+    this.takeoverListeners.push(listener)
+  }
+
+  pushSeatTakenOver(takeover: SeatTakeover) {
+    for (const listener of this.takeoverListeners) listener(takeover)
+  }
+
   onReconnected(listener: Listener) {
     this.reconnectedListeners.push(listener)
   }
@@ -132,6 +145,59 @@ export class FakeRoomGateway implements RoomGateway {
 
   commands(): string[] {
     return this.calls.map((call) => call.command)
+  }
+}
+
+export const publicCardOf = (overrides: Partial<PublicRoomCard> = {}): PublicRoomCard => ({
+  code: 'LUNA42',
+  name: 'Lobos de medianoche',
+  narratorName: 'Nico',
+  playerCount: 5,
+  capacity: 15,
+  botCount: 2,
+  deckSize: 8,
+  status: 'waiting',
+  joinable: true,
+  ...overrides
+})
+
+export class FakePublicGamesGateway implements PublicGamesGateway {
+  readonly calls: string[] = []
+  rooms: readonly PublicRoomCard[] = [publicCardOf()]
+  reportResult: Result<void, RoomFailure> = ok(undefined)
+  private readonly listeners: Array<Listener<[readonly PublicRoomCard[]]>> = []
+
+  watch() {
+    this.calls.push('watch')
+    return Promise.resolve(ok(this.rooms) as Result<readonly PublicRoomCard[], RoomFailure>)
+  }
+
+  unwatch() {
+    this.calls.push('unwatch')
+    return Promise.resolve(ok(undefined) as Result<void, RoomFailure>)
+  }
+
+  report(code: string) {
+    this.calls.push(`report:${code}`)
+    return Promise.resolve(this.reportResult)
+  }
+
+  onRooms(listener: Listener<[readonly PublicRoomCard[]]>) {
+    this.listeners.push(listener)
+  }
+
+  private readonly reconnectListeners: Listener[] = []
+
+  onReconnected(listener: Listener) {
+    this.reconnectListeners.push(listener)
+  }
+
+  pushReconnected() {
+    for (const listener of this.reconnectListeners) listener()
+  }
+
+  pushRooms(rooms: readonly PublicRoomCard[]) {
+    for (const listener of this.listeners) listener(rooms)
   }
 }
 

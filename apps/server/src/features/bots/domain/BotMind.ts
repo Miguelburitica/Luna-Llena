@@ -8,6 +8,9 @@ export class BotMind {
   readonly suspicion = new Map<string, number>()
   readonly accusedToday = new Map<string, number>()
   readonly claims = new Map<string, RoleId>()
+  readonly threats = new Map<string, number>()
+  readonly survivors = new Map<string, number>()
+  attack: { readonly round: number; readonly targetId: string } | null = null
   readonly done = new Set<string>()
   view: PlayerMatchView | null = null
   phaseKey = ''

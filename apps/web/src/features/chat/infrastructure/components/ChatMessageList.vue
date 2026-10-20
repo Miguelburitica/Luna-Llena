@@ -5,11 +5,13 @@ import { useI18n } from 'vue-i18n'
 import { memberWithId } from '@/features/room/domain/lobby'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
 import LunaAvatar from '@/shared/infrastructure/ui/components/LunaAvatar.vue'
+import { useChatStore } from '../../application/useChatStore'
 import { messageStyle } from '../../domain/messageStyle'
 
 const props = defineProps<{ messages: readonly ChatMessage[]; monitor?: boolean }>()
 const { t } = useI18n()
 const room = useRoomStore()
+const chat = useChatStore()
 const list = ref<HTMLElement | null>(null)
 
 const whoOf = (message: ChatMessage, name: string): string => {
@@ -33,6 +35,7 @@ const entries = computed(() =>
       avatar: author?.avatar ?? null,
       bot: author !== null && author.bot !== null,
       own: style === 'msg-own',
+      removed: chat.removedIds.has(message.id),
       who: style === 'msg-own' ? null : whoOf(message, name)
     }
   })
@@ -54,7 +57,7 @@ watch(
     <div v-for="entry in entries" :key="entry.message.id" class="msg" :class="entry.style">
       <LunaAvatar v-if="!entry.own" :avatar="entry.avatar" :name="entry.name" size="sm" :bot="entry.bot" />
       <div class="bubble" :class="{ 'chat-bubble-wide': monitor }">
-        <span v-if="entry.who" class="who">{{ entry.who }}<span v-if="entry.bot" class="bot-tag is-inline">BOT</span></span>{{ entry.message.text }}
+        <span v-if="entry.who" class="who">{{ entry.who }}<span v-if="entry.bot" class="bot-tag is-inline">BOT</span></span><span v-if="entry.removed" class="t-muted chat-removed">{{ t('chat.removed') }}</span><template v-else>{{ entry.message.text }}</template>
       </div>
     </div>
   </div>
@@ -64,6 +67,10 @@ watch(
 .chat-list {
   min-height: 0;
   overflow-y: auto;
+}
+
+.chat-removed {
+  font-style: italic;
 }
 
 .chat-empty {

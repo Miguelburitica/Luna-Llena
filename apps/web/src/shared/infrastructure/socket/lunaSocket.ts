@@ -1,6 +1,7 @@
 import type { ClientToServerEvents, Result, ServerToClientEvents } from '@luna/contracts'
 import { err } from '@luna/contracts'
 import { io, type Socket } from 'socket.io-client'
+import { deviceIdOfThisBrowser } from './deviceId'
 
 export type LunaSocket = Socket<ServerToClientEvents, ClientToServerEvents>
 
@@ -10,8 +11,10 @@ export interface Unreachable {
 
 export const REQUEST_TIMEOUT_MS = 8000
 
-export const createLunaSocket = (url?: string): LunaSocket =>
-  url === undefined ? io({ autoConnect: false }) : io(url, { autoConnect: false })
+export const createLunaSocket = (url?: string): LunaSocket => {
+  const options = { autoConnect: false, withCredentials: true, auth: { device: deviceIdOfThisBrowser() } }
+  return url === undefined ? io(options) : io(url, options)
+}
 
 export const reachOrFail = async <T, E>(send: () => Promise<Result<T, E>>): Promise<Result<T, E | Unreachable>> => {
   let timer: ReturnType<typeof setTimeout> | undefined

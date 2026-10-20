@@ -1,12 +1,18 @@
 import { ROLE_IDS, type Result } from '@luna/contracts'
 import { DisplayName } from './DisplayName'
 import type { MemberIdentity } from './Member'
-import { Room } from './Room'
+import { Room, type BotReplacement } from './Room'
 import { RoomCode } from './RoomCode'
 import { RoomName } from './RoomName'
 import { RoomSettings } from './RoomSettings'
 
 export const FRIENDS = ['Ana', 'Juan', 'Marta', 'Luis', 'Sofi', 'Caro', 'Tato', 'Pipe', 'Vale'] as const
+
+export const SEAT_BOT: BotReplacement = {
+  token: 'token-seat-bot',
+  profile: { personality: 'detective', difficulty: 'normal' },
+  castWhenNone: 'solitude'
+}
 
 export const unwrap = <T>(result: Result<T, unknown>): T => {
   if (!result.ok) throw new Error(`Expected success, got ${JSON.stringify(result.error)}`)
@@ -26,11 +32,12 @@ export const settingsWithDeckOf = (cards: number): RoomSettings =>
     })
   )
 
-export const openRoom = (settings: RoomSettings = RoomSettings.defaults()): Room =>
+export const openRoom = (settings: RoomSettings = RoomSettings.defaults(), visibility: 'private' | 'public' = 'private'): Room =>
   Room.open({
     code: unwrap(RoomCode.parse('LUNA42')),
     name: unwrap(RoomName.create('Los Primos · Viernes')),
     settings,
+    visibility,
     narrator: identityOf('Nico')
   })
 

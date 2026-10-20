@@ -88,7 +88,12 @@ export interface IssuedCommand {
   readonly result: CommandResult
 }
 
-const snapshotOf = (bots: ReadonlyMap<string, BotProfile>, language: BotLanguage, status: RoomSnapshot['status']): RoomSnapshot => {
+const snapshotOf = (
+  bots: ReadonlyMap<string, BotProfile>,
+  language: BotLanguage,
+  status: RoomSnapshot['status'],
+  mutedIds: ReadonlySet<string> = new Set()
+): RoomSnapshot => {
   const member = (id: string, isNarrator: boolean): MemberView => ({
     id,
     name: NAMES[id] ?? id,
@@ -96,12 +101,14 @@ const snapshotOf = (bots: ReadonlyMap<string, BotProfile>, language: BotLanguage
     isNarrator,
     bot: bots.get(id) ?? null,
     ready: true,
-    connected: true
+    connected: true,
+    muted: mutedIds.has(id)
   })
   return {
     code: CODE,
     name: 'Los Primos',
     status,
+    visibility: 'private',
     voiceCallUrl: null,
     settings: { ...DEFAULT_ROOM_SETTINGS, botLanguage: language },
     members: [member(NARRATOR_ID, true), member(HUMAN_ID, false), ...BOT_IDS.map((id) => member(id, false))],
@@ -166,7 +173,7 @@ export const createBotKit = ({ seed = 7, language = 'en', speech = new ScriptedS
     say: (actor, channel, text) => record(`say:${channel}`, actor, () => chat.sendMessage.execute(actor, { channel, text }))
   }
 
-  const real = createBotsUseCases({ tables: new InMemoryBotTables(), scheduler, speech, actions, random })
+  const real = createBotsUseCases({ tables: new InMemoryBotTables(), scheduler, speech, actions, random, clock })
   const bots: BotsUseCases = {
     ...real,
     observeMatchView: {
@@ -194,6 +201,14 @@ export const createBotKit = ({ seed = 7, language = 'en', speech = new ScriptedS
     return asNarrator(matchRecorder.latestFor(NARRATOR_ID)).roles
   }
 
+  const handOverHuman = async () => {
+    profileMap.set(HUMAN_ID, { personality: 'detective', difficulty: 'normal' })
+    botsOf().observeRoomSnapshot.execute(snapshotOf(profileMap, language, 'in-game'))
+    await matches.republishMatch.execute(CODE)
+  }
+
+  const mute = (memberId: string) => botsOf().observeRoomSnapshot.execute(snapshotOf(profileMap, language, 'in-game', new Set([memberId])))
+
   const narratorView = () => asNarrator(matchRecorder.latestFor(NARRATOR_ID))
   const viewOf = (memberId: string): PlayerMatchView => asPlayer(matchRecorder.latestFor(memberId))
   const humanSays = (channel: ChatChannel, text: string) => chat.sendMessage.execute(human, { channel, text })
@@ -213,6 +228,8 @@ export const createBotKit = ({ seed = 7, language = 'en', speech = new ScriptedS
     narrator,
     human,
     start,
+    mute,
+    handOverHuman,
     narratorView,
     viewOf,
     humanSays,

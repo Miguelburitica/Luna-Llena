@@ -1,8 +1,17 @@
-import type { ChatMessage, Result } from '@luna/contracts'
+import type { ChatMessage, ReviewLabel, Result } from '@luna/contracts'
+import type { ClientIdentity } from '../../../shared/domain/ClientIdentity'
 import { FixedClock } from '../../../shared/application/clockAndRandom.fixtures'
 import { InMemoryChatLogRepository } from '../infrastructure/InMemoryChatLogRepository'
 import { createChatUseCases } from './chatUseCases'
-import type { Actor, ChatAudience, ChatAudienceDescription, ChatPublisher, MemberChatPermissions } from './ports'
+import type {
+  Actor,
+  ChatAudience,
+  ChatAudienceDescription,
+  ChatModeration,
+  ChatPublisher,
+  ChatStrike,
+  MemberChatPermissions
+} from './ports'
 
 export const CODE = 'LUNA42'
 export const CHAT_START_TIME = 5_000_000
@@ -65,14 +74,61 @@ export class FakeChatAudience implements ChatAudience {
 export class RecordingChatPublisher implements ChatPublisher {
   readonly deliveries: Array<{ message: ChatMessage; recipientIds: readonly string[] }> = []
 
+  readonly clearedIds: string[] = []
+  readonly removedIds: string[] = []
+
   deliver(message: ChatMessage, recipientIds: readonly string[]): void {
     this.deliveries.push({ message, recipientIds })
+  }
+
+  cleared(message: ChatMessage): void {
+    this.clearedIds.push(message.id)
+  }
+
+  removed(messageId: string): void {
+    this.removedIds.push(messageId)
   }
 
   get latest(): { message: ChatMessage; recipientIds: readonly string[] } {
     const latest = this.deliveries.at(-1)
     if (latest === undefined) throw new Error('Nothing was delivered')
     return latest
+  }
+}
+
+export const TATO_CLIENT: ClientIdentity = { address: '10.0.0.7', device: 'device-tato' }
+
+export class FakeChatModeration implements ChatModeration {
+  publicRoom = true
+  readonly muted = new Set<string>()
+  bannedUntilValue: number | null = null
+  label: ReviewLabel | null = 'ok'
+  readonly strikes: ChatStrike[] = []
+  readonly reviewed: string[] = []
+
+  async isPublic(): Promise<boolean> {
+    return this.publicRoom
+  }
+
+  async isMuted(_code: string, memberId: string): Promise<boolean> {
+    return this.muted.has(memberId)
+  }
+
+  async bannedUntil(): Promise<number | null> {
+    return this.bannedUntilValue
+  }
+
+  blockedByWordList(text: string): boolean {
+    return text.includes('put4')
+  }
+
+  async review(_code: string, text: string): Promise<ReviewLabel | null> {
+    this.reviewed.push(text)
+    return this.label
+  }
+
+  async strike(strike: ChatStrike): Promise<void> {
+    this.strikes.push(strike)
   }
 }
 
@@ -96,7 +152,10 @@ export const DAY_ROSTER: Readonly<Record<string, MemberChatPermissions>> = {
   [JUAN]: PERMISSIONS.ghost
 }
 
-export const createChatKit = (roster: Readonly<Record<string, MemberChatPermissions>> = DAY_ROSTER) => {
+export const createChatKit = (
+  roster: Readonly<Record<string, MemberChatPermissions>> = DAY_ROSTER,
+  moderation?: ChatModeration
+) => {
   let idSequence = 0
   const logs = new InMemoryChatLogRepository()
   const publisher = new RecordingChatPublisher()
@@ -108,10 +167,12 @@ export const createChatKit = (roster: Readonly<Record<string, MemberChatPermissi
     publisher,
     audience,
     clock,
-    ids: { next: () => `message-${String((idSequence += 1)).padStart(3, '0')}` }
+    ids: { next: () => `message-${String((idSequence += 1)).padStart(3, '0')}` },
+    ...(moderation === undefined ? {} : { moderation })
   })
   const actorOf = (memberId: string): Actor => ({ code: CODE, memberId })
-  const say = (memberId: string, channel: unknown, text: unknown) =>
-    useCases.sendMessage.execute(actorOf(memberId), { channel, text })
-  return { useCases, logs, publisher, audience, clock, actorOf, say }
+  const say = (memberId: string, channel: unknown, text: unknown, client?: ClientIdentity) =>
+    useCases.sendMessage.execute(actorOf(memberId), { channel, text }, client)
+  const reviewsDone = () => Promise.all(useCases.sendMessage.reviews)
+  return { useCases, logs, publisher, audience, clock, actorOf, say, reviewsDone }
 }

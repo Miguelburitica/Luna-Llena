@@ -4,8 +4,8 @@ import { createApp, type Component } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import { lunaMessages } from '@/app/messages'
 import { createLunaI18n } from '@/shared/infrastructure/i18n/lunaI18n'
-import { FakeRoomGateway, MemorySessionStore } from '../application/RoomGateway.fixtures'
-import { ROOM_GATEWAY, SESSION_STORE, type StoredSession } from '../application/ports'
+import { FakePublicGamesGateway, FakeRoomGateway, MemorySessionStore } from '../application/RoomGateway.fixtures'
+import { PUBLIC_GAMES_GATEWAY, ROOM_GATEWAY, SESSION_STORE, type StoredSession } from '../application/ports'
 import { useRoomStore } from '../application/useRoomStore'
 import { roomRoutes } from './roomRoutes'
 import { createTableKit, tableProvides } from '@/features/table/application/Table.fixtures'
@@ -22,21 +22,27 @@ interface MountOptions {
   readonly stored?: StoredSession
   readonly stubs?: Record<string, boolean>
   readonly tableJournal?: TableJournal | null
-  readonly seed?: (context: { store: RoomStore; gateway: FakeRoomGateway }) => Promise<unknown>
+  readonly seed?: (context: { store: RoomStore; gateway: FakeRoomGateway; publicGames: FakePublicGamesGateway }) => Promise<unknown>
 }
 
 export const mountRoomView = async (component: Component, { path = '/', props = {}, stored, stubs = {}, tableJournal = null, seed }: MountOptions = {}) => {
   const gateway = new FakeRoomGateway()
+  const publicGames = new FakePublicGamesGateway()
   const sessions = new MemorySessionStore(stored ?? null)
   const pinia = createPinia()
   setActivePinia(pinia)
   const table = createTableKit(tableJournal)
-  const provide = { [ROOM_GATEWAY as symbol]: gateway, [SESSION_STORE as symbol]: sessions, ...tableProvides(table) }
+  const provide = {
+    [ROOM_GATEWAY as symbol]: gateway,
+    [SESSION_STORE as symbol]: sessions,
+    [PUBLIC_GAMES_GATEWAY as symbol]: publicGames,
+    ...tableProvides(table)
+  }
   const host = createApp({})
   host.use(pinia)
   for (const key of Object.getOwnPropertySymbols(provide)) host.provide(key, provide[key])
   const store = host.runWithContext(() => useRoomStore())
-  if (seed !== undefined) await seed({ store, gateway })
+  if (seed !== undefined) await seed({ store, gateway, publicGames })
 
   const router = createRouter({ history: createMemoryHistory(), routes: [...roomRoutes, gameStubRoute, ...tableStubRoutes] })
   await router.push(path)
@@ -46,5 +52,5 @@ export const mountRoomView = async (component: Component, { path = '/', props = 
     global: { plugins: [pinia, router, createLunaI18n(lunaMessages, 'en')], provide, stubs }
   })
   await flushPromises()
-  return { wrapper, gateway, sessions, router, store, table }
+  return { wrapper, gateway, publicGames, sessions, router, store, table }
 }

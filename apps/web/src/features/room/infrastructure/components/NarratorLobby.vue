@@ -84,6 +84,11 @@ const closeRoom = async () => {
   <div class="desk ph-night narrator-lobby">
     <DeskHeader :trail="`${snapshot.name} / ${t('room.narratorLobby.lobby')}`">
       <span class="sbadge narrator-code">{{ snapshot.code }}</span>
+      <span class="sbadge narrator-visibility" :class="{ 'is-ok': snapshot.visibility === 'public' }">
+        <LunaIcon :name="snapshot.visibility === 'public' ? 'globe' : 'lock'" size="sm" />{{
+          snapshot.visibility === 'public' ? t('room.narratorLobby.publicBadge') : t('room.narratorLobby.privateBadge')
+        }}
+      </span>
       <button type="button" class="btn btn-secondary btn-sm" @click="copy">
         <LunaIcon name="copy" size="sm" />{{ copied ? t('room.lobby.copied') : t('room.lobby.copyInvite') }}
       </button>

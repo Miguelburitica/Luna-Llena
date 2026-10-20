@@ -7,7 +7,7 @@ export class MarkDisconnected {
 
   execute(actor: Actor): Promise<Result<void, RoomError>> {
     return changeRoomAs(this.access, actor, (room) => {
-      room.disconnect(actor.memberId)
+      room.disconnect(actor.memberId, this.access.clock.now())
       return done
     })
   }

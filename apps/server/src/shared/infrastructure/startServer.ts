@@ -1,3 +1,4 @@
+import { ADMIN_SESSION } from '@luna/contracts'
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { Server } from 'socket.io'
@@ -14,13 +15,25 @@ import { createMatchUseCases } from '../../features/match/application/matchUseCa
 import { InMemoryMatchRepository } from '../../features/match/infrastructure/InMemoryMatchRepository'
 import { registerMatchHandlers } from '../../features/match/infrastructure/registerMatchHandlers'
 import { SocketMatchPublisher } from '../../features/match/infrastructure/SocketMatchPublisher'
-import { createRoomUseCases } from '../../features/room/application/roomUseCases'
+import { createModerationUseCases, type ModerationUseCases } from '../../features/moderation/application/moderationUseCases'
+import type { ContentClassifier } from '../../features/moderation/application/ports'
+import { blockedByWordList } from '../../features/moderation/domain/wordList'
+import { EnvironmentAdminSecret } from '../../features/moderation/infrastructure/EnvironmentAdminSecret'
+import { InMemoryAdminSessions } from '../../features/moderation/infrastructure/InMemoryAdminSessions'
+import { InMemoryModeration } from '../../features/moderation/infrastructure/InMemoryModeration'
+import { NoContentClassifier } from '../../features/moderation/infrastructure/NoContentClassifier'
+import { registerAdminHandlers } from '../../features/moderation/infrastructure/registerAdminHandlers'
+import { registerAdminHttpRoutes } from '../../features/moderation/infrastructure/registerAdminHttpRoutes'
+import { createRoomUseCases, type RoomUseCases } from '../../features/room/application/roomUseCases'
 import { InMemoryRoomRepository } from '../../features/room/infrastructure/InMemoryRoomRepository'
+import { IntervalRoomSweeper } from '../../features/room/infrastructure/IntervalRoomSweeper'
 import { RandomRoomCodeGenerator } from '../../features/room/infrastructure/RandomRoomCodeGenerator'
 import { registerRoomHandlers } from '../../features/room/infrastructure/registerRoomHandlers'
 import { SocketRoomPublisher } from '../../features/room/infrastructure/SocketRoomPublisher'
+import { ThrottledLobbyNotifier } from '../../features/room/infrastructure/ThrottledLobbyNotifier'
 import type { Clock } from '../application/Clock'
 import type { RandomSource } from '../application/RandomSource'
+import { adminSessionIdOf, clientIdentityOf } from './clientIdentity'
 import { CryptoIdGenerator } from './CryptoIdGenerator'
 import { MathRandomSource } from './MathRandomSource'
 import { serveWebApp } from './serveWebApp'
@@ -35,12 +48,32 @@ export interface ServerOptions {
   readonly random?: RandomSource
   readonly botSpeech?: BotSpeech
   readonly botScheduler?: BotScheduler
+  readonly classifier?: ContentClassifier
+  readonly adminToken?: string | undefined
+  readonly trustProxy?: boolean
   readonly webRoot?: string | undefined
+  readonly lobbyThrottleMs?: number
+  readonly sweepIntervalMs?: number
 }
 
 export interface RunningServer {
   readonly port: number
+  readonly rooms: RoomUseCases
+  readonly moderation: ModerationUseCases
   close(): Promise<void>
+}
+
+const lazy = <T>(name: string) => {
+  const holder: { current?: T } = {}
+  return {
+    set: (value: T) => {
+      holder.current = value
+    },
+    get: (): T => {
+      if (holder.current === undefined) throw new Error(`${name} is wired before the server listens`)
+      return holder.current
+    }
+  }
 }
 
 export const startServer = ({
@@ -50,19 +83,38 @@ export const startServer = ({
   random = new MathRandomSource(),
   botSpeech = new NoBotSpeech(),
   botScheduler = new TimerBotScheduler(),
-  webRoot
+  classifier = new NoContentClassifier(),
+  adminToken,
+  trustProxy = false,
+  webRoot,
+  lobbyThrottleMs,
+  sweepIntervalMs
 }: ServerOptions): Promise<RunningServer> => {
   const httpServer = createServer()
-  const io: LunaServer = new Server(httpServer, { cors: { origin: webOrigin } })
-  const wiredBots: { current?: BotsUseCases } = {}
-  const bots = (): BotsUseCases => {
-    if (wiredBots.current === undefined) throw new Error('Bots are wired before the server listens')
-    return wiredBots.current
-  }
+  const io: LunaServer = new Server(httpServer, { cors: { origin: webOrigin, credentials: true } })
+  io.use((socket, next) => {
+    socket.data.client = clientIdentityOf(socket.handshake, socket.id, trustProxy)
+    socket.data.adminSession = adminSessionIdOf(socket.handshake.headers.cookie)
+    next()
+  })
+  const bots = lazy<BotsUseCases>('Bots')
+  const rooms = lazy<RoomUseCases>('Rooms')
+
+  const moderation = createModerationUseCases({
+    records: new InMemoryModeration(),
+    classifier,
+    sessions: new InMemoryAdminSessions(),
+    secret: new EnvironmentAdminSecret(adminToken),
+    clock,
+    directory: {
+      rooms: () => rooms.get().adminRooms.list(),
+      close: (code) => rooms.get().adminRooms.close(code)
+    }
+  })
 
   const matchUseCases = createMatchUseCases({
     matches: new InMemoryMatchRepository(),
-    publisher: new BotAwareMatchPublisher(new SocketMatchPublisher(io), bots),
+    publisher: new BotAwareMatchPublisher(new SocketMatchPublisher(io), bots.get),
     clock,
     random,
     ids: new CryptoIdGenerator()
@@ -70,43 +122,67 @@ export const startServer = ({
 
   const chatUseCases = createChatUseCases({
     logs: new InMemoryChatLogRepository(),
-    publisher: new BotAwareChatPublisher(new SocketChatPublisher(io), bots),
+    publisher: new BotAwareChatPublisher(new SocketChatPublisher(io), bots.get),
     audience: {
       membersOf: (code, now) => matchUseCases.describeChatAudience.execute(code, now),
       lastWordsSpoken: async (code, memberId) => {
         await matchUseCases.closeLastWords.execute({ code, memberId })
       }
     },
+    moderation: {
+      isPublic: (code) => rooms.get().roomFacts.isPublic(code),
+      isMuted: (code, memberId) => rooms.get().roomFacts.isMuted(code, memberId),
+      bannedUntil: async (client) => moderation.checkBan.execute(client),
+      blockedByWordList,
+      review: async (code, text) => {
+        const outcome = await moderation.reviewText.execute({ roomCode: code, text, kind: 'message' })
+        return outcome === 'blocked' ? 'profanity' : outcome
+      },
+      strike: async (strike) => moderation.recordStrike.execute(strike)
+    },
     clock,
     ids: new CryptoIdGenerator()
   })
 
-  wiredBots.current = createBotsUseCases({
-    tables: new InMemoryBotTables(),
-    scheduler: botScheduler,
-    speech: botSpeech,
-    random,
-    actions: {
-      act: (actor, input) => matchUseCases.actAtNight.execute(actor, input),
-      vote: (actor, targetId) => matchUseCases.castVote.execute(actor, targetId),
-      lockVote: (actor) => matchUseCases.lockVote.execute(actor),
-      avenge: (actor, targetId) => matchUseCases.takeRevenge.execute(actor, targetId),
-      haunt: (actor, input) => matchUseCases.haunt.execute(actor, input),
-      say: (actor, channel, text) => chatUseCases.sendMessage.execute(actor, { channel, text })
-    }
-  })
+  bots.set(
+    createBotsUseCases({
+      tables: new InMemoryBotTables(),
+      scheduler: botScheduler,
+      speech: botSpeech,
+      random,
+      clock,
+      actions: {
+        act: (actor, input) => matchUseCases.actAtNight.execute(actor, input),
+        vote: (actor, targetId) => matchUseCases.castVote.execute(actor, targetId),
+        lockVote: (actor) => matchUseCases.lockVote.execute(actor),
+        avenge: (actor, targetId) => matchUseCases.takeRevenge.execute(actor, targetId),
+        haunt: (actor, input) => matchUseCases.haunt.execute(actor, input),
+        say: (actor, channel, text) => chatUseCases.sendMessage.execute(actor, { channel, text })
+      }
+    })
+  )
 
-  registerRoomHandlers(
-    io,
+  const lobby = new ThrottledLobbyNotifier(io, () => rooms.get().listPublicRooms.execute(), lobbyThrottleMs)
+
+  rooms.set(
     createRoomUseCases({
       rooms: new InMemoryRoomRepository(),
       codes: new RandomRoomCodeGenerator(),
       ids: new CryptoIdGenerator(),
-      publisher: new BotAwareRoomPublisher(new SocketRoomPublisher(io), bots),
+      publisher: new BotAwareRoomPublisher(new SocketRoomPublisher(io), bots.get),
       random,
+      clock,
+      lobby,
+      gate: {
+        bannedUntil: async (client) => moderation.checkBan.execute(client),
+        review: (roomCode, text, kind) => moderation.reviewText.execute({ roomCode, text, kind }),
+        strike: async (strike) => moderation.recordStrike.execute(strike),
+        noteReport: async (report) => moderation.recordReport.execute(report)
+      },
       starter: {
         start: (opening) => matchUseCases.startMatch.execute(opening),
         isOver: (code) => matchUseCases.isMatchOver.execute(code),
+        handOver: (code) => matchUseCases.republishMatch.execute(code),
         discard: async (code) => {
           await matchUseCases.discardMatch.execute(code)
           await chatUseCases.discardChat.execute(code)
@@ -114,15 +190,28 @@ export const startServer = ({
       }
     })
   )
+  registerRoomHandlers(io, rooms.get())
   registerMatchHandlers(io, matchUseCases)
   registerChatHandlers(io, chatUseCases)
-  serveWebApp(httpServer, webRoot)
+  registerAdminHandlers(io, moderation)
+  registerAdminHttpRoutes(httpServer, moderation, { webOrigin, trustProxy })
+  serveWebApp(httpServer, webRoot, [ADMIN_SESSION.path])
+
+  const sweeper = new IntervalRoomSweeper(() => rooms.get().sweepRooms.execute(), sweepIntervalMs)
+  sweeper.start()
 
   return new Promise((resolve) => {
     httpServer.listen(port, () => {
       resolve({
         port: (httpServer.address() as AddressInfo).port,
-        close: () => new Promise((closed) => void io.close(() => closed()))
+        rooms: rooms.get(),
+        moderation,
+        close: () =>
+          new Promise((closed) => {
+            sweeper.stop()
+            lobby.stop()
+            void io.close(() => closed())
+          })
       })
     })
   })

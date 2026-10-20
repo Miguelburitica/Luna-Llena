@@ -2,6 +2,7 @@ import type { PlayerMatchView } from '@luna/contracts'
 import type { BotMind, RandomNumbers } from './BotMind'
 import { nameIn, type BotRoster } from './BotRoster'
 import { livingOthers, mostAccused, mostSuspected } from './decisions'
+import { huntReasonOf, type HuntReason } from './hunting'
 
 export interface SeerClaim {
   readonly subject: string
@@ -14,7 +15,13 @@ export type BotIntent =
   | { readonly kind: 'explain-vote'; readonly subject: string; readonly lie: boolean }
   | { readonly kind: 'react-dawn'; readonly deaths: readonly string[] }
   | { readonly kind: 'last-words'; readonly subject: string }
-  | { readonly kind: 'wolf-plan'; readonly subject: string; readonly against: string | null }
+  | {
+      readonly kind: 'wolf-plan'
+      readonly subject: string
+      readonly against: string | null
+      readonly seconding: string | null
+      readonly reason: HuntReason | null
+    }
   | { readonly kind: 'ghost'; readonly subject: string }
 
 export type IntentKind = BotIntent['kind']
@@ -83,12 +90,20 @@ export const lastWordsIntentOf = (
   random: RandomNumbers
 ): BotIntent => ({ kind: 'last-words', subject: nameIn(roster, blameTargetOf(mind, view, random)) })
 
-export const wolfPlanIntentOf = (view: PlayerMatchView, roster: BotRoster, selfId: string): BotIntent | null => {
+export const wolfPlanIntentOf = (mind: BotMind, view: PlayerMatchView, roster: BotRoster): BotIntent | null => {
   const night = view.you.night
   if (night?.action !== 'hunt' || night.targetId === null) return null
   const mine = night.targetId
-  const rival = Object.entries(night.packPicks).find(([wolfId, targetId]) => wolfId !== selfId && targetId !== mine)
-  return { kind: 'wolf-plan', subject: nameIn(roster, mine), against: rival === undefined ? null : nameIn(roster, rival[1]) }
+  const others = Object.entries(night.packPicks).filter(([wolfId]) => wolfId !== mind.memberId)
+  const rival = others.find(([, targetId]) => targetId !== mine)
+  const partner = others.find(([, targetId]) => targetId === mine)
+  return {
+    kind: 'wolf-plan',
+    subject: nameIn(roster, mine),
+    against: rival === undefined ? null : nameIn(roster, rival[1]),
+    seconding: rival !== undefined || partner === undefined ? null : nameIn(roster, partner[0]),
+    reason: huntReasonOf(mind, mine)
+  }
 }
 
 export const ghostIntentOf = (

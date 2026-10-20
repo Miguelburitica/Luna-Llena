@@ -3,12 +3,14 @@ import type {
   BotDifficulty,
   BotPersonality,
   CreateRoomInput,
+  PublicRoomCard,
   Result,
   RoomError,
   RoomSession,
   RoomSettingsInput,
   RoomSnapshot,
-  RoomSummary
+  RoomSummary,
+  SeatTakeover
 } from '@luna/contracts'
 import type { InjectionKey } from 'vue'
 
@@ -30,6 +32,7 @@ export interface RoomGateway {
   setReady(ready: boolean): RoomResult<void>
   updateSettings(settings: RoomSettingsInput): RoomResult<void>
   kick(memberId: string): RoomResult<void>
+  mute(memberId: string, muted: boolean): RoomResult<void>
   addBot(choice: BotChoice): RoomResult<void>
   removeBot(memberId: string): RoomResult<void>
   setVoiceCall(url: string | null): RoomResult<void>
@@ -39,6 +42,7 @@ export interface RoomGateway {
   onSnapshot(listener: (snapshot: RoomSnapshot) => void): void
   onKicked(listener: () => void): void
   onClosed(listener: () => void): void
+  onSeatTakenOver(listener: (takeover: SeatTakeover) => void): void
   onReconnected(listener: () => void): void
 }
 
@@ -53,6 +57,16 @@ export interface SessionStore {
   save(session: StoredSession): void
   clear(): void
 }
+
+export interface PublicGamesGateway {
+  watch(): RoomResult<readonly PublicRoomCard[]>
+  unwatch(): RoomResult<void>
+  report(code: string): RoomResult<void>
+  onRooms(listener: (rooms: readonly PublicRoomCard[]) => void): void
+  onReconnected(listener: () => void): void
+}
+
+export const PUBLIC_GAMES_GATEWAY: InjectionKey<PublicGamesGateway> = Symbol('PublicGamesGateway')
 
 export const ROOM_GATEWAY: InjectionKey<RoomGateway> = Symbol('RoomGateway')
 

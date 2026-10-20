@@ -1,8 +1,8 @@
 import type { Result } from '../result'
 import type { RoomError } from './errors'
-import type { RoomSession, RoomSettingsInput, RoomSnapshot, RoomSummary } from './views'
+import type { PublicRoomCard, RoomSession, RoomSettingsInput, RoomSnapshot, RoomSummary, SeatTakeover } from './views'
 import type { BotDifficulty, BotPersonality } from '../bots/vocabulary'
-import type { AvatarId } from './vocabulary'
+import type { AvatarId, RoomVisibility } from './vocabulary'
 
 export type RoomAck<T> = (result: Result<T, RoomError>) => void
 
@@ -11,6 +11,7 @@ export interface CreateRoomInput {
   readonly narratorName: string
   readonly settings?: RoomSettingsInput
   readonly voiceCallUrl?: string | null
+  readonly visibility?: RoomVisibility
 }
 
 export interface RoomClientEvents {
@@ -22,6 +23,7 @@ export interface RoomClientEvents {
   'room:setReady': (input: { readonly ready: boolean }, ack: RoomAck<void>) => void
   'room:updateSettings': (input: { readonly settings: RoomSettingsInput }, ack: RoomAck<void>) => void
   'room:kick': (input: { readonly memberId: string }, ack: RoomAck<void>) => void
+  'room:mute': (input: { readonly memberId: string; readonly muted: boolean }, ack: RoomAck<void>) => void
   'room:addBot': (
     input: { readonly personality?: BotPersonality; readonly difficulty?: BotDifficulty },
     ack: RoomAck<void>
@@ -37,4 +39,15 @@ export interface RoomServerEvents {
   'room:snapshot': (snapshot: RoomSnapshot) => void
   'room:kicked': () => void
   'room:closed': () => void
+  'room:seatTakenOver': (takeover: SeatTakeover) => void
+}
+
+export interface LobbyClientEvents {
+  'lobby:watch': (input: Record<string, never>, ack: RoomAck<readonly PublicRoomCard[]>) => void
+  'lobby:unwatch': (input: Record<string, never>, ack: RoomAck<void>) => void
+  'lobby:report': (input: { readonly code: string }, ack: RoomAck<void>) => void
+}
+
+export interface LobbyServerEvents {
+  'lobby:rooms': (rooms: readonly PublicRoomCard[]) => void
 }
