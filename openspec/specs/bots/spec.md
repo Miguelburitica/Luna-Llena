@@ -8,7 +8,9 @@ TBD - created by archiving change add-bots. Update Purpose after archive.
 ### Requirement: Adding and removing bots
 While the room is in the lobby, the narrator SHALL be able to add a bot with an optional personality and difficulty,
 and to remove a bot.
-- When no personality is given, the system SHALL pick one at random. When no difficulty is given, it SHALL be Normal.
+- When no personality is given ("Surprise me"), the system SHALL pick one at random, weighted so the table gets a
+  mix: each personality's weight is cut to a quarter for every bot of that personality already in the room, and
+  `quiet` starts at 0.6 of the others' weight. When no difficulty is given, it SHALL be Normal.
 - The personalities are `paranoid`, `follower`, `detective`, `chaos` and `quiet`. The difficulties are `easy`,
   `normal` and `sharp`.
 - Each room SHALL draw one classic book when its first bot is added: One Hundred Years of Solitude, The Three
@@ -37,6 +39,10 @@ and to remove a bot.
 #### Scenario: Picked personality
 - **WHEN** the narrator adds a bot with the `detective` personality and `sharp` difficulty
 - **THEN** that bot plays as a sharp detective
+
+#### Scenario: Surprise me spreads the table
+- **WHEN** the room already holds a `paranoid` bot and the narrator adds a bot with no personality
+- **THEN** each of `follower`, `detective` and `chaos` is four times as likely as `paranoid`
 
 #### Scenario: Too many bots
 - **WHEN** the room already holds 10 bots and the narrator adds another
@@ -169,7 +175,22 @@ A bot SHALL act after a short human-like delay and never instantly:
 
 ### Requirement: Chat budget
 Bots SHALL talk enough to give the humans someone to suspect, without flooding the chat:
-- A living bot MAY open the day with one line. Opening lines are staggered so they don't arrive at once.
+- Each personality has its own tempo: how often it opens the day, reacts at dawn and explains its vote, and how long
+  it waits before writing:
+
+  | Personality | Opens the day | Reacts at dawn | Explains its vote | Waits before writing |
+  |---|---|---|---|---|
+  | `paranoid` | 90% | 60% | 60% | 2 to 6 seconds |
+  | `chaos` | 80% | 50% | 50% | 4 to 12 seconds |
+  | `detective` | 80% | 15% | 50% | 12 to 25 seconds |
+  | `follower` | 30% | 50%, only after another bot reacted | 20% | 8 to 20 seconds |
+  | `quiet` | 25% | 5% | 10% | 20 to 40 seconds |
+
+- A living bot MAY open the day with one line.
+- Bots SHALL take turns: in the village chat and the wolf chat only one bot writes at a time, and the next bot line
+  comes 4 to 8 seconds after the previous one was posted. A bot writes its line when its turn comes, so it reads
+  the bot lines before it. An answer to a human who named it does not wait for its turn.
+- At most 2 bots SHALL react to the same dawn.
 - It SHALL answer when a human names it in the village chat.
 - It MAY answer when another bot accuses it by name in the village chat, more often when it is `paranoid` or
   `chaos` and rarely when it is `quiet`.
@@ -184,6 +205,22 @@ Bots SHALL talk enough to give the humans someone to suspect, without flooding t
 #### Scenario: Named in the chat
 - **WHEN** Ana writes "Moco-Bot, where were you last night?" in the village chat
 - **THEN** the bot named Moco-Bot answers in the village chat within a few seconds
+
+#### Scenario: One at a time
+- **WHEN** three bots decide to react to the same dawn within a second of each other
+- **THEN** their lines arrive at least 4 seconds apart, and each later bot's prompt holds the earlier lines
+
+#### Scenario: Two reactions per dawn
+- **WHEN** a death is announced at dawn and every bot at the table is `paranoid`
+- **THEN** at most 2 bots react to that dawn
+
+#### Scenario: Followers follow
+- **WHEN** a death is announced at dawn and no other bot reacted
+- **THEN** a `follower` bot does not react
+
+#### Scenario: Fast and slow
+- **WHEN** the day opens
+- **THEN** a `paranoid` bot waits 2 to 6 seconds before its opening line and a `quiet` bot waits 20 to 40 seconds
 
 #### Scenario: No flood
 - **WHEN** a day lasts long enough for many lines
@@ -203,14 +240,17 @@ Bots SHALL talk enough to give the humans someone to suspect, without flooding t
 - **THEN** Moco-Bot answers in the village chat within a few seconds
 
 ### Requirement: Bot speech
-A bot's chat line SHALL be phrased in the room's bot language and in its personality's voice. It SHALL say what its
+A bot's chat line SHALL be phrased in the room's bot language and in its personality's voice. Slang and catchphrases belong to the voice, not to every bot: in Spanish only a
+`chaos` bot says "parce" or "qué boleta", only a `paranoid` bot cries "¡uy!", and a `detective` or `quiet` bot uses
+no filler words. The model SHALL be told not to start its line with the same word as the last chat line. It SHALL say what its
 brain decided: an accusation, a defense, a claim, a reaction, an answer or a wolf pick with its reason, which can be a
 lie when the bot is a wolf or the Fool. The line SHALL mention only real player names and facts the bot knows,
 including the roles players claimed in the chat, and SHALL stay party-safe. Its humor SHALL be teasing and bluffing,
 not gross-out jokes about slime, snot, drool, warts or vomit. The model SHALL think with medium reasoning effort
 unless the server is configured with another effort, and SHALL get 12 seconds to answer. When no language model is
 configured, the model fails or times out, or the room has used its 150 model calls for the game, the bot SHALL use a
-scripted line for the same intent. A room SHALL not repeat a scripted line for an intent until it has used every line
+scripted line for the same intent. When a wolf picks the same victim its packmate already picked, it SHALL be told to agree in its own words with a
+new reason. A room SHALL not repeat a scripted line for an intent until it has used every line
 for that intent. The model SHALL be told not to copy lines from the chat it reads.
 
 #### Scenario: No model configured
@@ -228,6 +268,15 @@ for that intent. The model SHALL be told not to copy lines from the chat it read
 #### Scenario: Claimed roles are facts
 - **WHEN** Luis wrote "I am the Seer" in the village chat and a bot speaks
 - **THEN** the bot's prompt facts say Luis claimed the Seer
+
+#### Scenario: Slang by voice
+- **WHEN** a room's bots speak Spanish
+- **THEN** only the `chaos` voice holds "parce" and "qué boleta", only the `paranoid` voice holds "uy", and the shared
+  rules hold neither
+
+#### Scenario: Wolves agree in new words
+- **WHEN** a bot Werewolf picks Ana after its packmate Tato already picked Ana
+- **THEN** its intent tells the model that Tato also picked Ana and to agree with a new reason, not Tato's words
 
 #### Scenario: No echo
 - **WHEN** two bot wolves announce their pick in the same night with scripted lines
