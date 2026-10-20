@@ -9,8 +9,13 @@ describe('soundSettingsDefaults', () => {
       master: 80,
       music: 55,
       effects: 100,
-      reducedMotion: false
+      reducedMotion: false,
+      colorMode: 'system'
     })
+  })
+
+  it('follows the system appearance until the player picks one', () => {
+    expect(soundSettingsDefaults(true).colorMode).toBe('system')
   })
 
   it('follows the operating system motion preference', () => {

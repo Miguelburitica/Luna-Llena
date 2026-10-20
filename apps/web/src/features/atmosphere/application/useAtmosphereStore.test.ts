@@ -269,3 +269,46 @@ describe('useAtmosphereStore', () => {
   })
 })
 
+
+describe('useAtmosphereStore appearance', () => {
+  const setupOnPhone = (phone: 'light' | 'dark', initial: AtmosphereSettings | null = null) => {
+    const kit = createAtmosphereKit(initial, false, phone === 'light')
+    const test = createMatchTestApp(playerViewOf())
+    provideAtmosphere(test.app, kit)
+    const atmosphere = test.app.runWithContext(() => useAtmosphereStore())
+    return { kit, atmosphere }
+  }
+
+  it('follows a light phone on a first visit', () => {
+    const { atmosphere, kit } = setupOnPhone('light')
+    expect(atmosphere.settings.colorMode).toBe('system')
+    expect(atmosphere.menuLook).toBe('light')
+    expect(kit.colorMode.applied).toBe('light')
+  })
+
+  it('switches the menus when the phone switches at sunset', async () => {
+    const { atmosphere, kit } = setupOnPhone('light')
+    kit.colorMode.switchSystemTo('dark')
+    await flushPromises()
+    expect(atmosphere.menuLook).toBe('dark')
+    expect(kit.colorMode.applied).toBe('dark')
+  })
+
+  it('forces dark on a light phone and remembers it', async () => {
+    const { atmosphere, kit } = setupOnPhone('light')
+    atmosphere.setColorMode('dark')
+    await flushPromises()
+    expect(kit.colorMode.applied).toBe('dark')
+    expect(kit.settings.saved?.colorMode).toBe('dark')
+    const reloaded = setupOnPhone('light', kit.settings.saved)
+    expect(reloaded.atmosphere.menuLook).toBe('dark')
+    expect(reloaded.kit.colorMode.applied).toBe('dark')
+  })
+
+  it('ignores the phone switching while a look is forced', async () => {
+    const { atmosphere, kit } = setupOnPhone('dark', { ...soundSettingsDefaults(false), colorMode: 'light' })
+    kit.colorMode.switchSystemTo('dark')
+    await flushPromises()
+    expect(atmosphere.menuLook).toBe('light')
+  })
+})

@@ -1,3 +1,5 @@
+import { DEFAULT_COLOR_MODE, type ColorMode } from './colorMode'
+
 export const VOLUME_CHANNELS = ['music', 'effects'] as const
 export type VolumeChannel = (typeof VOLUME_CHANNELS)[number]
 
@@ -10,6 +12,7 @@ export interface AtmosphereSettings {
   readonly music: number
   readonly effects: number
   readonly reducedMotion: boolean
+  readonly colorMode: ColorMode
 }
 
 export const soundSettingsDefaults = (prefersReducedMotion: boolean): AtmosphereSettings => ({
@@ -18,7 +21,8 @@ export const soundSettingsDefaults = (prefersReducedMotion: boolean): Atmosphere
   master: 80,
   music: 55,
   effects: 100,
-  reducedMotion: prefersReducedMotion
+  reducedMotion: prefersReducedMotion,
+  colorMode: DEFAULT_COLOR_MODE
 })
 
 export const clampVolume = (percent: number): number => Math.min(MAX_VOLUME, Math.max(0, Math.round(percent)))

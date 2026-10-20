@@ -81,7 +81,7 @@ const closeRoom = async () => {
 </script>
 
 <template>
-  <div class="desk ph-night narrator-lobby">
+  <div class="desk ph-menu narrator-lobby">
     <DeskHeader :trail="`${snapshot.name} / ${t('room.narratorLobby.lobby')}`">
       <span class="sbadge narrator-code">{{ snapshot.code }}</span>
       <span class="sbadge narrator-visibility" :class="{ 'is-ok': snapshot.visibility === 'public' }">
@@ -163,7 +163,7 @@ const closeRoom = async () => {
             {{ t('room.narratorLobby.kickTitle', { name: kickCandidate.name }) }}
           </h3>
           <p class="t-small t-muted narrator-kick-body">{{ t('room.narratorLobby.kickBody') }}</p>
-          <div class="narrator-kick-actions">
+          <div class="narrator-kick-actions stack-on-phone">
             <button type="button" class="btn btn-secondary btn-sm" @click="kickCandidate = null">{{ t('common.cancel') }}</button>
             <button type="button" class="btn btn-danger btn-sm" :disabled="pending" @click="confirmKick">
               {{ t('room.narratorLobby.kick', { name: kickCandidate.name }) }}
@@ -279,8 +279,8 @@ const closeRoom = async () => {
   gap: 12px;
   padding: 12px 12px 12px 14px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 0 0 1px rgba(233, 230, 255, 0.1);
+  background: var(--tint);
+  box-shadow: inset 0 0 0 1px var(--tint-line);
 }
 
 .pcard .av {
@@ -308,7 +308,7 @@ const closeRoom = async () => {
 }
 
 .tone-ok {
-  color: var(--ok);
+  color: var(--ok-ink);
 }
 
 .tone-warn {
@@ -320,11 +320,11 @@ const closeRoom = async () => {
 }
 
 .tone-bad {
-  color: #ff9c92;
+  color: var(--err-ink);
 }
 
 .narrator-waiting {
-  border: 1.5px dashed rgba(233, 230, 255, 0.2);
+  border: 1.5px dashed var(--line);
   box-shadow: none;
   justify-content: center;
   color: var(--muted);
@@ -336,7 +336,7 @@ const closeRoom = async () => {
   right: auto;
   margin-top: 16px;
   max-width: 420px;
-  background: #1a1e48;
+  background: var(--sheet);
   padding: 18px;
   box-shadow: inset 0 0 0 1.5px var(--danger), var(--shadow-2);
 }
@@ -393,7 +393,7 @@ const closeRoom = async () => {
 
 .narrator-mismatch {
   margin: 8px 0 14px;
-  color: #ff9c92;
+  color: var(--err-ink);
 }
 
 .narrator-deck {
@@ -431,5 +431,15 @@ const closeRoom = async () => {
 .narrator-start-hint {
   display: block;
   margin-top: 8px;
+}
+
+@media (max-width: 420px) {
+  .narrator-body {
+    padding: 16px 16px 32px;
+  }
+
+  .narrator-ratio b {
+    font-size: 32px;
+  }
 }
 </style>

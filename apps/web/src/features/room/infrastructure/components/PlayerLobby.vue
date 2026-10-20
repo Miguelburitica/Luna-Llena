@@ -38,7 +38,7 @@ const leave = async () => {
 </script>
 
 <template>
-  <main class="phone ph-night">
+  <main class="phone ph-menu">
     <header class="lobby-top">
       <div class="lobby-title">
         <div class="t-cap t-muted">{{ t('room.lobby.caption', { theme: t(`themes.${snapshot.settings.theme}.name`) }) }}</div>
@@ -59,7 +59,7 @@ const leave = async () => {
     <div v-if="failure" class="lobby-error"><RoomFailureMessage :failure="failure" /></div>
 
     <section class="card lobby-looks">
-      <div class="lobby-section-head">
+      <div class="lobby-section-head stack-on-phone">
         <h2 class="h3">{{ t('room.lobby.pickLook') }}</h2>
         <span class="t-small t-muted">{{ t('room.lobby.onePerPlayer') }}</span>
       </div>
@@ -163,7 +163,7 @@ const leave = async () => {
 
 .lobby-copied {
   margin: 0 16px 8px;
-  color: var(--ok);
+  color: var(--ok-ink);
 }
 
 .lobby-call {
@@ -222,7 +222,7 @@ const leave = async () => {
 }
 
 .lobby-row.is-narrator {
-  background: rgba(244, 235, 200, 0.08);
+  background: var(--surface-2);
 }
 
 .lobby-row.is-me {

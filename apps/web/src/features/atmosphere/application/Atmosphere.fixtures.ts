@@ -2,13 +2,16 @@ import { err, ok, type CueEffect, type CueInput, type Result, type SoundCue } fr
 import type { App } from 'vue'
 import type { MatchFailure } from '@/features/match/application/ports'
 import type { AmbientId } from '../domain/ambience'
+import type { MenuLook } from '../domain/colorMode'
 import type { AtmosphereSettings } from '../domain/soundSettings'
 import {
   ATMOSPHERE_SETTINGS_STORE,
+  COLOR_MODE_PREFERENCE,
   CUE_GATEWAY,
   MOTION_PREFERENCE,
   SOUND_ENGINE,
   type AtmosphereSettingsStore,
+  type ColorModePreference,
   type CueGateway,
   type MotionPreference,
   type SoundEngine
@@ -108,25 +111,56 @@ export class FakeMotionPreference implements MotionPreference {
   }
 }
 
+export class FakeColorModePreference implements ColorModePreference {
+  applied: MenuLook | null = null
+  private readonly listeners: Array<(prefersLight: boolean) => void> = []
+
+  constructor(private systemPrefersLight = false) {}
+
+  prefersLight() {
+    return this.systemPrefersLight
+  }
+
+  onChange(listener: (prefersLight: boolean) => void) {
+    this.listeners.push(listener)
+  }
+
+  apply(look: MenuLook) {
+    this.applied = look
+  }
+
+  switchSystemTo(look: MenuLook) {
+    this.systemPrefersLight = look === 'light'
+    for (const listener of this.listeners) listener(this.systemPrefersLight)
+  }
+}
+
 export interface AtmosphereKit {
   readonly engine: FakeSoundEngine
   readonly settings: MemoryAtmosphereSettings
   readonly cues: FakeCueGateway
   readonly motion: FakeMotionPreference
+  readonly colorMode: FakeColorModePreference
 }
 
-export const createAtmosphereKit = (initial: AtmosphereSettings | null = null, systemPrefersReduced = false): AtmosphereKit => ({
+export const createAtmosphereKit = (
+  initial: AtmosphereSettings | null = null,
+  systemPrefersReduced = false,
+  systemPrefersLight = false
+): AtmosphereKit => ({
   engine: new FakeSoundEngine(),
   settings: new MemoryAtmosphereSettings(initial),
   cues: new FakeCueGateway(),
-  motion: new FakeMotionPreference(systemPrefersReduced)
+  motion: new FakeMotionPreference(systemPrefersReduced),
+  colorMode: new FakeColorModePreference(systemPrefersLight)
 })
 
 export const atmosphereProvides = (kit: AtmosphereKit): Record<symbol, unknown> => ({
   [SOUND_ENGINE as symbol]: kit.engine,
   [ATMOSPHERE_SETTINGS_STORE as symbol]: kit.settings,
   [CUE_GATEWAY as symbol]: kit.cues,
-  [MOTION_PREFERENCE as symbol]: kit.motion
+  [MOTION_PREFERENCE as symbol]: kit.motion,
+  [COLOR_MODE_PREFERENCE as symbol]: kit.colorMode
 })
 
 export const provideAtmosphere = (app: App, kit: AtmosphereKit): void => {

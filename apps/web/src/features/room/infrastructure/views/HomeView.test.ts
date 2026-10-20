@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { ok } from '@luna/contracts'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -27,6 +28,20 @@ describe('HomeView', () => {
     expect(wrapper.text()).toContain('Your seat is gone. Join again with the code.')
     expect(wrapper.find('.home-return').exists()).toBe(false)
     expect(router.currentRoute.value.fullPath).toBe('/')
+  })
+
+  it('uses the menu look, which the Light appearance lightens', async () => {
+    const { wrapper } = await mountRoomView(HomeView, { stubs })
+    expect(wrapper.classes()).toContain('ph-menu')
+    expect(wrapper.classes()).not.toContain('ph-night')
+    expect(wrapper.find('.home-scene .scene-bg').classes()).toContain('bg-menu')
+  })
+
+  it('puts Play in person on a solid menu surface in either look', async () => {
+    const { wrapper } = await mountRoomView(HomeView, { stubs })
+    expect(wrapper.find('.home-in-person').text()).toContain('Play in person')
+    const styles = readFileSync('src/features/room/infrastructure/views/HomeView.vue', 'utf8').replace(/\s+/g, ' ')
+    expect(styles).toContain('.home-in-person { background: var(--surface); color: var(--ink);')
   })
 
   it('offers no seat when the device holds none', async () => {

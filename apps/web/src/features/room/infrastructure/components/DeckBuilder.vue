@@ -32,8 +32,8 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
       <span class="sbadge">{{ t('room.setup.cards', { count: deckSize }) }}</span>
     </div>
 
-    <div class="setup-suggest">
-      <div v-if="!props.playersFixed" class="setup-suggest-count">
+    <div class="setup-suggest stack-on-phone">
+      <div v-if="!props.playersFixed" class="setup-suggest-count stack-on-phone">
         <span class="setup-row-label"><LunaIcon name="users" />{{ t('room.setup.playersExpected') }}</span>
         <LunaCounter
           v-model="players"
@@ -49,7 +49,7 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
     </div>
 
     <div class="setup-balance">
-      <div class="setup-balance-head">
+      <div class="setup-balance-head stack-on-phone">
         <div class="setup-balance-title">
           <b>{{ t('room.setup.balance') }}</b>
           <span class="sbadge" :class="verdict === 'balanced' ? 'is-ok' : 'is-warn'">
@@ -134,7 +134,7 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
 .setup-balance {
   padding: 16px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--tint);
   margin-bottom: 16px;
 }
 
@@ -148,6 +148,7 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
 
 .setup-balance-legend {
   display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   font: 700 13px var(--font-ui);
 }
@@ -159,15 +160,15 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
 }
 
 .legend-wolves {
-  color: var(--team-wolf-soft);
+  color: var(--team-wolf-text);
 }
 
 .legend-village {
-  color: var(--team-village-soft);
+  color: var(--team-village-text);
 }
 
 .legend-solo {
-  color: var(--team-solo-soft);
+  color: var(--team-solo-text);
 }
 
 .setup-balance-bar {
@@ -176,7 +177,7 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
   border-radius: 99px;
   overflow: hidden;
   gap: 3px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--tint);
 }
 
 .setup-balance-bar i {
@@ -186,7 +187,7 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
 
 .setup-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
   gap: 12px;
 }
 
@@ -196,8 +197,8 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
   align-items: center;
   padding: 12px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 0 0 1px rgba(233, 230, 255, 0.1);
+  background: var(--tint);
+  box-shadow: inset 0 0 0 1px var(--tint-line);
 }
 
 .setup-card.is-on {
@@ -213,12 +214,15 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
 .setup-card-text {
   flex: 1;
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: manual;
 }
 
 @media (max-width: 420px) {
   .setup-card {
-    gap: 8px;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 8px 12px;
     padding: 10px;
   }
 
@@ -226,9 +230,14 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
     width: 44px;
     height: 44px;
   }
+
+  .setup-card .counter {
+    grid-column: 2;
+    justify-self: start;
+  }
 }
 
 .setup-card-team {
-  color: var(--team-soft);
+  color: var(--team-text);
 }
 </style>

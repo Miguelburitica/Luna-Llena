@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { soundSettingsDefaults } from '@/features/atmosphere/domain/soundSettings'
 import { playerViewOf } from '../../application/MatchGateway.fixtures'
 import { matchPlayers, mountMatchView } from '../mountMatchView.fixtures'
 import PlayerTable from './PlayerTable.vue'
@@ -12,6 +13,14 @@ describe('PlayerTable', () => {
     expect(wrapper.find('.ph-name').text()).toBe('Night')
     expect(wrapper.find('.ph-sub').text()).toBe('Night 2 · The village sleeps')
     expect(wrapper.classes()).toContain('ph-night')
+  })
+
+  it('keeps the night palette when the appearance is Light', async () => {
+    const view = tableOf({ phase: 'night' })
+    const atmosphereSettings = { ...soundSettingsDefaults(false), colorMode: 'light' as const }
+    const { wrapper } = await mountMatchView(PlayerTable, { view, props: { view }, atmosphereSettings })
+    expect(wrapper.classes()).toContain('ph-night')
+    expect(wrapper.classes()).not.toContain('ph-menu')
   })
 
   it('counts down to the end of a timed phase and warns near the end', async () => {

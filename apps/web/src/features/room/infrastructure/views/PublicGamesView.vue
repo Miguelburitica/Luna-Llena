@@ -36,7 +36,7 @@ const confirmReport = async () => {
 </script>
 
 <template>
-  <main class="phone ph-night">
+  <main class="phone ph-menu">
     <header class="games-top">
       <RouterLink :to="{ name: 'home' }" class="btn btn-icon btn-ghost" :aria-label="t('common.back')">
         <LunaIcon name="arrow-left" />
@@ -126,7 +126,7 @@ const confirmReport = async () => {
       <h3 class="h3">{{ t('room.publicGames.reportTitle', { name: reportCandidate.name }) }}</h3>
       <p class="t-small t-muted">{{ t('room.publicGames.reportHint') }}</p>
       <RoomFailureMessage v-if="reportFailure" :failure="reportFailure" />
-      <div class="games-report-actions">
+      <div class="games-report-actions stack-on-phone">
         <button type="button" class="btn btn-secondary" @click="reportCandidate = null">{{ t('common.cancel') }}</button>
         <button type="button" class="btn btn-danger" :disabled="reporting" @click="confirmReport">
           <LunaIcon name="hand" />{{ t('room.publicGames.reportConfirm') }}
