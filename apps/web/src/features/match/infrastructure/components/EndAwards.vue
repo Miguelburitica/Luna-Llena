@@ -124,4 +124,31 @@ const ICONS: Readonly<Record<AwardId, string>> = {
 .award-who .av {
   margin: 0;
 }
+
+@media (max-width: 420px) {
+  .award {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px 12px;
+  }
+
+  .award-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .award-who {
+    grid-column: 2;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .award-who b {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+}
 </style>

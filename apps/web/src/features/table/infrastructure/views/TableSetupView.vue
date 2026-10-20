@@ -78,7 +78,7 @@ const deal = async () => {
             <span class="t-small t-muted">{{ t('table.setup.seatsHint') }}</span>
           </div>
         </div>
-        <div class="table-setup-count">
+        <div class="table-setup-count stack-on-phone">
           <span class="table-setup-label"><LunaIcon name="users" />{{ t('table.setup.players') }}</span>
           <LunaCounter
             v-model="seatCount"
@@ -112,7 +112,7 @@ const deal = async () => {
             <span class="t-small t-muted">{{ t('room.setup.timersHint') }}</span>
           </div>
         </div>
-        <div v-for="phase in TIMER_PHASES" :key="phase" class="table-setup-timer">
+        <div v-for="phase in TIMER_PHASES" :key="phase" class="table-setup-timer stack-on-phone">
           <span class="table-setup-label"><LunaIcon :name="PHASE_ICONS[phase]" />{{ t(`room.setup.phases.${phase}`) }}</span>
           <LunaSegmented v-model="draft.timers[phase]" :options="timerOptions(phase)" :label="t(`room.setup.phases.${phase}`)" />
         </div>
@@ -131,7 +131,7 @@ const deal = async () => {
       </ul>
     </form>
 
-    <footer v-if="!savedRunning" class="table-setup-foot">
+    <footer v-if="!savedRunning" class="table-setup-foot stack-on-phone">
       <RouterLink :to="{ name: 'home' }" class="btn btn-secondary">{{ t('table.setup.cancel') }}</RouterLink>
       <button type="button" class="btn btn-primary btn-lg" :disabled="!ready" @click="deal">
         <LunaIcon name="card" />{{ t('table.setup.deal') }}

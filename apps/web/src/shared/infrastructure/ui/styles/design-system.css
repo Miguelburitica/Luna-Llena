@@ -65,6 +65,9 @@
 .bg-night{background-image:url(../assets/illustrations/bg-night.svg)}
 .bg-dawn{background-image:url(../assets/illustrations/bg-dawn.svg)}
 .bg-day{background-image:url(../assets/illustrations/bg-day.svg)}
+.bg-menu{background-image:url(../assets/illustrations/bg-night.svg)}
+:root[data-color-mode="light"] .ph-menu .bg-menu{background-image:url(../assets/illustrations/bg-day.svg)}
+:root[data-color-mode="light"] .ph-menu .firefly{display:none}
 .f-ana{background-image:url(../assets/illustrations/f-ana.svg)}
 .f-caro{background-image:url(../assets/illustrations/f-caro.svg)}
 .f-juan{background-image:url(../assets/illustrations/f-juan.svg)}
@@ -212,6 +215,7 @@
 .sbadge.is-ok{color:var(--ok-ink)}
 .ph-day .sbadge.is-ok{color:var(--team-village)}
 .sbadge.is-warn{color:var(--warn)}
+.btn-primary .sbadge{background:color-mix(in srgb,var(--accent-ink) 12%,transparent);color:var(--accent-ink);border-color:color-mix(in srgb,var(--accent-ink) 35%,transparent)}
 :root[data-color-mode="light"] .ph-menu .sbadge.is-warn{color:var(--err-ink)}
 .count{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:var(--warn);color:var(--outline);border:2px solid var(--outline);font:900 11px/1 var(--font-ui)}
 
@@ -339,7 +343,7 @@
 .a-wobble{animation:wobble 3s ease-in-out infinite}
 .a-shake{animation:shake .4s ease-in-out infinite}
 .flicker{position:absolute;inset:0;background:#000;z-index:40;pointer-events:none;animation:flicker 2.4s linear infinite}
-@media (max-width:420px){.desk .h1{font-size:28px}.desk .h2{font-size:21px}}
+@media (max-width:420px){.desk .h1{font-size:28px}.desk .h2{font-size:21px}.btn{white-space:normal;text-align:center;line-height:1.15}.stack-on-phone{flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:10px}.stack-on-phone>.seg,.stack-on-phone>.btn{width:100%;max-width:none}.stack-on-phone>.counter{align-self:flex-start}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 .reduced *, .reduced *::before, .reduced *::after{animation:none!important;transition:none!important}
 

@@ -163,7 +163,7 @@ const closeRoom = async () => {
             {{ t('room.narratorLobby.kickTitle', { name: kickCandidate.name }) }}
           </h3>
           <p class="t-small t-muted narrator-kick-body">{{ t('room.narratorLobby.kickBody') }}</p>
-          <div class="narrator-kick-actions">
+          <div class="narrator-kick-actions stack-on-phone">
             <button type="button" class="btn btn-secondary btn-sm" @click="kickCandidate = null">{{ t('common.cancel') }}</button>
             <button type="button" class="btn btn-danger btn-sm" :disabled="pending" @click="confirmKick">
               {{ t('room.narratorLobby.kick', { name: kickCandidate.name }) }}

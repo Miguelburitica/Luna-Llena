@@ -104,6 +104,12 @@ shared ones in `design-system.css`:
   width; below 420px the card becomes a two-column grid (art | name) with the counter on a second row aligned to the
   name; columns use `minmax(min(220px,100%),1fr)`; the balance legend wraps.
 - `NarratorLobby`, `AdminView`: padding 16px below 420px.
+- A shared `stack-on-phone` class in `design-system.css` turns a row into a column below 420px (choices, segmented
+  controls and buttons full width, counters left-aligned). It wins over a view's own row alignment with `!important`, the
+  same way the reduced-motion rule does, so a view only adds the class. Below 420px `.btn` labels wrap instead of
+  overflowing. Rows of a label and a toggle stay rows: a toggle is small enough to sit beside its label.
+- The home scene uses `bg-menu`: the night village, swapped for the day village (and no fireflies) in the light menu, so
+  the ghost "Play in person" button never sits dark-on-dark.
 
 *Alternative:* `clamp()` fluid type everywhere — larger blast radius across canvas-matched screens; deferred.
 

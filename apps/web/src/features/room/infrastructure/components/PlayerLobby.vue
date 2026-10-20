@@ -59,7 +59,7 @@ const leave = async () => {
     <div v-if="failure" class="lobby-error"><RoomFailureMessage :failure="failure" /></div>
 
     <section class="card lobby-looks">
-      <div class="lobby-section-head">
+      <div class="lobby-section-head stack-on-phone">
         <h2 class="h3">{{ t('room.lobby.pickLook') }}</h2>
         <span class="t-small t-muted">{{ t('room.lobby.onePerPlayer') }}</span>
       </div>

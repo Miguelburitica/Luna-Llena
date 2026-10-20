@@ -146,10 +146,11 @@ const leave = async () => {
   max-width: 480px;
   max-height: 90dvh;
   margin: 0 auto;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .settings-head {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -157,9 +158,20 @@ const leave = async () => {
 }
 
 .settings-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   padding: 0 6px;
+}
+
+.settings-body > * {
+  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .settings-field {
@@ -188,8 +200,14 @@ const leave = async () => {
 }
 
 .settings-appearance {
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
   gap: 10px;
+  padding: 10px 0;
+}
+
+.settings-appearance .seg {
+  width: 100%;
 }
 
 .settings-rules-row {
@@ -202,7 +220,7 @@ const leave = async () => {
 }
 
 .settings-leave {
+  flex: none;
   margin-top: 8px;
-  color: var(--err-ink);
 }
 </style>

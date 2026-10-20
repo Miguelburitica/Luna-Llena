@@ -34,7 +34,7 @@ const returnToSeat = async () => {
       <p class="t-story home-tagline">{{ t('room.home.tagline') }}</p>
     </section>
     <div class="home-scene" aria-hidden="true">
-      <span class="scene-bg bg-night" />
+      <span class="scene-bg bg-menu" />
       <div class="fog home-fog" />
       <span class="firefly home-firefly-a" />
       <span class="firefly home-firefly-b" />
@@ -64,7 +64,7 @@ const returnToSeat = async () => {
       <RouterLink v-if="table.hasSaved" :to="{ name: 'table-resume' }" class="btn btn-secondary btn-lg btn-block">
         <LunaIcon name="arrow-right" />{{ t('room.home.resumeTable') }}
       </RouterLink>
-      <RouterLink :to="{ name: 'table-setup' }" class="btn btn-ghost btn-lg btn-block">
+      <RouterLink :to="{ name: 'table-setup' }" class="btn btn-ghost btn-lg btn-block home-in-person">
         <LunaIcon name="users" />{{ t('room.home.inPerson') }}
       </RouterLink>
     </nav>
@@ -147,5 +147,24 @@ const returnToSeat = async () => {
 
 .home-return-code {
   margin-left: auto;
+}
+
+.home-in-person {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--outline);
+  box-shadow: 0 0 0 2px var(--edge), 0 4px 0 var(--outline);
+}
+
+@media (max-width: 420px) {
+  .home-return {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    padding-block: 10px;
+  }
+
+  .home-return-code {
+    margin-left: 0;
+  }
 }
 </style>

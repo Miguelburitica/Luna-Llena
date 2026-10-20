@@ -206,7 +206,7 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
               <h2 class="h3">{{ t('room.setup.timers') }}</h2>
               <span class="t-small t-muted">{{ t('room.setup.timersHint') }}</span>
             </div>
-            <div v-for="phase in TIMER_PHASES" :key="phase" class="row-set">
+            <div v-for="phase in TIMER_PHASES" :key="phase" class="row-set stack-on-phone">
               <span class="setup-row-label"><LunaIcon :name="phaseIcons[phase]" />{{ t(`room.setup.phases.${phase}`) }}</span>
               <LunaSegmented
                 v-model="draft.timers[phase]"
@@ -417,6 +417,10 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
 
   .setup-title {
     font-size: 30px;
+  }
+
+  .setup-seg {
+    width: 100%;
   }
 
   .setup-footer {

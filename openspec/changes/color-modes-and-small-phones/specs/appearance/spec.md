@@ -28,6 +28,22 @@ SHALL have a contrast ratio of at least 4.5:1 against the button.
 - **WHEN** Caro's appearance is Light and Caro opens the home screen
 - **THEN** the home screen uses the light menu look
 
+#### Scenario: Light home scene
+- **WHEN** Caro's appearance is Light and Caro opens the home screen
+- **THEN** the village behind the buttons is the day scene, without fireflies, so every button stays readable
+
+#### Scenario: Play in person stays readable
+- **WHEN** a player opens the home screen in either look
+- **THEN** the "Play in person" button sits on a solid menu surface, never directly on the village illustration
+
+#### Scenario: Room code on the return button
+- **WHEN** Caro has a saved seat and opens the home screen in either look
+- **THEN** the room code badge inside "Return to your seat" uses the button's own label colour
+
+#### Scenario: Leave button in Settings
+- **WHEN** Caro opens Settings in a room in either look
+- **THEN** "Leave the village" uses the label colour of its button, readable at 4.5:1 or more
+
 #### Scenario: Readable light menu
 - **WHEN** a player reads a menu screen in the light look
 - **THEN** its text has at least 4.5:1 contrast against the background and its primary button label at least 4.5:1
@@ -74,7 +90,11 @@ keep a touch target of at least 44px. On screens narrower than 420px:
 - the desk screens (room setup, narrator lobby, admin) SHALL use phone spacing and smaller headings;
 - a deck card SHALL show each role name whole, never broken inside a word, with its counter below the name;
 - the room setup footer SHALL not cover the form: it SHALL scroll with the page, keep Cancel and Create on one row, and
-  show its hint above them.
+  show its hint above them;
+- a row that pairs a label with a choice or a counter (timers, expected players, seats, appearance), a row of action
+  buttons and a section heading with its hint SHALL stack vertically, with choices and buttons taking the full width;
+- a button label SHALL wrap inside the button rather than overflow it;
+- an end-screen award SHALL show its icon and title on one line and its winner below the title.
 
 #### Scenario: Werewolf card on a small phone
 - **WHEN** a narrator builds the deck on a phone 360px wide
@@ -83,6 +103,22 @@ keep a touch target of at least 44px. On screens narrower than 420px:
 #### Scenario: Setup footer on a small phone
 - **WHEN** a narrator scrolls the room setup on a phone 360px wide
 - **THEN** the footer does not cover the deck, and Cancel and Create sit side by side
+
+#### Scenario: Timers on a small phone
+- **WHEN** a narrator sets the night timer on a phone 360px wide
+- **THEN** the "Night" label sits above the timer choices, which take the full width
+
+#### Scenario: Expected players on a small phone
+- **WHEN** a narrator opens the deck on a phone 360px wide
+- **THEN** "Expected players" sits above its counter, and the suggested deck button takes the full width below
+
+#### Scenario: Return to seat on a small phone
+- **WHEN** Caro has a saved seat and opens the home screen on a phone 360px wide
+- **THEN** the "Return to your seat" button shows the room code inside the button, on its own line if needed
+
+#### Scenario: Awards on a small phone
+- **WHEN** a player reads the awards on the end screen on a phone 360px wide
+- **THEN** each award shows its title and detail at full width, with the winner's face and name below it
 
 #### Scenario: Narrowest phone
 - **WHEN** a player opens the home, join, public games, room setup or lobby screen on a phone 320px wide

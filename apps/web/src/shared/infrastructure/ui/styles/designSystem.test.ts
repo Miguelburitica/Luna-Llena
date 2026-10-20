@@ -76,6 +76,21 @@ describe('design system', () => {
     expect(contrastOf(ink('--err-ink'), ink('--panel'))).toBeGreaterThanOrEqual(4.5)
   })
 
+  it('puts the day village behind the home buttons on a light menu', () => {
+    expect(stylesheet).toContain('.bg-menu{background-image:url(../assets/illustrations/bg-night.svg)}')
+    expect(stylesheet).toContain(`${LIGHT_MENU} .bg-menu{background-image:url(../assets/illustrations/bg-day.svg)}`)
+    expect(stylesheet).toContain(`${LIGHT_MENU} .firefly{display:none}`)
+  })
+
+  it('draws a badge on a primary button in the button label colour', () => {
+    expect(stylesheet).toContain('.btn-primary .sbadge{background:color-mix(in srgb,var(--accent-ink) 12%,transparent);color:var(--accent-ink);')
+  })
+
+  it.each(['light', 'dark'] as const)('keeps secondary button labels readable on a %s menu', (look) => {
+    const tokens = menuLooks[look]()
+    expect(contrastOf(tokens['--btn-2-ink'] ?? '', tokens['--btn-2'] ?? '')).toBeGreaterThanOrEqual(4.5)
+  })
+
   it('keeps disabled menu buttons readable', () => {
     expect(stylesheet).toContain('.ph-menu .btn[disabled],.ph-menu .btn.is-disabled{opacity:.7}')
   })

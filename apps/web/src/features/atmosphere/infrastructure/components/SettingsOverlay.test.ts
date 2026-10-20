@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { playerViewOf } from '@/features/match/application/MatchGateway.fixtures'
@@ -55,6 +56,25 @@ describe('SettingsOverlay', () => {
     await flushPromises()
     expect(atmosphere.colorMode.applied).toBe('light')
     expect(atmosphere.settings.saved?.colorMode).toBe('light')
+  })
+
+  it('draws the leave button in its own label colour', () => {
+    const styles = readFileSync('src/features/atmosphere/infrastructure/components/SettingsOverlay.vue', 'utf8').replace(/\s+/g, ' ')
+    expect(styles).toContain('.settings-leave { flex: none; margin-top: 8px; }')
+  })
+
+  it('puts the appearance choices below their label at full width', () => {
+    const styles = readFileSync('src/features/atmosphere/infrastructure/components/SettingsOverlay.vue', 'utf8').replace(/\s+/g, ' ')
+    expect(styles).toContain('.settings-appearance { flex-direction: column; align-items: stretch;')
+    expect(styles).toContain('.settings-appearance .seg { width: 100%; }')
+  })
+
+  it('scrolls only the options and keeps the head in place', () => {
+    const styles = readFileSync('src/features/atmosphere/infrastructure/components/SettingsOverlay.vue', 'utf8').replace(/\s+/g, ' ')
+    expect(styles).toContain('.settings-sheet { position: fixed; z-index: 71; max-width: 480px; max-height: 90dvh; margin: 0 auto; overflow: hidden; }')
+    expect(styles).toContain('.settings-head { flex: none;')
+    expect(styles).toContain('.settings-body { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto;')
+    expect(styles).toContain('.settings-body > * { flex-shrink: 0; min-width: 0; max-width: 100%; }')
   })
 
   it('switches the language', async () => {

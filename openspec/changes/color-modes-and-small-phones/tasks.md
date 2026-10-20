@@ -49,6 +49,31 @@
   test "Setup footer on a small phone" and "Narrowest phone" in `smallPhones.test.ts` (static footer and `flex:1`
   buttons under 420px, no fixed widths over 320px in those views' styles)
 
+- [x] 5.9 Add the shared `stack-on-phone` rule (column, full-width choices and buttons) and wrapping button labels below
+  420px in `design-system.css`, and apply it to the timer rows (`RoomSetupView`, `TableSetupView`), the expected players
+  and suggested deck rows and the balance head (`DeckBuilder`), the seat count and footer (`TableSetupView`), the report
+  and kick actions (`PublicGamesView`, `NarratorLobby`), and the look heading (`PlayerLobby`); test "Timers on a small phone" and "Expected players on a small phone" in `smallPhones.test.ts`
+- [x] 5.10 Let the home "Return to your seat" button wrap its room code below 420px; test "Return to seat on a small
+  phone" in `smallPhones.test.ts`
+- [x] 5.11 Show the day scene without fireflies behind the home buttons in the light menu (`bg-menu`); test "Light home
+  scene" in `designSystem.test.ts` and `HomeView.test.ts`
+
+- [x] 5.12 Below 420px lay each award in `EndAwards.vue` out as icon and title with the winner on a second row; test
+  "Awards on a small phone" in `EndAwards.test.ts`
+
+- [x] 5.13 Give the home "Play in person" button a solid menu surface; test "Play in person stays readable" in
+  `HomeView.test.ts`
+
+- [x] 5.14 Draw badges inside primary buttons in the button's label colour and drop the error colour from the Settings
+  leave button; test "Room code on the return button" in `designSystem.test.ts` and "Leave button in Settings" in
+  `SettingsOverlay.test.ts`
+
+- [x] 5.15 Keep the Settings sheet head fixed and scroll only its options; test "Scrolling the settings" in
+  `SettingsOverlay.test.ts`
+
+- [x] 5.16 Always lay the Settings appearance row out as a column with full-width choices; test "Appearance choices on
+  a phone" in `SettingsOverlay.test.ts`
+
 ## 6. Verification
 
 - [x] 6.1 Run `pnpm check` green

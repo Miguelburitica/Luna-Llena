@@ -28,6 +28,15 @@ system preference. It replaces flips, drops, flicker, shake, lightning and fog d
 - **WHEN** Caro turns reduced motion on and the narrator triggers Shake
 - **THEN** Caro's screen does not shake and shows a short fade instead
 
+#### Scenario: Appearance choices on a phone
+- **WHEN** Caro opens Settings on any phone
+- **THEN** the Appearance label sits above System, Light and Dark, which take the full width and can all be tapped
+
+#### Scenario: Scrolling the settings
+- **WHEN** Caro opens Settings on a phone too short to show every option and scrolls
+- **THEN** only the options scroll, and only up and down, each option keeps its full height without overlapping its
+  divider, and the sheet's top edge, the "Settings" title and the close button stay in place
+
 #### Scenario: Choosing the look
 - **WHEN** Caro opens Settings from the home screen and picks Light under Appearance
 - **THEN** the home screen behind the sheet switches to the light look right away
