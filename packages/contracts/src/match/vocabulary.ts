@@ -14,6 +14,7 @@ export const MATCH_ERROR_CODES = [
   'member-not-found',
   'timer-not-running',
   'no-winner-yet',
+  'no-fool-win',
   'match-over',
   'not-night',
   'player-dead',

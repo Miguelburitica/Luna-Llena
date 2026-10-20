@@ -16,6 +16,7 @@ export interface MatchClientEvents {
   'match:setAlive': (input: { readonly memberId: string; readonly alive: boolean }, ack: MatchAck<void>) => void
   'match:endGame': (input: NoInput, ack: MatchAck<void>) => void
   'match:keepPlaying': (input: NoInput, ack: MatchAck<void>) => void
+  'match:declareFoolWin': (input: { readonly memberId: string }, ack: MatchAck<void>) => void
   'match:act': (input: NightActionInput, ack: MatchAck<void>) => void
   'match:vote': (input: { readonly targetId: string | null }, ack: MatchAck<void>) => void
   'match:lockVote': (input: NoInput, ack: MatchAck<void>) => void

@@ -46,12 +46,14 @@ describe('match store', () => {
     await store.setAlive('id-Juan', false)
     await store.endGame()
     await store.keepPlaying()
+    await store.declareFoolWin('id-Sofi')
     expect(matches.calls).toEqual([
       { command: 'advance', input: undefined },
       { command: 'extendTimer', input: undefined },
       { command: 'setAlive', input: { memberId: 'id-Juan', alive: false } },
       { command: 'endGame', input: undefined },
-      { command: 'keepPlaying', input: undefined }
+      { command: 'keepPlaying', input: undefined },
+      { command: 'declareFoolWin', input: { memberId: 'id-Sofi' } }
     ])
   })
 

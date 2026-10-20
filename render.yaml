@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: luna-llena
+    runtime: node
+    plan: free
+    buildCommand: npx --yes pnpm@11.1.2 install --frozen-lockfile && npx --yes pnpm@11.1.2 -C apps/web build
+    startCommand: cd apps/server && node_modules/.bin/tsx src/main.ts
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: WEB_ROOT
+        value: ../web/dist
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: ADMIN_TOKEN
+        sync: false

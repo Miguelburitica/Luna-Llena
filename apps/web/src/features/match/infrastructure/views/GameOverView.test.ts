@@ -91,6 +91,29 @@ describe('GameOverView', () => {
     expect(wrapper.find('.rcard-back').exists()).toBe(false)
   })
 
+  it('sums up the game in numbers', async () => {
+    const players = matchPlayers({ 'id-Luis': { alive: false }, 'id-Tato': { alive: false }, 'id-Juan': { alive: false } })
+    const view = playerViewOf({ players, round: 3, outcome: outcomeOf({ winner: 'village' }) })
+    const { wrapper } = await mountMatchView(GameView, { view, preload: false })
+    expect(wrapper.findAll('.over-summary li').map((item) => item.text())).toEqual(['8 players', '5 survivors', '3 days'])
+  })
+
+  it('groups who was who by team and marks the dead', async () => {
+    const view = playerViewOf({
+      players: revealedPlayers().map((player) => (player.id === 'id-Luis' ? { ...player, alive: false } : player)),
+      outcome: outcomeOf({ winner: 'village' })
+    })
+    const { wrapper } = await mountMatchView(GameView, { view, preload: false })
+    const teams = wrapper.findAll('.over-team')
+    expect(teams.map((team) => team.find('.over-team-name').text())).toEqual(['Wolves', 'Village', 'Solo'])
+    expect(teams[0]?.findAll('.over-name').map((name) => name.text())).toEqual(['Luis', 'Tato'])
+    expect(teams[2]?.findAll('.over-name').map((name) => name.text())).toEqual(['Sofi'])
+    const luis = teams[0]?.findAll('.over-tile').find((tile) => tile.text().includes('Luis'))
+    expect(luis?.classes()).toContain('is-fallen')
+    expect(luis?.find('.over-fallen').text()).toBe('Dead')
+    expect(teams[0]?.findAll('.over-fallen')).toHaveLength(1)
+  })
+
   describe('Plot twist', () => {
     it('tells the Drunk what they really were', async () => {
       const view = playerViewOf({ players: revealedPlayers(), you: youOf({ role: 'seer' }), outcome: outcomeOf() })

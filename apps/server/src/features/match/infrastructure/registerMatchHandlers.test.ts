@@ -65,6 +65,8 @@ afterEach(async () => {
 
 const HUNTER_DECK = { werewolf: 2, seer: 0, villager: 3, doctor: 0, witch: 0, hunter: 1, fool: 0, drunk: 0 }
 
+const FOOL_DECK = { werewolf: 2, seer: 0, villager: 3, doctor: 0, witch: 0, hunter: 0, fool: 1, drunk: 0 }
+
 const NIGHT_DECK = { werewolf: 2, seer: 1, villager: 2, doctor: 1, witch: 1, hunter: 0, fool: 0, drunk: 0 }
 
 describe('match socket handlers', () => {
@@ -272,6 +274,27 @@ describe('match socket handlers', () => {
     unwrap(await narrator.client.emitWithAck('match:advance', {}))
     const night = await nextView(narrator.views, (view) => view.phase === 'night' && view.round === 2)
     expect(night).toMatchObject({ verdict: null, revenge: null })
+  })
+
+  it('lets the narrator call the win of a Fool killed by hand, and nobody else', async () => {
+    const { narrator, players, holdersOf } = await seatedGame(FOOL_DECK)
+    const [fool] = holdersOf('fool') as [Seated]
+    const foolId = fool.session.memberId
+    unwrap(await narrator.client.emitWithAck('match:setAlive', { memberId: foolId, alive: false }))
+    await nextView(narrator.views, (view) => view.perspective === 'narrator' && view.foolClaimIds.includes(foolId))
+    const other = players.find((player) => player !== fool) as Seated
+    expect(await other.client.emitWithAck('match:declareFoolWin', { memberId: foolId })).toEqual({
+      ok: false,
+      error: { code: 'not-narrator' }
+    })
+    unwrap(await narrator.client.emitWithAck('match:declareFoolWin', { memberId: foolId }))
+    const crowned = await nextView(other.views, (view) => view.soloWinnerIds.includes(foolId))
+    expect(crowned.players.find((seat) => seat.id === foolId)).toMatchObject({ alive: false, revealedRole: 'fool' })
+    expect(crowned.outcome).toBeNull()
+    expect(await narrator.client.emitWithAck('match:declareFoolWin', { memberId: foolId })).toEqual({
+      ok: false,
+      error: { code: 'no-fool-win' }
+    })
   })
 
   it('lets the narrator skip a pending shot', async () => {

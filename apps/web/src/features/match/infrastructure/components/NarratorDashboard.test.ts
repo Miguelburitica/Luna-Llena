@@ -73,6 +73,36 @@ describe('NarratorDashboard', () => {
     ])
   })
 
+  describe('Solo winners', () => {
+    it('calls the Fool\'s win for a Fool killed by hand', async () => {
+      const { wrapper, matches } = await mountDashboard({
+        phase: 'execution',
+        players: matchPlayers({ 'id-Sofi': { alive: false } }),
+        foolClaimIds: ['id-Sofi']
+      })
+      expect(wrapper.find('.dashboard-solo').text()).toContain('Sofi, the Fool, died by your hand')
+      await buttonLabelled(wrapper, 'Call the Fool’s win for Sofi').trigger('click')
+      expect(matches.calls).toEqual([{ command: 'declareFoolWin', input: { memberId: 'id-Sofi' } }])
+    })
+
+    it('keeps showing a solo winner in later rounds', async () => {
+      const { wrapper } = await mountDashboard({
+        phase: 'night',
+        round: 2,
+        verdict: null,
+        players: matchPlayers({ 'id-Sofi': { alive: false, revealedRole: 'fool' } }),
+        soloWinnerIds: ['id-Sofi']
+      })
+      expect(wrapper.find('.dashboard-solo-winner').text()).toContain('Sofi won as the Fool')
+      expect(wrapper.find('.dashboard-solo-call').exists()).toBe(false)
+    })
+
+    it('shows nothing while nobody has won alone', async () => {
+      const { wrapper } = await mountDashboard()
+      expect(wrapper.find('.dashboard-solo').exists()).toBe(false)
+    })
+  })
+
   it('adds 30 seconds only while a timer runs', async () => {
     const manual = await mountDashboard({ phase: 'day', phaseEndsAt: null })
     expect(buttonLabelled(manual.wrapper, 'Add 30 seconds').attributes('disabled')).toBeDefined()

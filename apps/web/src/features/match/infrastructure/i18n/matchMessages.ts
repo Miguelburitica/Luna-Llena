@@ -111,6 +111,13 @@ const en = {
     reviveLabel: 'Revive {name}',
     keepPlaying: 'Keep playing',
     endGame: 'End game',
+    solo: {
+      title: 'Solo winners',
+      won: '{name} won as the Fool',
+      claim: '{name}, the Fool, died by your hand. If the village voted them out, the Fool wins.',
+      call: 'The Fool wins',
+      callLabel: 'Call the Fool’s win for {name}'
+    },
     votes: {
       title: 'Votes',
       progress: '{voted} of {voters} voted · {locked} locked',
@@ -230,6 +237,14 @@ const en = {
   },
   over: {
     eyebrow: 'Game over',
+    victory: { village: 'Village victory', wolves: 'Wolf victory', solo: 'Solo victory' },
+    summary: {
+      label: 'The game in numbers',
+      players: '{count} players',
+      survivors: 'no survivors | {count} survivor | {count} survivors',
+      days: '{count} day | {count} days'
+    },
+    fallen: 'Dead',
     roles: 'Who was who',
     soloAlso: 'The {role} also won',
     flavor: {
@@ -311,6 +326,7 @@ const en = {
     'member-not-found': 'That player is not in this game.',
     'timer-not-running': 'This phase has no timer to extend.',
     'no-winner-yet': 'No team has won yet.',
+    'no-fool-win': 'That player can’t win as the Fool.',
     'match-over': 'The game is over.',
     'not-night': 'That can only be done at night.',
     'player-dead': 'The dead can’t act.',
@@ -444,6 +460,13 @@ const es: typeof en = {
     reviveLabel: 'Revivir a {name}',
     keepPlaying: 'Seguir jugando',
     endGame: 'Terminar juego',
+    solo: {
+      title: 'Ganadores en solitario',
+      won: '{name} ganó como el Bufón',
+      claim: '{name}, el Bufón, murió por tu mano. Si la aldea lo votó, gana el Bufón.',
+      call: 'Gana el Bufón',
+      callLabel: 'Declarar la victoria del Bufón para {name}'
+    },
     votes: {
       title: 'Votos',
       progress: '{voted} de {voters} votaron · {locked} fijados',
@@ -563,6 +586,14 @@ const es: typeof en = {
   },
   over: {
     eyebrow: 'Fin del juego',
+    victory: { village: 'Victoria de la aldea', wolves: 'Victoria de los lobos', solo: 'Victoria en solitario' },
+    summary: {
+      label: 'La partida en números',
+      players: '{count} jugadores',
+      survivors: 'ningún superviviente | {count} superviviente | {count} supervivientes',
+      days: '{count} día | {count} días'
+    },
+    fallen: 'Muerto',
     roles: 'Quién era quién',
     soloAlso: 'El {role} también ganó',
     flavor: {
@@ -644,6 +675,7 @@ const es: typeof en = {
     'member-not-found': 'Ese jugador no está en este juego.',
     'timer-not-running': 'Esta fase no tiene un temporizador que ampliar.',
     'no-winner-yet': 'Todavía no ha ganado ningún equipo.',
+    'no-fool-win': 'Ese jugador no puede ganar como el Bufón.',
     'match-over': 'El juego terminó.',
     'not-night': 'Eso solo se puede hacer de noche.',
     'player-dead': 'Los muertos no pueden actuar.',

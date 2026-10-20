@@ -52,4 +52,11 @@ describe('narratorViewOf', () => {
     expect(view.phase).toBe('vote')
     expect(view.votes?.[SEER]).toEqual({ targetId: WOLF_ONE, locked: false })
   })
+
+  it('offers the Fool\'s win for a Fool the narrator killed by hand', () => {
+    const match = beginMatch()
+    expect(narratorViewOf(match, START_TIME, NO_CHAT).foolClaimIds).toEqual([])
+    unwrap(match.setAlive(NARRATOR_ID, 'p7', false))
+    expect(narratorViewOf(match, START_TIME, NO_CHAT).foolClaimIds).toEqual(['p7'])
+  })
 })

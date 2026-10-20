@@ -5,6 +5,7 @@ import { ActAtNight } from './ActAtNight'
 import { AdvancePhase } from './AdvancePhase'
 import { CastVote } from './CastVote'
 import { CloseLastWords } from './CloseLastWords'
+import { DeclareFoolWin } from './DeclareFoolWin'
 import { DescribeChatAudience } from './DescribeChatAudience'
 import { EndGame } from './EndGame'
 import { ExtendTimer } from './ExtendTimer'
@@ -39,6 +40,7 @@ export const createMatchUseCases = ({ matches, publisher, clock, random, ids }: 
     setAlive: new SetAlive(access),
     endGame: new EndGame(access),
     keepPlaying: new KeepPlaying(access),
+    declareFoolWin: new DeclareFoolWin(access),
     actAtNight: new ActAtNight(access, random),
     castVote: new CastVote(access),
     lockVote: new LockVote(access),

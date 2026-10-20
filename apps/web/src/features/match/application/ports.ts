@@ -12,6 +12,7 @@ export interface MatchGateway {
   setAlive(memberId: string, alive: boolean): MatchResult<void>
   endGame(): MatchResult<void>
   keepPlaying(): MatchResult<void>
+  declareFoolWin(memberId: string): MatchResult<void>
   act(input: NightActionInput): MatchResult<void>
   vote(targetId: string | null): MatchResult<void>
   lockVote(): MatchResult<void>

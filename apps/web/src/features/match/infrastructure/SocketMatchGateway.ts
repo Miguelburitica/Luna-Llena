@@ -29,6 +29,10 @@ export class SocketMatchGateway implements MatchGateway {
     return reachOrFail(() => this.socket.emitWithAck('match:keepPlaying', {}))
   }
 
+  declareFoolWin(memberId: string) {
+    return reachOrFail(() => this.socket.emitWithAck('match:declareFoolWin', { memberId }))
+  }
+
   act(input: NightActionInput) {
     return reachOrFail(() => this.socket.emitWithAck('match:act', input))
   }

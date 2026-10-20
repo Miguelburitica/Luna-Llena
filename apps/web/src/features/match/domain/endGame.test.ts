@@ -1,7 +1,7 @@
 import type { TimelineEntry } from '@luna/contracts'
 import { describe, expect, it } from 'vitest'
 import { outcomeOf, playerViewOf, youOf, narratorViewOf } from '../application/MatchGateway.fixtures'
-import { factsOf, flavorLineOf, orderedAwards, plotTwistOf, timelineChapters } from './endGame'
+import { factsOf, flavorLineOf, gameSummaryOf, orderedAwards, plotTwistOf, rolesByTeam, timelineChapters } from './endGame'
 
 const night = (round: number, overrides: Partial<Extract<TimelineEntry, { kind: 'night' }>> = {}): TimelineEntry => ({
   kind: 'night',
@@ -193,5 +193,38 @@ describe('orderedAwards', () => {
     const suspicious = { award: 'most-suspicious' as const, memberId: 'id-Tato', count: 9 }
     expect(orderedAwards([chatterbox, liar, null, suspicious])).toEqual([suspicious, liar, chatterbox])
     expect(orderedAwards([null])).toEqual([])
+  })
+})
+
+describe('gameSummaryOf', () => {
+  it('counts the players, the survivors and the days of the game', () => {
+    const fallen = ['Luis', 'Tato', 'Juan']
+    const players = ['Ana', 'Juan', 'Marta', 'Luis', 'Sofi', 'Caro', 'Tato', 'Pipe'].map((name) => ({
+      id: `id-${name}`,
+      alive: !fallen.includes(name),
+      revealedRole: null
+    }))
+    expect(gameSummaryOf(playerViewOf({ players, round: 3 }))).toEqual({ players: 8, survivors: 5, days: 3 })
+  })
+})
+
+describe('rolesByTeam', () => {
+  it('lists the wolves first, then the village, then the solo players, and leaves out empty teams', () => {
+    const rows = [
+      { id: 'ana', role: 'villager' as const },
+      { id: 'luis', role: 'werewolf' as const },
+      { id: 'sofi', role: 'fool' as const },
+      { id: 'caro', role: 'drunk' as const },
+      { id: 'tato', role: 'werewolf' as const }
+    ]
+    expect(rolesByTeam(rows).map((group) => [group.team, group.rows.map((row) => row.id)])).toEqual([
+      ['wolves', ['luis', 'tato']],
+      ['village', ['ana', 'caro']],
+      ['solo', ['sofi']]
+    ])
+    expect(rolesByTeam([{ id: 'ana', role: 'villager' as const }, { id: 'juan', role: null }]).map((group) => group.team)).toEqual([
+      'village',
+      null
+    ])
   })
 })

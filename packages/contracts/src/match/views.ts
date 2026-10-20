@@ -51,6 +51,7 @@ export interface NarratorMatchView extends MatchViewCommon {
   readonly perspective: 'narrator'
   readonly roles: Readonly<Record<string, RoleId>>
   readonly pendingWinner: TeamId | null
+  readonly foolClaimIds: readonly string[]
   readonly night: NarratorNightView | null
   readonly votes: Readonly<Record<string, CastVote>> | null
   readonly haunts: readonly HauntRecord[]

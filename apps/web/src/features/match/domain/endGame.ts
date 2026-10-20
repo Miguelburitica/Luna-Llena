@@ -1,4 +1,13 @@
-import { AWARD_IDS, type Award, type MatchOutcome, type MatchView, type RoleId, type TeamId, type TimelineEntry } from '@luna/contracts'
+import {
+  AWARD_IDS,
+  ROLE_TEAMS,
+  type Award,
+  type MatchOutcome,
+  type MatchView,
+  type RoleId,
+  type TeamId,
+  type TimelineEntry
+} from '@luna/contracts'
 
 export interface Chapter {
   readonly id: string
@@ -61,6 +70,31 @@ export const plotTwistOf = (view: MatchView, myId: string | undefined): PlotTwis
 }
 
 export const flavorLineOf = (winner: TeamId): string => `match.over.flavor.${winner}`
+
+export interface GameSummary {
+  readonly players: number
+  readonly survivors: number
+  readonly days: number
+}
+
+export const gameSummaryOf = (view: MatchView): GameSummary => ({
+  players: view.players.length,
+  survivors: view.players.filter((player) => player.alive).length,
+  days: view.round
+})
+
+export interface TeamGroup<T> {
+  readonly team: TeamId | null
+  readonly rows: readonly T[]
+}
+
+const TEAM_ORDER: readonly TeamId[] = ['wolves', 'village', 'solo']
+
+export const rolesByTeam = <T extends { readonly role: RoleId | null }>(rows: readonly T[]): TeamGroup<T>[] =>
+  [
+    ...TEAM_ORDER.map((team) => ({ team, rows: rows.filter((row) => row.role !== null && ROLE_TEAMS[row.role] === team) })),
+    { team: null, rows: rows.filter((row) => row.role === null) }
+  ].filter((group) => group.rows.length > 0)
 
 const nightFacts = (entry: Extract<TimelineEntry, { kind: 'night' }>): Fact[] => [
   entry.victimId === null ? fact('noVictim') : fact('hunt', [entry.victimId]),

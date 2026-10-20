@@ -81,6 +81,8 @@ const verdictRows = computed(() =>
 )
 const verdictOutcome = computed(() => (props.view.verdict === null ? null : verdictOutcomeOf(props.view.verdict)))
 const shotPending = computed(() => props.view.revenge?.pending === true)
+const soloWinners = computed(() => seats.value.filter((seat) => props.view.soloWinnerIds.includes(seat.id)))
+const foolClaims = computed(() => seats.value.filter((seat) => props.view.foolClaimIds.includes(seat.id)))
 </script>
 
 <template>
@@ -150,6 +152,26 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
         </div>
         <button type="button" class="btn btn-primary" :disabled="shotPending" @click="match.advance()">
           <LunaIcon :name="phaseLook(upcoming).icon" />{{ t('match.dashboard.next', { phase: t(`match.phases.${upcoming}`) }) }}
+        </button>
+      </div>
+    </div>
+
+    <div v-if="soloWinners.length || foolClaims.length" class="dashboard-solo team-solo" role="status">
+      <span class="dashboard-solo-title"><LunaIcon name="sparkles" />{{ t('match.dashboard.solo.title') }}</span>
+      <span v-for="winner in soloWinners" :key="winner.id" class="sbadge dashboard-solo-winner">
+        <LunaAvatar :avatar="winner.avatar" :name="winner.name" size="xs" :bot="winner.bot" />{{
+          t('match.dashboard.solo.won', { name: winner.name })
+        }}
+      </span>
+      <div v-for="claim in foolClaims" :key="claim.id" class="dashboard-solo-claim">
+        <span>{{ t('match.dashboard.solo.claim', { name: claim.name }) }}</span>
+        <button
+          type="button"
+          class="btn btn-sm dashboard-solo-call"
+          :aria-label="t('match.dashboard.solo.callLabel', { name: claim.name })"
+          @click="match.declareFoolWin(claim.id)"
+        >
+          <LunaIcon name="crown" size="sm" />{{ t('match.dashboard.solo.call') }}
         </button>
       </div>
     </div>
@@ -377,6 +399,41 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
   color: #1e1230;
 }
 
+.dashboard-solo {
+  display: flex;
+  align-items: center;
+  gap: 10px 14px;
+  flex-wrap: wrap;
+  padding: 12px 32px;
+  background: color-mix(in srgb, var(--team) 32%, #1a0d2b);
+  border-bottom: 3px solid var(--outline);
+  font: 700 14px var(--font-ui);
+}
+
+.dashboard-solo-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 900 16px var(--font-display);
+  color: var(--team-solo-soft);
+}
+
+.dashboard-solo-winner .av {
+  margin: 0;
+}
+
+.dashboard-solo-claim {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dashboard-solo-call {
+  background: #ffe27a;
+  color: #2a1040;
+}
+
 .dashboard-bar {
   display: flex;
   align-items: center;
@@ -530,7 +587,8 @@ const shotPending = computed(() => props.view.revenge?.pending === true)
 }
 
 @media (max-width: 640px) {
-  .dashboard-bar {
+  .dashboard-bar,
+  .dashboard-solo {
     padding: 12px 16px;
   }
 

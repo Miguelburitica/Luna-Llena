@@ -44,7 +44,7 @@ const factsFor = (chapter: Chapter): Fact[] => chapter.entries.flatMap((entry) =
 </script>
 
 <template>
-  <section class="story">
+  <section class="card story">
     <div class="story-head">
       <h2 class="h2">{{ t('match.over.story') }}</h2>
       <button type="button" class="btn btn-ghost btn-sm" @click="toggleAll">
@@ -78,13 +78,10 @@ const factsFor = (chapter: Chapter): Fact[] => chapter.entries.flatMap((entry) =
 </template>
 
 <style scoped>
-.story {
-  padding: 30px 16px 0;
-}
-
 .story-head {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  gap: 12px;
   justify-content: space-between;
   margin-bottom: 14px;
 }
@@ -141,7 +138,8 @@ const factsFor = (chapter: Chapter): Fact[] => chapter.entries.flatMap((entry) =
 }
 
 .story-body {
-  padding-bottom: 16px;
+  min-width: 0;
+  padding-bottom: 12px;
 }
 
 .story-toggle {
@@ -161,7 +159,7 @@ const factsFor = (chapter: Chapter): Fact[] => chapter.entries.flatMap((entry) =
 
 .story-facts {
   list-style: none;
-  margin: 2px 0 0;
+  margin: 2px 0 4px;
   padding: 0;
   display: flex;
   flex-direction: column;

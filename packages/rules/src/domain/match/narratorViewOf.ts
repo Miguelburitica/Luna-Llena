@@ -72,6 +72,7 @@ export const narratorViewOf = (match: Match, now: number, chat: ChatAccess): Nar
   perspective: 'narrator',
   roles: Object.fromEntries(match.seats.map((seat) => [seat.memberId, seat.role])),
   pendingWinner: match.pendingWinner,
+  foolClaimIds: match.foolClaimIds,
   night: toNarratorNight(match),
   votes: toNarratorVotes(match),
   haunts: match.haunts

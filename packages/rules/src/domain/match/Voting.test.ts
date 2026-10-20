@@ -250,6 +250,69 @@ describe('The Fool', () => {
   })
 })
 
+describe('Calling the Fool\'s win', () => {
+  const killedByHand = (): Match => {
+    const match = voteOpen()
+    unwrap(match.setAlive(NARRATOR_ID, FOOL, false))
+    return match
+  }
+
+  it('offers the narrator the win when the Fool dies by hand, and records it once called', () => {
+    const match = killedByHand()
+    expect(match.foolClaimIds).toEqual([FOOL])
+    unwrap(match.declareFoolWin(NARRATOR_ID, FOOL))
+    expect(match.soloWinnerIds).toEqual([FOOL])
+    expect(match.foolClaimIds).toEqual([])
+    expect(match.outcome).toBeNull()
+    expect(match.pendingWinner).toBeNull()
+  })
+
+  it('offers nothing when the wolves kill the Fool at night', () => {
+    const match = beginMatch()
+    unwrap(match.act(WOLF_ONE, { kind: 'hunt', targetId: FOOL }, constantRandom(0)))
+    unwrap(match.act(WOLF_TWO, { kind: 'hunt', targetId: FOOL }, constantRandom(0)))
+    advance(match)
+    expect(match.foolClaimIds).toEqual([])
+    expect(match.declareFoolWin(NARRATOR_ID, FOOL)).toEqual(rejected('no-fool-win'))
+  })
+
+  it('rejects a living Fool, a revived Fool, a Fool already crowned and anyone else', () => {
+    const living = voteOpen()
+    expect(living.declareFoolWin(NARRATOR_ID, FOOL)).toEqual(rejected('no-fool-win'))
+    const revived = killedByHand()
+    unwrap(revived.setAlive(NARRATOR_ID, FOOL, true))
+    expect(revived.foolClaimIds).toEqual([])
+    expect(revived.declareFoolWin(NARRATOR_ID, FOOL)).toEqual(rejected('no-fool-win'))
+    const crowned = killedByHand()
+    unwrap(crowned.declareFoolWin(NARRATOR_ID, FOOL))
+    expect(crowned.declareFoolWin(NARRATOR_ID, FOOL)).toEqual(rejected('no-fool-win'))
+    expect(crowned.soloWinnerIds).toEqual([FOOL])
+    const other = killedByHand()
+    unwrap(other.setAlive(NARRATOR_ID, SEER, false))
+    expect(other.declareFoolWin(NARRATOR_ID, SEER)).toEqual(rejected('no-fool-win'))
+  })
+
+  it('drops the offer when a revived Fool later dies at night', () => {
+    const match = killedByHand()
+    unwrap(match.setAlive(NARRATOR_ID, FOOL, true))
+    advance(match, 2)
+    unwrap(match.act(WOLF_ONE, { kind: 'hunt', targetId: FOOL }, constantRandom(0)))
+    unwrap(match.act(WOLF_TWO, { kind: 'hunt', targetId: FOOL }, constantRandom(0)))
+    advance(match)
+    expect(match.seats.find((seat) => seat.memberId === FOOL)?.alive).toBe(false)
+    expect(match.foolClaimIds).toEqual([])
+  })
+
+  it('lets only the narrator call it, and only while the game runs', () => {
+    const match = killedByHand()
+    expect(match.declareFoolWin(SEER, FOOL)).toEqual(rejected('not-narrator'))
+    unwrap(match.setAlive(NARRATOR_ID, WOLF_ONE, false))
+    unwrap(match.setAlive(NARRATOR_ID, WOLF_TWO, false))
+    unwrap(match.endGame(NARRATOR_ID))
+    expect(match.declareFoolWin(NARRATOR_ID, FOOL)).toEqual(rejected('match-over'))
+  })
+})
+
 describe('Hunter revenge', () => {
   it('opens a shot when the wolves kill the Hunter and kills the pick at once', () => {
     const match = killHunterAtDawn()

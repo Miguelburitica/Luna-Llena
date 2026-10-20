@@ -82,6 +82,7 @@ export class Match {
   private currentVerdict: Verdict | null = null
   private currentRevenge: RevengeView | null = null
   private readonly currentSoloWinnerIds: string[] = []
+  private readonly handKilledFools = new Set<string>()
   private readonly lastWordsWindows = new Map<string, number>()
   private readonly hauntsUsed = new Set<string>()
   private readonly entries: TimelineEntry[] = []
@@ -154,6 +155,13 @@ export class Match {
 
   get soloWinnerIds(): readonly string[] {
     return this.currentSoloWinnerIds
+  }
+
+  get foolClaimIds(): readonly string[] {
+    return this.seats
+      .filter((seat) => !seat.alive && this.handKilledFools.has(seat.memberId))
+      .filter((seat) => !this.currentSoloWinnerIds.includes(seat.memberId))
+      .map((seat) => seat.memberId)
   }
 
   lastWordsUntilOf(memberId: string, now: number): number | null {
@@ -346,9 +354,11 @@ export class Match {
     if (alive === true) {
       seat.alive = true
       this.lastWordsWindows.delete(seat.memberId)
+      this.handKilledFools.delete(seat.memberId)
       this.refreshPendingWinner()
-    } else {
+    } else if (seat.alive) {
       this.bury([seat.memberId], null)
+      if (seat.role === 'fool') this.handKilledFools.add(seat.memberId)
     }
     if (changes) this.entries.push({ kind: 'narrator', round: this.currentRound, memberId: seat.memberId, alive: alive === true })
     return done
@@ -358,6 +368,15 @@ export class Match {
     const authority = this.requireRunningNarrator(actorId)
     if (!authority.ok) return authority
     this.currentPendingWinner = null
+    return done
+  }
+
+  declareFoolWin(actorId: string, memberId: unknown): Result<void, MatchError> {
+    const authority = this.requireRunningNarrator(actorId)
+    if (!authority.ok) return authority
+    const fool = this.foolClaimIds.find((claimId) => claimId === memberId)
+    if (fool === undefined) return err(matchError('no-fool-win'))
+    this.currentSoloWinnerIds.push(fool)
     return done
   }
 
@@ -407,6 +426,7 @@ export class Match {
     const fallen = this.seats.filter((seat) => seat.alive && memberIds.includes(seat.memberId))
     for (const seat of fallen) {
       seat.alive = false
+      this.handKilledFools.delete(seat.memberId)
       if (this.lastWords && now !== null) {
         this.lastWordsWindows.set(seat.memberId, now + CHAT_LIMITS.lastWordsSeconds * 1000)
       }

@@ -62,6 +62,7 @@ export const narratorViewOf = (overrides: Partial<NarratorMatchView> = {}): Narr
   perspective: 'narrator',
   roles: {},
   pendingWinner: null,
+  foolClaimIds: [],
   night: null,
   votes: null,
   haunts: [],
@@ -108,6 +109,10 @@ export class FakeMatchGateway implements MatchGateway {
 
   keepPlaying() {
     return this.respond<undefined>('keepPlaying', undefined, ok(undefined))
+  }
+
+  declareFoolWin(memberId: string) {
+    return this.respond<undefined>('declareFoolWin', { memberId }, ok(undefined))
   }
 
   act(input: NightActionInput) {

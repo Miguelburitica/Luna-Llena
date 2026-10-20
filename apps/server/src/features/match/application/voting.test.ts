@@ -316,6 +316,43 @@ describe('The Fool', () => {
   })
 })
 
+describe('DeclareFoolWin', () => {
+  it('records the win of a Fool the narrator killed by hand, reveals the Fool to everyone and keeps playing', async () => {
+    const { people, useCases, narrator, publisher, narratorView } = await voteOpen({ revealRoleOnDeath: false })
+    unwrap(await useCases.setAlive.execute(narrator, { memberId: people.fool, alive: false }))
+    expect(narratorView().foolClaimIds).toEqual([people.fool])
+    unwrap(await useCases.declareFoolWin.execute(narrator, { memberId: people.fool }))
+    for (const { view } of publisher.latest) {
+      expect(view.soloWinnerIds).toEqual([people.fool])
+      expect(view.players.find((player) => player.id === people.fool)).toMatchObject({ alive: false, revealedRole: 'fool' })
+      expect(view.outcome).toBeNull()
+    }
+    expect(narratorView().foolClaimIds).toEqual([])
+  })
+
+  it('offers nothing for a Fool the wolves killed at night', async () => {
+    const { people, useCases, actorOf, advance, narrator, narratorView } = await voteKit()
+    for (const wolf of [people.luis, people.tato]) {
+      unwrap(await useCases.actAtNight.execute(actorOf(wolf), { kind: 'hunt', targetId: people.fool }))
+    }
+    await advance()
+    expect(narratorView().foolClaimIds).toEqual([])
+    expect(await useCases.declareFoolWin.execute(narrator, { memberId: people.fool })).toEqual({
+      ok: false,
+      error: { code: 'no-fool-win' }
+    })
+  })
+
+  it('rejects a player calling it', async () => {
+    const { people, useCases, narrator, actorOf } = await voteOpen()
+    unwrap(await useCases.setAlive.execute(narrator, { memberId: people.fool, alive: false }))
+    expect(await useCases.declareFoolWin.execute(actorOf(people.marta), { memberId: people.fool })).toEqual({
+      ok: false,
+      error: { code: 'not-narrator' }
+    })
+  })
+})
+
 describe('Hunter revenge', () => {
   const hunterKilledAtDawn = async () => {
     const game = await voteKit()

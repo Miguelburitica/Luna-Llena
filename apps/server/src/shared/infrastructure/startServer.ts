@@ -23,6 +23,7 @@ import type { Clock } from '../application/Clock'
 import type { RandomSource } from '../application/RandomSource'
 import { CryptoIdGenerator } from './CryptoIdGenerator'
 import { MathRandomSource } from './MathRandomSource'
+import { serveWebApp } from './serveWebApp'
 import { SystemClock } from './SystemClock'
 import { BotAwareChatPublisher, BotAwareMatchPublisher, BotAwareRoomPublisher } from './botAwarePublishers'
 import type { LunaServer } from './socketTypes'
@@ -34,6 +35,7 @@ export interface ServerOptions {
   readonly random?: RandomSource
   readonly botSpeech?: BotSpeech
   readonly botScheduler?: BotScheduler
+  readonly webRoot?: string | undefined
 }
 
 export interface RunningServer {
@@ -47,7 +49,8 @@ export const startServer = ({
   clock = new SystemClock(),
   random = new MathRandomSource(),
   botSpeech = new NoBotSpeech(),
-  botScheduler = new TimerBotScheduler()
+  botScheduler = new TimerBotScheduler(),
+  webRoot
 }: ServerOptions): Promise<RunningServer> => {
   const httpServer = createServer()
   const io: LunaServer = new Server(httpServer, { cors: { origin: webOrigin } })
@@ -113,6 +116,7 @@ export const startServer = ({
   )
   registerMatchHandlers(io, matchUseCases)
   registerChatHandlers(io, chatUseCases)
+  serveWebApp(httpServer, webRoot)
 
   return new Promise((resolve) => {
     httpServer.listen(port, () => {

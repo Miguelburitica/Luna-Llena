@@ -20,7 +20,7 @@ const ICONS: Readonly<Record<AwardId, string>> = {
 </script>
 
 <template>
-  <section v-if="awards.length" class="awards">
+  <section v-if="awards.length" class="card awards">
     <h2 class="h2">{{ t('match.over.awards') }}</h2>
     <ul class="awards-list">
       <li v-for="award in awards" :key="award.award" class="award" :class="`award-${award.award}`">
@@ -47,7 +47,6 @@ const ICONS: Readonly<Record<AwardId, string>> = {
 
 <style scoped>
 .awards {
-  padding: 28px 16px 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -68,8 +67,8 @@ const ICONS: Readonly<Record<AwardId, string>> = {
   gap: 12px;
   padding: 12px;
   border-radius: 18px;
-  background: var(--surface);
-  box-shadow: inset 0 0 0 1px var(--line);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--line);
 }
 
 .award-icon {
@@ -109,12 +108,17 @@ const ICONS: Readonly<Record<AwardId, string>> = {
   min-width: 0;
 }
 
+.award-text .t-small {
+  margin-top: 2px;
+}
+
 .award-who {
   flex: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 10px;
+  min-width: 56px;
 }
 
 .award-who .av {
