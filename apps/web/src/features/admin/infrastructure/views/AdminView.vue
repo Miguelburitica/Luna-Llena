@@ -37,7 +37,7 @@ const ban = async () => {
 </script>
 
 <template>
-  <div class="desk ph-night admin">
+  <div class="desk ph-menu admin">
     <DeskHeader :trail="t('admin.trail')">
       <template v-if="admin.signedIn">
         <span v-if="admin.expiresAt" class="t-small t-muted">{{ t('admin.sessionUntil', { time: timeOf(admin.expiresAt) }) }}</span>
@@ -230,7 +230,7 @@ const ban = async () => {
   gap: 2px;
   padding: 8px 10px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--tint);
 }
 
 .admin-excerpt {
@@ -248,6 +248,12 @@ const ban = async () => {
 @media (max-width: 640px) {
   .admin-body {
     padding: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-title {
+    font-size: 30px;
   }
 }
 </style>

@@ -36,7 +36,7 @@ const confirmReport = async () => {
 </script>
 
 <template>
-  <main class="phone ph-night">
+  <main class="phone ph-menu">
     <header class="games-top">
       <RouterLink :to="{ name: 'home' }" class="btn btn-icon btn-ghost" :aria-label="t('common.back')">
         <LunaIcon name="arrow-left" />

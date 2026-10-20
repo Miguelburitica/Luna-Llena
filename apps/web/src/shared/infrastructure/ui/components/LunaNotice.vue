@@ -5,7 +5,7 @@ defineProps<{ icon: string; title: string; tone?: 'warn' }>()
 </script>
 
 <template>
-  <main class="phone ph-night notice-page">
+  <main class="phone ph-menu notice-page">
     <section class="notice" :class="{ 'is-warn': tone === 'warn' }">
       <span class="notice-icon"><LunaIcon :name="icon" size="xl" /></span>
       <h1 class="h2">{{ title }}</h1>
@@ -42,13 +42,13 @@ defineProps<{ icon: string; title: string; tone?: 'warn' }>()
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(244, 235, 200, 0.08);
+  background: var(--surface-2);
   color: var(--moon);
   margin-bottom: 6px;
 }
 
 .is-warn .notice-icon {
-  color: #ff9c92;
+  color: var(--err-ink);
 }
 
 .notice-body {

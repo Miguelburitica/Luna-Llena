@@ -125,7 +125,7 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
 </script>
 
 <template>
-  <div class="desk ph-night setup">
+  <div class="desk ph-menu setup">
     <DeskHeader :trail="editing ? roomName : t('room.setup.newRoom')" />
 
     <RoomFailureMessage v-if="entry?.failure.value" class="setup-entry-error" :failure="entry.failure.value" />
@@ -387,8 +387,8 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
   bottom: 0;
   margin-top: auto;
   padding: 16px 32px;
-  background: rgba(10, 12, 34, 0.92);
-  border-top: 1px solid rgba(233, 230, 255, 0.12);
+  background: color-mix(in srgb, var(--sheet) 92%, transparent);
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -398,5 +398,41 @@ const cancelTarget = computed(() => (editing ? { name: 'lobby', params: { code: 
 
 .setup-footer-hint {
   margin-right: auto;
+}
+
+@media (max-width: 420px) {
+  .setup-entry-error {
+    margin: 16px 16px 0;
+  }
+
+  .setup-body {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .setup-columns,
+  .setup-side {
+    gap: 16px;
+  }
+
+  .setup-title {
+    font-size: 30px;
+  }
+
+  .setup-footer {
+    position: static;
+    padding: 16px;
+    flex-wrap: wrap;
+  }
+
+  .setup-footer-hint {
+    flex-basis: 100%;
+    margin-right: 0;
+  }
+
+  .setup-footer .btn {
+    flex: 1;
+    min-width: 0;
+  }
 }
 </style>

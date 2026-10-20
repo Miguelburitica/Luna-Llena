@@ -10,6 +10,8 @@ export const atmosphereMessages = {
       effects: 'Sound effects',
       reducedMotion: 'Reduced motion',
       reducedMotionHint: 'Crossfades instead of flips, drops and flicker',
+      appearance: 'Appearance',
+      appearanceModes: { system: 'System', light: 'Light', dark: 'Dark' },
       howToPlay: 'How to play',
       howToPlayOpen: 'Open how to play',
       howToPlayLines: [
@@ -58,6 +60,8 @@ export const atmosphereMessages = {
       effects: 'Efectos de sonido',
       reducedMotion: 'Menos movimiento',
       reducedMotionHint: 'Fundidos en vez de giros, caídas y parpadeos',
+      appearance: 'Apariencia',
+      appearanceModes: { system: 'Sistema', light: 'Claro', dark: 'Oscuro' },
       howToPlay: 'Cómo se juega',
       howToPlayOpen: 'Abrir cómo se juega',
       howToPlayLines: [

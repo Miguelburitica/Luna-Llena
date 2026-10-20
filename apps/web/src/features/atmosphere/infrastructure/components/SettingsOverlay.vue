@@ -7,8 +7,10 @@ import { useMatchStore } from '@/features/match/application/useMatchStore'
 import { useRoomStore } from '@/features/room/application/useRoomStore'
 import LanguageSwitch from '@/shared/infrastructure/ui/components/LanguageSwitch.vue'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
+import LunaSegmented from '@/shared/infrastructure/ui/components/LunaSegmented.vue'
 import LunaToggle from '@/shared/infrastructure/ui/components/LunaToggle.vue'
 import { useAtmosphereStore } from '../../application/useAtmosphereStore'
+import { COLOR_MODES, type ColorMode } from '../../domain/colorMode'
 
 const SLIDERS = [
   { channel: 'master', icon: 'volume' },
@@ -29,6 +31,13 @@ const reducedMotion = computed({
   get: () => atmosphere.settings.reducedMotion,
   set: (reduced: boolean) => atmosphere.setReducedMotion(reduced)
 })
+const colorMode = computed({
+  get: () => atmosphere.settings.colorMode,
+  set: (mode: ColorMode) => atmosphere.setColorMode(mode)
+})
+const colorModeOptions = computed(() =>
+  COLOR_MODES.map((value) => ({ value, label: t(`atmosphere.settings.appearanceModes.${value}`) }))
+)
 const inRoom = computed(() => room.session !== null)
 const keepsSeat = computed(() => room.snapshot?.status === 'in-game' && !room.isNarrator)
 const rules = computed(() => (tm('atmosphere.settings.howToPlayLines') as string[]).map((line) => rt(line)))
@@ -93,6 +102,10 @@ const leave = async () => {
             <div class="t-small t-muted settings-hint">{{ t('atmosphere.settings.reducedMotionHint') }}</div>
           </div>
           <LunaToggle v-model="reducedMotion" :label="t('atmosphere.settings.reducedMotion')" />
+        </div>
+        <div class="row-set settings-appearance">
+          <div class="h3 settings-label"><LunaIcon name="sun" />{{ t('atmosphere.settings.appearance') }}</div>
+          <LunaSegmented v-model="colorMode" :options="colorModeOptions" :label="t('atmosphere.settings.appearance')" />
         </div>
         <div class="row-set">
           <div class="h3 settings-label"><LunaIcon name="globe" />{{ t('common.language') }}</div>
@@ -174,6 +187,11 @@ const leave = async () => {
   accent-color: var(--lantern);
 }
 
+.settings-appearance {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .settings-rules-row {
   border-bottom: 0;
 }
@@ -185,6 +203,6 @@ const leave = async () => {
 
 .settings-leave {
   margin-top: 8px;
-  color: #ff9c92;
+  color: var(--err-ink);
 }
 </style>

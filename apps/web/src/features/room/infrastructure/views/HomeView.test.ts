@@ -29,6 +29,12 @@ describe('HomeView', () => {
     expect(router.currentRoute.value.fullPath).toBe('/')
   })
 
+  it('uses the menu look, which the Light appearance lightens', async () => {
+    const { wrapper } = await mountRoomView(HomeView, { stubs })
+    expect(wrapper.classes()).toContain('ph-menu')
+    expect(wrapper.classes()).not.toContain('ph-night')
+  })
+
   it('offers no seat when the device holds none', async () => {
     const { wrapper } = await mountRoomView(HomeView, { stubs })
     expect(wrapper.find('.home-return').exists()).toBe(false)

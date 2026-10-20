@@ -46,6 +46,17 @@ describe('SettingsOverlay', () => {
     expect(atmosphere.motion.applied).toBe(true)
   })
 
+  it('switches the menus to the light look as soon as Light is picked', async () => {
+    const { wrapper, atmosphere } = await openSettings()
+    const appearance = wrapper.find('[role="radiogroup"][aria-label="Appearance"]')
+    expect(appearance.findAll('[role="radio"]').map((option) => option.text())).toEqual(['System', 'Light', 'Dark'])
+    expect(appearance.find('[aria-checked="true"]').text()).toBe('System')
+    await appearance.findAll('[role="radio"]').find((option) => option.text() === 'Light')?.trigger('click')
+    await flushPromises()
+    expect(atmosphere.colorMode.applied).toBe('light')
+    expect(atmosphere.settings.saved?.colorMode).toBe('light')
+  })
+
   it('switches the language', async () => {
     const { wrapper } = await openSettings()
     const spanish = wrapper.findAll('.language-switch button').find((button) => button.text() === 'ES')

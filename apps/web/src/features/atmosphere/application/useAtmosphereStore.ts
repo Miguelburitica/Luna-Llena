@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, inject, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { useMatchStore } from '@/features/match/application/useMatchStore'
 import type { MatchFailure } from '@/features/match/application/ports'
+import { menuLookOf, type ColorMode } from '../domain/colorMode'
 import { ambientFor, STING_SPACING_MS, stingsBetween } from '../domain/ambience'
 import { EFFECT_DURATION_MS, REDUCED_FADE_MS, SOUND_PLAYING_MS } from '../domain/soundboard'
 import {
@@ -12,7 +13,7 @@ import {
   type AtmosphereSettings,
   type VolumeChannel
 } from '../domain/soundSettings'
-import { ATMOSPHERE_SETTINGS_STORE, CUE_GATEWAY, MOTION_PREFERENCE, SOUND_ENGINE } from './ports'
+import { ATMOSPHERE_SETTINGS_STORE, COLOR_MODE_PREFERENCE, CUE_GATEWAY, MOTION_PREFERENCE, SOUND_ENGINE } from './ports'
 
 export type SoundState = 'off' | 'locked' | 'on'
 
@@ -31,6 +32,7 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
   const settingsStore = required(inject(ATMOSPHERE_SETTINGS_STORE), 'AtmosphereSettingsStore')
   const gateway = required(inject(CUE_GATEWAY), 'CueGateway')
   const motion = required(inject(MOTION_PREFERENCE), 'MotionPreference')
+  const colorModePreference = required(inject(COLOR_MODE_PREFERENCE), 'ColorModePreference')
   const match = useMatchStore()
 
   const settings = ref<AtmosphereSettings>(settingsStore.load() ?? soundSettingsDefaults(motion.prefersReducedMotion()))
@@ -38,6 +40,7 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
   const activeEffects = ref<readonly ActiveEffect[]>([])
   const playingSound = ref<SoundCue | null>(null)
   const failure = ref<MatchFailure | null>(null)
+  const systemPrefersLight = ref(colorModePreference.prefersLight())
 
   const timers = new Set<ReturnType<typeof setTimeout>>()
   const seenCueIds = new Set<string>()
@@ -53,6 +56,7 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
   })
   const audible = computed(() => soundState.value === 'on')
   const reducedMotion = computed(() => settings.value.reducedMotion)
+  const menuLook = computed(() => menuLookOf(settings.value.colorMode, systemPrefersLight.value))
   const shaking = computed(() => !reducedMotion.value && activeEffects.value.some((active) => active.effect === 'shake'))
 
   const later = (action: () => void, delayMs: number) => {
@@ -131,6 +135,10 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
     settings.value = { ...settings.value, reducedMotion: reduced }
   }
 
+  const setColorMode = (mode: ColorMode) => {
+    settings.value = { ...settings.value, colorMode: mode }
+  }
+
   const setAmbientOn = (on: boolean) => {
     settings.value = { ...settings.value, ambientOn: on }
   }
@@ -156,6 +164,12 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
 
   gateway.onCue(receiveCue)
   motion.apply(settings.value.reducedMotion)
+  colorModePreference.apply(menuLook.value)
+  colorModePreference.onChange((prefersLight) => {
+    systemPrefersLight.value = prefersLight
+  })
+
+  watch(menuLook, (look) => colorModePreference.apply(look))
 
   watch(
     scene,
@@ -188,10 +202,12 @@ export const useAtmosphereStore = defineStore('atmosphere', () => {
     failure,
     soundState,
     reducedMotion,
+    menuLook,
     shaking,
     toggleSound,
     setVolume,
     setReducedMotion,
+    setColorMode,
     setAmbientOn,
     sendCue,
     playHere,

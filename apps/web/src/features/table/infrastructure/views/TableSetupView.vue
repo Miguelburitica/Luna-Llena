@@ -54,7 +54,7 @@ const deal = async () => {
 </script>
 
 <template>
-  <main class="phone ph-night table-setup">
+  <main class="phone ph-menu table-setup">
     <header class="table-setup-head">
       <span class="t-cap t-muted">{{ t('table.setup.eyebrow') }}</span>
       <h1 class="h1 table-setup-title">{{ t('table.setup.title') }}</h1>

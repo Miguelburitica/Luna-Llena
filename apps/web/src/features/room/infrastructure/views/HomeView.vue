@@ -23,7 +23,7 @@ const returnToSeat = async () => {
 </script>
 
 <template>
-  <main class="phone ph-night">
+  <main class="phone ph-menu">
     <header class="home-top">
       <LanguageSwitch />
       <SettingsOverlay />

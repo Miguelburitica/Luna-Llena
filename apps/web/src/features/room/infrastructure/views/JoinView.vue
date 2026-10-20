@@ -81,7 +81,7 @@ const join = async () => {
 </script>
 
 <template>
-  <main class="phone ph-night">
+  <main class="phone ph-menu">
     <header class="join-top">
       <RouterLink :to="{ name: 'home' }" class="btn btn-icon btn-ghost" :aria-label="t('common.back')">
         <LunaIcon name="arrow-left" />

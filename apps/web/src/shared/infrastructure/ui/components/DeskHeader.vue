@@ -20,7 +20,7 @@ defineProps<{ trail: string }>()
   gap: 14px;
   padding: 16px 32px;
   border-bottom: 3px solid var(--outline);
-  box-shadow: 0 3px 0 rgba(255, 251, 239, 0.12);
+  box-shadow: 0 3px 0 var(--tint-line);
   flex-wrap: wrap;
 }
 
@@ -43,5 +43,11 @@ defineProps<{ trail: string }>()
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+@media (max-width: 420px) {
+  .desk-header {
+    padding: 12px 16px;
+  }
 }
 </style>
