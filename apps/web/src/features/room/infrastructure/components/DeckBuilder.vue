@@ -213,6 +213,19 @@ const maxCopiesOf = (role: RoleId) => Math.min(ROLE_CATALOG[role].maxCopies, dec
 .setup-card-text {
   flex: 1;
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 420px) {
+  .setup-card {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .setup-card-art {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 .setup-card-team {

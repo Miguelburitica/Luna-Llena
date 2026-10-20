@@ -97,9 +97,13 @@ export const tableMessages = {
     },
     vote: {
       title: 'Hands up',
-      hint: 'Pick the accused, then tap everyone raising a hand.',
-      accused: 'Accused',
-      voters: 'Voting for {name}',
+      hint: 'Two steps: pick who is on trial, then tap everyone raising a hand against them.',
+      accused: 'Who is on trial?',
+      accusedHint: 'Tap one player. The number shows the votes they already have.',
+      voters: 'Who votes against {name}?',
+      votersHint: 'Tap each player with a hand up. Tap again to take it back.',
+      pickFirst: 'Pick who is on trial first, then count the hands here.',
+      elsewhere: 'now on {name}',
       tally: 'Tally',
       none: 'No votes yet',
       votes: 'no votes | 1 vote | {count} votes'
@@ -225,9 +229,13 @@ export const tableMessages = {
     },
     vote: {
       title: 'Manos arriba',
-      hint: 'Elige al acusado y toca a cada quien que levante la mano.',
-      accused: 'Acusado',
-      voters: 'Votan por {name}',
+      hint: 'Dos pasos: elige a quién se juzga y luego toca a cada quien que levante la mano contra esa persona.',
+      accused: '¿A quién se juzga?',
+      accusedHint: 'Toca a un jugador. El número muestra los votos que ya tiene.',
+      voters: '¿Quién vota contra {name}?',
+      votersHint: 'Toca a cada quien con la mano arriba. Toca otra vez para quitar el voto.',
+      pickFirst: 'Primero elige a quién se juzga y luego cuenta las manos aquí.',
+      elsewhere: 'ahora contra {name}',
       tally: 'Conteo',
       none: 'Todavía no hay votos',
       votes: 'sin votos | 1 voto | {count} votos'

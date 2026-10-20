@@ -84,8 +84,14 @@ const setMaster = (event: Event) => atmosphere.setVolume('master', Number((event
 
 .soundboard-tiles {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
   gap: 10px;
+}
+
+.soundboard-tiles .tile {
+  padding: 6px 4px;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .soundboard-volume {

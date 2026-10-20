@@ -39,7 +39,7 @@ const openStep = async (wrapper: Wrapper, power: string) => {
 
 const chips = (wrapper: Wrapper, row: number) => wrapper.findAll('.votes-chips')[row]?.findAll('.chip') ?? []
 const chip = async (wrapper: Wrapper, row: number, name: string) => {
-  await chips(wrapper, row).find((candidate) => candidate.text().endsWith(name))?.trigger('click')
+  await chips(wrapper, row).find((candidate) => candidate.find('.votes-name').text() === name)?.trigger('click')
   await flushPromises()
 }
 
@@ -195,7 +195,9 @@ describe('LogbookView day', () => {
 
   it('Changing hands: tapping a voter under another accused moves the vote', async () => {
     const { wrapper, table } = await mountLogbook(logged(journalWith(), ...advance(3), { kind: 'vote', voterId: CARO, targetId: LUIS, at: START }))
+    expect(chips(wrapper, 0).find((candidate) => candidate.find('.votes-name').text() === 'Luis')?.find('.votes-count').text()).toBe('1')
     await chip(wrapper, 0, 'Tato')
+    expect(chips(wrapper, 1).find((candidate) => candidate.find('.votes-name').text() === 'Caro')?.text()).toContain('now on Luis')
     await chip(wrapper, 1, 'Caro')
 
     expect(table.view?.votes?.[CARO]?.targetId).toBe(TATO)
