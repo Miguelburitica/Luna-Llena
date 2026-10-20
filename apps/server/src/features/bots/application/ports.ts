@@ -1,4 +1,5 @@
 import type { ChatChannel, HauntInput, NightActionInput, Result } from '@luna/contracts'
+import type { Clock } from '../../../shared/application/Clock'
 import type { RandomSource } from '../../../shared/application/RandomSource'
 import type { BotPrompt } from '../domain/botPrompt'
 import type { BotTable } from '../domain/BotTable'
@@ -41,4 +42,5 @@ export interface BotContext {
   readonly speech: BotSpeech
   readonly actions: BotActions
   readonly random: RandomSource
+  readonly clock: Clock
 }

@@ -19,6 +19,26 @@ export type HouseRuleId = (typeof HOUSE_RULE_IDS)[number]
 export const ROOM_STATUSES = ['lobby', 'in-game'] as const
 export type RoomStatus = (typeof ROOM_STATUSES)[number]
 
+export const ROOM_VISIBILITIES = ['private', 'public'] as const
+export type RoomVisibility = (typeof ROOM_VISIBILITIES)[number]
+
+export const PUBLIC_ROOM_STATUSES = ['waiting', 'in-progress', 'full'] as const
+export type PublicRoomStatus = (typeof PUBLIC_ROOM_STATUSES)[number]
+
+export const PUBLIC_LOBBY_LIMITS = {
+  maxPublicRoomsPerAddress: 2,
+  reportsToHide: 3,
+  maxListedRooms: 50,
+  listingThrottleMs: 500
+} as const
+
+export const ROOM_CLEANUP = {
+  narratorAwayMinutes: 10,
+  idleLobbyMinutes: 60,
+  noHumansMinutes: 5,
+  sweepSeconds: 60
+} as const
+
 export const START_CONDITIONS = ['not-enough-players', 'deck-mismatch', 'no-wolves', 'players-not-ready'] as const
 export type StartCondition = (typeof START_CONDITIONS)[number]
 

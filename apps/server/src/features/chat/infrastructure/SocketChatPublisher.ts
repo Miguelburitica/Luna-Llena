@@ -9,4 +9,10 @@ export class SocketChatPublisher implements ChatPublisher {
   deliver(message: ChatMessage, recipientIds: readonly string[]): void {
     for (const recipientId of recipientIds) this.io.to(memberChannel(recipientId)).emit('chat:message', message)
   }
+
+  cleared(): void {}
+
+  removed(messageId: string, recipientIds: readonly string[]): void {
+    for (const recipientId of recipientIds) this.io.to(memberChannel(recipientId)).emit('chat:removed', { messageId })
+  }
 }

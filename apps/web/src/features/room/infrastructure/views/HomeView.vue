@@ -55,6 +55,9 @@ const returnToSeat = async () => {
       <RouterLink :to="{ name: 'host' }" class="btn btn-lg btn-block" :class="store.savedSeat ? 'btn-secondary' : 'btn-primary'">
         <LunaIcon name="quill" />{{ t('room.home.create') }}
       </RouterLink>
+      <RouterLink :to="{ name: 'public-games' }" class="btn btn-secondary btn-lg btn-block home-find">
+        <LunaIcon name="globe" />{{ t('room.home.findGame') }}
+      </RouterLink>
       <RouterLink :to="{ name: 'join' }" class="btn btn-secondary btn-lg btn-block home-join">
         <LunaIcon name="link" />{{ t('room.home.join') }}
       </RouterLink>

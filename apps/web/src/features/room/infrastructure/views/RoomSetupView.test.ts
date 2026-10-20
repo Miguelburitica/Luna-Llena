@@ -21,10 +21,26 @@ describe('RoomSetupView', () => {
       input: {
         roomName: 'Los Primos',
         narratorName: 'Nico',
-        settings: { ...DEFAULT_ROOM_SETTINGS, deck: { ...DEFAULT_ROOM_SETTINGS.deck, fool: 0 } }
+        settings: { ...DEFAULT_ROOM_SETTINGS, deck: { ...DEFAULT_ROOM_SETTINGS.deck, fool: 0 } },
+        visibility: 'private'
       }
     })
     await vi.waitFor(() => expect(router.currentRoute.value.fullPath).toBe('/room/LUNA42'))
+  })
+
+  it('creates a public room when the host picks Public', async () => {
+    const { wrapper, gateway } = await mountRoomView(RoomSetupView, { path: '/host' })
+    expect(wrapper.text()).toContain('Who can find this room?')
+    expect(wrapper.text()).toContain('Only people with the code')
+    const [roomName, narratorName] = wrapper.findAll('input.input')
+    await roomName?.setValue('Lobos de medianoche')
+    await narratorName?.setValue('Nico')
+    const publicChoice = wrapper.findAll('[role="radio"]').find((option) => option.text() === 'Public')
+    await publicChoice?.trigger('click')
+    expect(wrapper.text()).toContain('Listed in Find a game')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(gateway.calls.at(-1)).toMatchObject({ command: 'createRoom', input: { visibility: 'public' } })
   })
 
   it('creates a room with the optional voice call link', async () => {

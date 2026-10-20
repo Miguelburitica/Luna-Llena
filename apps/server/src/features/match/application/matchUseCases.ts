@@ -16,6 +16,7 @@ import { KeepPlaying } from './KeepPlaying'
 import type { MatchPublisher, MatchRepository } from './ports'
 import { LockVote } from './LockVote'
 import { PlayCue } from './PlayCue'
+import { RepublishMatch } from './RepublishMatch'
 import { SetAlive } from './SetAlive'
 import { SkipRevenge } from './SkipRevenge'
 import { StartMatch } from './StartMatch'
@@ -51,7 +52,8 @@ export const createMatchUseCases = ({ matches, publisher, clock, random, ids }: 
     playCue: new PlayCue(access, ids),
     closeLastWords: new CloseLastWords(access),
     isMatchOver: new IsMatchOver(matches),
-    discardMatch: new DiscardMatch(matches)
+    discardMatch: new DiscardMatch(matches),
+    republishMatch: new RepublishMatch(access)
   }
 }
 

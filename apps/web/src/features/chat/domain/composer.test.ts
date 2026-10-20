@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { accessOf } from '../application/ChatGateway.fixtures'
-import { composerState } from './composer'
+import { charactersLeft, composerState } from './composer'
 
 describe('composer state', () => {
   it('lets a member write where the server says they may', () => {
@@ -31,5 +31,16 @@ describe('composer state', () => {
   it('keeps the den read-only for a dead wolf', () => {
     const access = accessOf({ read: ['village', 'wolves', 'ghosts'], write: ['ghosts'] })
     expect(composerState(access, 'wolves', 'night')).toEqual({ state: 'read-only', note: 'denReadOnly' })
+  })
+})
+
+describe('characters left', () => {
+  it('stays hidden for short drafts', () => {
+    expect(charactersLeft('x'.repeat(20))).toBeNull()
+  })
+
+  it('counts down from 160 characters', () => {
+    expect(charactersLeft('x'.repeat(170))).toBe(30)
+    expect(charactersLeft('x'.repeat(200))).toBe(0)
   })
 })

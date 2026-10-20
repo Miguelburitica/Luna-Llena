@@ -1,4 +1,4 @@
-import { BOT_LANGUAGES, BOT_PERSONALITIES, type ChatMessage } from '@luna/contracts'
+import { BOT_LANGUAGES, BOT_PERSONALITIES, type ChatMessage, type PlayerMatchView } from '@luna/contracts'
 import { describe, expect, it } from 'vitest'
 import { fixedRandom, mindOf, playerView, rosterFor, SELF } from './BotMind.fixtures'
 import { buildBotPrompt, parseSpokenLine } from './botPrompt'
@@ -7,6 +7,8 @@ import { nightActionOf, settledHuntOf, voteTargetOf } from './decisions'
 import { openingIntentOf, wolfPlanIntentOf, type BotIntent } from './intents'
 import { lockDelayOf, nightDelayOf } from './pacing'
 import { scriptedLineOf } from './scriptedLines'
+import { ChatFloor } from './ChatFloor'
+import { tempoDelayOf } from './tempo'
 import { observeChat, observeView } from './suspicion'
 
 const NO_BOTS: ReadonlySet<string> = new Set()
@@ -176,13 +178,31 @@ describe('talk', () => {
     expect(budget.allows('baba', 'village', 1)).toBe(true)
   })
 
-  it('keeps bots under 40% of the last ten village messages', () => {
+  it('keeps bots to six of the last ten village messages of the day', () => {
     const budget = new ChatBudget()
-    for (const bot of ['b1', 'b2', 'b3', 'b4']) budget.reserve(bot, 'village', 1)
-    expect(budget.allows('b5', 'village', 1)).toBe(false)
-    expect(budget.allows('b5', 'village', 1, true)).toBe(true)
-    for (let human = 0; human < 7; human += 1) budget.heard(`human-${human}`, 'village', false)
-    expect(budget.allows('b5', 'village', 1)).toBe(true)
+    for (const bot of ['b1', 'b2', 'b3', 'b4', 'b5', 'b6']) budget.reserve(bot, 'village', 1)
+    expect(budget.allows('b7', 'village', 1)).toBe(false)
+    expect(budget.allows('b7', 'village', 1, true)).toBe(true)
+    budget.heard('human-0', 'village', false)
+    expect(budget.allows('b7', 'village', 1)).toBe(false)
+    for (let human = 1; human < 5; human += 1) budget.heard(`human-${human}`, 'village', false)
+    expect(budget.allows('b7', 'village', 1)).toBe(true)
+  })
+
+  it('gives bots a fresh share of the chat every day', () => {
+    const budget = new ChatBudget()
+    for (const bot of ['b1', 'b2', 'b3', 'b4', 'b5', 'b6']) budget.reserve(bot, 'village', 1)
+    expect(budget.allows('b1', 'village', 1)).toBe(false)
+    expect(budget.allows('b1', 'village', 2)).toBe(true)
+  })
+
+  it('lists the roles players claimed among its facts', () => {
+    const mind = mindOf()
+    const view = playerView({ phase: 'day' })
+    observeView(mind, view, fixedRandom(0.5))
+    observeChat(mind, village('luis', 'I am the Seer, trust me'), rosterFor())
+    const prompt = buildBotPrompt({ mind, view, roster: rosterFor(), intent: { kind: 'ghost', subject: 'Ana' }, chat: [] })
+    expect(prompt.user).toContain('- Luis claimed Seer')
   })
 
   it('builds a prompt with the real names, the facts it knows and the intent', () => {
@@ -199,7 +219,7 @@ describe('talk', () => {
     expect(prompt.system).toContain('Moco-Bot')
     expect(prompt.system).toContain('{"say"')
     expect(prompt.user).toContain('Tato es lobo')
-    expect(prompt.user).toContain('Ana: quién fue??')
+    expect(prompt.user).toContain('{"from":"Ana","said":"quién fue??"}')
     expect(prompt.user).toContain('INTENCIÓN: Di que eres la Vidente')
     expect(prompt.examples.length).toBeGreaterThan(0)
   })
@@ -219,6 +239,40 @@ describe('talk', () => {
   })
 })
 
+describe('personality tempo', () => {
+  it('lets a paranoid bot write fast and makes a quiet bot take its time', () => {
+    expect(tempoDelayOf('paranoid', fixedRandom(0))).toBe(2_000)
+    expect(tempoDelayOf('paranoid', fixedRandom(0.999))).toBeLessThan(6_000)
+    expect(tempoDelayOf('quiet', fixedRandom(0))).toBe(20_000)
+    expect(tempoDelayOf('quiet', fixedRandom(0.999))).toBeLessThan(40_000)
+  })
+
+  it('keeps Spanish slang in the chaos and paranoid voices only', () => {
+    const SLANG = /parce|qué boleta|\buy\b/i
+    for (const personality of BOT_PERSONALITIES) {
+      const prompt = buildBotPrompt({ mind: mindOf({ personality }), view: playerView(), roster: rosterFor('es'), intent: { kind: 'ghost', subject: 'Ana' }, chat: [] })
+      const [rules, voice] = prompt.system.split('\n\n')
+      expect(rules).not.toMatch(SLANG)
+      expect(rules).toContain('No empieces con la misma palabra')
+      if (personality === 'chaos') expect(voice).toMatch(/parce.*qué boleta/)
+      else if (personality === 'paranoid') expect(voice).toMatch(/\buy\b/)
+      else expect(voice).not.toMatch(SLANG)
+    }
+  })
+
+  it('takes turns per chat and counts dawn reactions', () => {
+    const floor = new ChatFloor()
+    floor.hold('village')
+    expect(floor.isBusy('village')).toBe(true)
+    expect(floor.isBusy('wolves')).toBe(false)
+    floor.release('village')
+    expect(floor.isBusy('village')).toBe(false)
+    floor.countDawnReaction(2)
+    expect(floor.dawnReactionsIn(2)).toBe(1)
+    expect(floor.dawnReactionsIn(3)).toBe(0)
+  })
+})
+
 describe('pacing', () => {
   it('acts at night before the timer runs out', () => {
     const view = { ...playerView(), serverNow: 0, phaseEndsAt: 45_000 }
@@ -234,7 +288,7 @@ describe('pacing', () => {
 describe('scripted variety', () => {
   it('never repeats a scripted line in a room until the whole pool was used', () => {
     const used = new Set<string>()
-    const intent = { kind: 'wolf-plan', subject: 'Ana', against: null } as const
+    const intent = { kind: 'wolf-plan', subject: 'Ana', against: null, seconding: null, reason: null } as const
     const lines = Array.from({ length: 5 }, (_, index) => scriptedLineOf(intent, 'es', 'detective', fixedRandom(index * 0.01), used))
     expect(new Set(lines).size).toBe(5)
     expect(scriptedLineOf(intent, 'es', 'detective', fixedRandom(0), used)).toContain('Ana')
@@ -249,7 +303,7 @@ const EVERY_INTENT: readonly BotIntent[] = [
   { kind: 'explain-vote', subject: 'Ana', lie: false },
   { kind: 'react-dawn', deaths: ['Ana'] },
   { kind: 'last-words', subject: 'Ana' },
-  { kind: 'wolf-plan', subject: 'Ana', against: null },
+  { kind: 'wolf-plan', subject: 'Ana', against: null, seconding: null, reason: 'claimed-seer' },
   { kind: 'ghost', subject: 'Ana' }
 ]
 
@@ -288,13 +342,78 @@ describe('wolf chat', () => {
       packIds: ['tato'],
       night: { action: 'hunt', targetId: 'baba', packPicks: { tato: 'ana', [SELF]: 'baba' }, packVictimId: 'baba' }
     })
-    expect(wolfPlanIntentOf(view, rosterFor(), SELF)).toEqual({ kind: 'wolf-plan', subject: 'Baba-Tron', against: 'Ana' })
+    const mind = mindOf()
+    observeView(mind, view, fixedRandom(0.5))
+    expect(wolfPlanIntentOf(mind, view, rosterFor())).toEqual({ kind: 'wolf-plan', subject: 'Baba-Tron', against: 'Ana', seconding: null, reason: null })
     const agreed = playerView({
       role: 'werewolf',
       team: 'wolves',
       packIds: ['tato'],
       night: { action: 'hunt', targetId: 'ana', packPicks: { tato: 'ana', [SELF]: 'ana' }, packVictimId: 'ana' }
     })
-    expect(wolfPlanIntentOf(agreed, rosterFor(), SELF)).toEqual({ kind: 'wolf-plan', subject: 'Ana', against: null })
+    const intent = wolfPlanIntentOf(mind, agreed, rosterFor())
+    expect(intent).toEqual({ kind: 'wolf-plan', subject: 'Ana', against: null, seconding: 'Tato', reason: null })
+    if (intent === null) throw new Error('No intent')
+    const prompt = buildBotPrompt({ mind, view: agreed, roster: rosterFor(), intent, chat: [{ author: 'Tato', text: 'Ana tonight' }] })
+    expect(prompt.user).toContain("Your packmate Tato also picked Ana. Agree in your own words with a new reason, never repeat Tato's line.")
+  })
+
+  it('tells the pack why it picked its victim', () => {
+    const mind = mindOf()
+    const view = wolfNight({ action: 'hunt', targetId: 'luis', packPicks: { [SELF]: 'luis' }, packVictimId: 'luis' })
+    observeView(mind, view, fixedRandom(0.5))
+    observeChat(mind, village('luis', 'I am the Seer'), rosterFor())
+    const intent = wolfPlanIntentOf(mind, view, rosterFor())
+    expect(intent).toEqual({ kind: 'wolf-plan', subject: 'Luis', against: null, seconding: null, reason: 'claimed-seer' })
+    if (intent === null) throw new Error('No intent')
+    const prompt = buildBotPrompt({ mind, view, roster: rosterFor(), intent, chat: [] })
+    expect(prompt.user).toContain('Your reason: they claimed the Seer')
+  })
+})
+
+const wolfNight = (night: PlayerMatchView['you']['night'] = { action: 'hunt', targetId: null, packPicks: {}, packVictimId: null }, round = 2) =>
+  playerView({ role: 'werewolf', team: 'wolves', packIds: ['tato'], night, round })
+
+const sharpWolf = (view: PlayerMatchView) => {
+  const mind = mindOf({ personality: 'detective', difficulty: 'sharp' })
+  observeView(mind, view, fixedRandom(0.5))
+  return mind
+}
+
+describe('wolf hunting', () => {
+  it('hunts the claimed Seer before any other claimer', () => {
+    const view = wolfNight()
+    const mind = sharpWolf(view)
+    observeChat(mind, village('caro', "I'm the doctor"), rosterFor())
+    observeChat(mind, village('luis', 'I am the Seer'), rosterFor())
+    expect(nightActionOf(mind, view, NO_BOTS, fixedRandom(0.5))).toEqual({ kind: 'hunt', targetId: 'luis' })
+  })
+
+  it('silences whoever accuses the pack', () => {
+    const view = wolfNight()
+    const mind = sharpWolf(view)
+    observeChat(mind, village('caro', 'Tato is the wolf, look at him'), rosterFor())
+    expect(nightActionOf(mind, view, NO_BOTS, fixedRandom(0.1))).toEqual({ kind: 'hunt', targetId: 'caro' })
+  })
+
+  it('keeps the village favourite suspect alive as a scapegoat', () => {
+    const view = playerView({ role: 'werewolf', team: 'wolves', night: { action: 'hunt', targetId: null, packPicks: {}, packVictimId: null }, round: 2 })
+    const mind = sharpWolf(view)
+    expect(nightActionOf(mind, view, NO_BOTS, fixedRandom(0.7))).toEqual({ kind: 'hunt', targetId: 'pipe' })
+    observeChat(mind, village('ana', 'Pipe is lying, vote Pipe'), rosterFor())
+    expect(nightActionOf(mind, view, NO_BOTS, fixedRandom(0.7))).not.toEqual({ kind: 'hunt', targetId: 'pipe' })
+  })
+
+  it('turns to another claimer after an attack failed', () => {
+    const first = wolfNight({ action: 'hunt', targetId: 'luis', packPicks: { [SELF]: 'luis' }, packVictimId: 'luis' }, 1)
+    const mind = sharpWolf(first)
+    observeChat(mind, village('luis', 'I am the Seer'), rosterFor())
+    observeChat(mind, village('caro', "I'm the doctor"), rosterFor())
+    observeView(mind, { ...playerView({ role: 'werewolf', team: 'wolves', packIds: ['tato'], phase: 'dawn' }), dawn: { round: 1, deaths: [] } }, fixedRandom(0.5))
+    const second = wolfNight()
+    observeView(mind, second, fixedRandom(0.5))
+    expect(nightActionOf(mind, second, NO_BOTS, fixedRandom(0.5))).toEqual({ kind: 'hunt', targetId: 'caro' })
+    const prompt = buildBotPrompt({ mind, view: second, roster: rosterFor(), intent: { kind: 'ghost', subject: 'Ana' }, chat: [] })
+    expect(prompt.user).toContain('The pack attacked Luis on night 1 and they survived')
   })
 })

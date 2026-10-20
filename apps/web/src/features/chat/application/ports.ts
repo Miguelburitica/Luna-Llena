@@ -9,6 +9,7 @@ export interface ChatGateway {
   history(): ChatResult<readonly ChatMessage[]>
   send(channel: ChatChannel, text: string): ChatResult<ChatMessage>
   onMessage(listener: (message: ChatMessage) => void): void
+  onRemoved(listener: (messageId: string) => void): void
   onReconnected(listener: () => void): void
 }
 

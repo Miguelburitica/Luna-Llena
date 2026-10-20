@@ -1,4 +1,4 @@
-import type { ChatMessage, CueEffect, RoomSnapshot } from '@luna/contracts'
+import type { ChatMessage, CueEffect, RoomSnapshot, SeatTakeover } from '@luna/contracts'
 import type { ChatPublisher } from '../../features/chat/application/ports'
 import type { HauntDelivery, MatchPublisher, MemberMatchView } from '../../features/match/application/ports'
 import type { RoomPublisher } from '../../features/room/application/ports'
@@ -17,6 +17,10 @@ export class BotAwareRoomPublisher implements RoomPublisher {
 
   notifyKicked(code: string, memberId: string): void {
     this.inner.notifyKicked(code, memberId)
+  }
+
+  notifySeatTakenOver(code: string, takeover: SeatTakeover): void {
+    this.inner.notifySeatTakenOver(code, takeover)
   }
 
   notifyClosed(code: string): void {
@@ -53,6 +57,14 @@ export class BotAwareChatPublisher implements ChatPublisher {
 
   deliver(message: ChatMessage, recipientIds: readonly string[]): void {
     this.inner.deliver(message, recipientIds)
+  }
+
+  cleared(message: ChatMessage, recipientIds: readonly string[]): void {
+    this.inner.cleared(message, recipientIds)
     for (const recipientId of recipientIds) this.bots().observeChatMessage.execute(recipientId, message)
+  }
+
+  removed(messageId: string, recipientIds: readonly string[]): void {
+    this.inner.removed(messageId, recipientIds)
   }
 }

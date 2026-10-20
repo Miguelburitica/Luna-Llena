@@ -9,6 +9,10 @@ export class InMemoryRoomRepository implements RoomRepository {
     return this.rooms.get(code.value)
   }
 
+  async all(): Promise<readonly Room[]> {
+    return [...this.rooms.values()]
+  }
+
   async save(room: Room): Promise<void> {
     this.rooms.set(room.code.value, room)
   }

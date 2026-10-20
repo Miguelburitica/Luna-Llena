@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { createSocketKit, type Client } from '../../../shared/infrastructure/socketTestKit.fixtures'
 import type { BotScheduler } from '../application/ports'
 import type { BotPrompt } from '../domain/botPrompt'
-import { OpenRouterBotSpeech, OPENROUTER_URL } from './OpenRouterBotSpeech'
+import { OpenRouterBotSpeech, OPENROUTER_URL, reasoningEffortOf } from './OpenRouterBotSpeech'
 
 const PROMPT: BotPrompt = { system: 'rules', user: 'INTENT: accuse Tato', examples: [{ user: 'example', assistant: '{"say":"x"}' }] }
 
@@ -19,7 +19,7 @@ const answering = (status: number, body: unknown) => {
 describe('OpenRouterBotSpeech', () => {
   it('sends the prompt to the configured model and returns the line', async () => {
     const stub = answering(200, { choices: [{ message: { content: '{"say": "Tato smells wolfy"}' } }] })
-    const speech = new OpenRouterBotSpeech({ apiKey: 'test-key', model: 'openai/gpt-6-luna-pro', fetch: stub.fetch })
+    const speech = new OpenRouterBotSpeech({ apiKey: 'test-key', model: 'openai/gpt-6-luna-pro', reasoningEffort: 'low', fetch: stub.fetch })
     expect(await speech.say(PROMPT)).toBe('Tato smells wolfy')
     const call = stub.calls[0]
     const body = JSON.parse(String(call?.init.body)) as {
@@ -29,15 +29,24 @@ describe('OpenRouterBotSpeech', () => {
     }
     expect(call?.url).toBe(OPENROUTER_URL)
     expect(body.model).toBe('openai/gpt-6-luna-pro')
-    expect(body.reasoning).toEqual({ effort: 'none', exclude: true })
+    expect(body.reasoning).toEqual({ effort: 'low', exclude: true })
     expect(body.messages.map((message) => message.role)).toEqual(['system', 'user', 'assistant', 'user'])
     expect(body.messages.at(-1)?.content).toBe('INTENT: accuse Tato')
   })
 
-  it('uses GPT-6 Luna when no model is configured', async () => {
+  it('uses GPT-6 Luna with medium reasoning when nothing is configured', async () => {
     const stub = answering(200, { choices: [{ message: { content: '{"say": "hi"}' } }] })
     await new OpenRouterBotSpeech({ apiKey: 'test-key', fetch: stub.fetch }).say(PROMPT)
-    expect((JSON.parse(String(stub.calls[0]?.init.body)) as { model: string }).model).toBe('openai/gpt-6-luna')
+    const body = JSON.parse(String(stub.calls[0]?.init.body)) as { model: string; reasoning: unknown }
+    expect(body.model).toBe('openai/gpt-6-luna')
+    expect(body.reasoning).toEqual({ effort: 'medium', exclude: true })
+  })
+
+  it('reads the reasoning effort from configuration and ignores unknown values', () => {
+    expect(reasoningEffortOf('High ')).toBe('high')
+    expect(reasoningEffortOf('none')).toBe('none')
+    expect(reasoningEffortOf('turbo')).toBeUndefined()
+    expect(reasoningEffortOf(undefined)).toBeUndefined()
   })
 
   it('returns nothing on a bad answer, an error status or a timeout', async () => {

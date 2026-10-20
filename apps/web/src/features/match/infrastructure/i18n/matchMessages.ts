@@ -94,6 +94,13 @@ const en = {
     back: 'Back to the village'
   },
   dashboard: {
+    muted: 'Muted',
+    muteLabel: 'Mute {name}',
+    unmuteLabel: 'Unmute {name}',
+    kickLabel: 'Kick {name}',
+    kickTitle: 'Kick {name} from the game?',
+    kickHint: 'A bot takes the seat with the same role, so the game goes on.',
+    kickConfirm: 'Kick {name}',
     game: 'Game',
     lobby: 'Lobby',
     stepperLabel: 'Phase',
@@ -317,7 +324,9 @@ const en = {
     unreachableBody: 'We can’t reach the village. Your seat is saved — come back any time.',
     tryAgain: 'Try again',
     closedTitle: 'The village emptied',
-    closedBody: 'The narrator closed the room. Start a new one or join another village.'
+    closedBody: 'The narrator closed the room. Start a new one or join another village.',
+    kickedTitle: 'You were removed',
+    kickedBody: 'The narrator removed you from this game. A bot took your seat.'
   },
   errors: {
     'match-not-found': 'There is no game in this village yet.',
@@ -443,6 +452,13 @@ const es: typeof en = {
     back: 'Volver a la aldea'
   },
   dashboard: {
+    muted: 'Silenciado',
+    muteLabel: 'Silenciar a {name}',
+    unmuteLabel: 'Quitar silencio a {name}',
+    kickLabel: 'Expulsar a {name}',
+    kickTitle: '¿Expulsar a {name} del juego?',
+    kickHint: 'Un bot toma su puesto con el mismo rol y el juego sigue.',
+    kickConfirm: 'Expulsar a {name}',
     game: 'Juego',
     lobby: 'Sala',
     stepperLabel: 'Fase',
@@ -666,7 +682,9 @@ const es: typeof en = {
     unreachableBody: 'No logramos llegar a la aldea. Tu puesto sigue guardado, vuelve cuando quieras.',
     tryAgain: 'Intentar de nuevo',
     closedTitle: 'La aldea quedó vacía',
-    closedBody: 'El narrador cerró la sala. Crea una nueva o únete a otra aldea.'
+    closedBody: 'El narrador cerró la sala. Crea una nueva o únete a otra aldea.',
+    kickedTitle: 'Te sacaron del juego',
+    kickedBody: 'El narrador te sacó de este juego. Un bot tomó tu puesto.'
   },
   errors: {
     'match-not-found': 'Todavía no hay un juego en esta aldea.',

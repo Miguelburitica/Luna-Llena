@@ -1,5 +1,8 @@
-import type { ChatAccess, ChatChannel, Phase } from '@luna/contracts'
+import { CHAT_LIMITS, type ChatAccess, type ChatChannel, type Phase } from '@luna/contracts'
 import { isDead } from './channels'
+
+export const charactersLeft = (draft: string): number | null =>
+  draft.length < CHAT_LIMITS.countdownFrom ? null : Math.max(0, CHAT_LIMITS.maxMessageLength - draft.length)
 
 export type ComposerState = 'write' | 'night-closed' | 'paused' | 'read-only'
 

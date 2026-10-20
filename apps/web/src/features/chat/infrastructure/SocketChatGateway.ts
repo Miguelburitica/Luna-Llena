@@ -17,6 +17,10 @@ export class SocketChatGateway implements ChatGateway {
     this.socket.on('chat:message', listener)
   }
 
+  onRemoved(listener: (messageId: string) => void): void {
+    this.socket.on('chat:removed', ({ messageId }) => listener(messageId))
+  }
+
   onReconnected(listener: () => void): void {
     this.socket.io.on('reconnect', listener)
   }

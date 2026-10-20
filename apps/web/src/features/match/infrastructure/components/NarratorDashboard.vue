@@ -30,6 +30,16 @@ const match = useMatchStore()
 const { seconds, totalSeconds } = useMatchTimer()
 const { failure: callFailure, pending: callPending, run: runCall } = useRoomAction()
 const editingCall = ref(false)
+const { failure: moderationFailure, pending: moderating, run: runModeration } = useRoomAction()
+const kickCandidate = ref<{ id: string; name: string } | null>(null)
+const mutedIds = computed(() => new Set((room.snapshot?.members ?? []).filter((member) => member.muted).map((member) => member.id)))
+const toggleMute = (memberId: string) => runModeration(() => room.mute(memberId, !mutedIds.value.has(memberId)))
+const confirmKick = async () => {
+  const target = kickCandidate.value
+  if (target === null) return
+  const result = await runModeration(() => room.kick(target.id))
+  if (result.ok) kickCandidate.value = null
+}
 const voiceCallUrl = computed(() => room.snapshot?.voiceCallUrl ?? null)
 const callFailureText = computed(() => (callFailure.value === null ? null : t(`room.errors.${callFailure.value.code}`)))
 
@@ -198,6 +208,19 @@ const foolClaims = computed(() => seats.value.filter((seat) => props.view.foolCl
         <span v-if="match.failure" class="err" role="alert">
           <LunaIcon name="info" size="sm" />{{ t(`match.errors.${match.failure.code}`) }}
         </span>
+        <span v-if="moderationFailure" class="err" role="alert">
+          <LunaIcon name="info" size="sm" />{{ t(`room.errors.${moderationFailure.code}`, { name: '', until: '' }) }}
+        </span>
+        <div v-if="kickCandidate" class="modal dashboard-kick" role="dialog" aria-modal="false" :aria-label="t('match.dashboard.kickTitle', { name: kickCandidate.name })">
+          <h3 class="h3">{{ t('match.dashboard.kickTitle', { name: kickCandidate.name }) }}</h3>
+          <p class="t-small t-muted">{{ t('match.dashboard.kickHint') }}</p>
+          <div class="dashboard-kick-actions">
+            <button type="button" class="btn btn-secondary" @click="kickCandidate = null">{{ t('common.cancel') }}</button>
+            <button type="button" class="btn btn-danger" :disabled="moderating" @click="confirmKick">
+              <LunaIcon name="user-x" />{{ t('match.dashboard.kickConfirm', { name: kickCandidate.name }) }}
+            </button>
+          </div>
+        </div>
         <ul class="dashboard-players" :class="{ 'has-actions': view.night }">
           <li v-for="row in rows" :key="row.id" class="prow" :class="{ 'is-dead': !row.alive }">
             <LunaAvatar
@@ -210,6 +233,8 @@ const foolClaims = computed(() => seats.value.filter((seat) => props.view.foolCl
             />
             <div>
               <b>{{ row.name }}</b>
+              <LunaIcon v-if="mutedIds.has(row.id)" name="volume-x" size="sm" class="dashboard-muted" />
+              <span v-if="mutedIds.has(row.id)" class="dashboard-muted-label">{{ t('match.dashboard.muted') }}</span>
               <span v-if="row.role" class="tbadge dashboard-role" :class="teamClassOf(row.role)">
                 {{ t(`roles.${row.role}`) }}
               </span>
@@ -238,6 +263,27 @@ const foolClaims = computed(() => seats.value.filter((seat) => props.view.foolCl
             >
               <LunaIcon name="heart" size="sm" />{{ t('match.dashboard.revive') }}
             </button>
+            <span class="dashboard-moderation">
+              <button
+                type="button"
+                class="btn btn-icon btn-ghost btn-sm"
+                :aria-pressed="mutedIds.has(row.id)"
+                :aria-label="mutedIds.has(row.id) ? t('match.dashboard.unmuteLabel', { name: row.name }) : t('match.dashboard.muteLabel', { name: row.name })"
+                :disabled="moderating"
+                @click="toggleMute(row.id)"
+              >
+                <LunaIcon :name="mutedIds.has(row.id) ? 'volume-x' : 'volume'" size="sm" />
+              </button>
+              <button
+                v-if="!row.bot"
+                type="button"
+                class="btn btn-icon btn-ghost btn-sm"
+                :aria-label="t('match.dashboard.kickLabel', { name: row.name })"
+                @click="kickCandidate = { id: row.id, name: row.name }"
+              >
+                <LunaIcon name="user-x" size="sm" />
+              </button>
+            </span>
           </li>
         </ul>
       </section>
@@ -496,11 +542,46 @@ const foolClaims = computed(() => seats.value.filter((seat) => props.view.foolCl
 }
 
 .dashboard-players .prow {
-  grid-template-columns: 44px minmax(120px, 1fr) auto auto;
+  grid-template-columns: 44px minmax(120px, 1fr) auto auto auto;
 }
 
 .dashboard-players.has-actions .prow {
-  grid-template-columns: 44px minmax(120px, 1fr) minmax(160px, 1.3fr) auto auto;
+  grid-template-columns: 44px minmax(120px, 1fr) minmax(160px, 1.3fr) auto auto auto;
+}
+
+.dashboard-moderation {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.dashboard-muted {
+  margin-left: 6px;
+  color: var(--warn);
+}
+
+.dashboard-muted-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.dashboard-kick {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.dashboard-kick p {
+  margin: 0;
+}
+
+.dashboard-kick-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .dashboard-players .av {
@@ -599,6 +680,11 @@ const foolClaims = computed(() => seats.value.filter((seat) => props.view.foolCl
   .dashboard-players .prow,
   .dashboard-players.has-actions .prow {
     grid-template-columns: 44px minmax(0, 1fr) auto auto;
+  }
+
+  .dashboard-moderation {
+    grid-column: 2 / -1;
+    justify-content: flex-end;
   }
 
   .dashboard-players .act {

@@ -11,4 +11,5 @@ export interface ChatClientEvents {
 
 export interface ChatServerEvents {
   'chat:message': (message: ChatMessage) => void
+  'chat:removed': (removal: { readonly messageId: string }) => void
 }

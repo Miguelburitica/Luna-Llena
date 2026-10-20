@@ -37,6 +37,13 @@ describe('NarratorLobby', () => {
     expect(gateway.commands()).toContain('start')
   })
 
+  it('shows a Public badge next to the code of a public room', async () => {
+    const { wrapper } = await mountRoomView(NarratorLobby, { props: { snapshot: snapshotOf({ visibility: 'public' }), memberId: 'id-Nico' } })
+    expect(wrapper.find('.narrator-visibility').text()).toBe('Public')
+    const { wrapper: privateLobby } = await mountRoomView(NarratorLobby, { props: { snapshot: snapshotOf(), memberId: 'id-Nico' } })
+    expect(privateLobby.find('.narrator-visibility').text()).toBe('Private')
+  })
+
   it('asks before kicking a player', async () => {
     const snapshot = snapshotOf()
     const { wrapper, gateway } = await mountRoomView(NarratorLobby, { props: { snapshot, memberId: 'id-Nico' } })

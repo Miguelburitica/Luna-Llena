@@ -7,7 +7,10 @@ export default defineConfig({
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   server: {
     host: true,
-    proxy: { '/socket.io': { target: process.env.LUNA_SERVER_URL ?? 'http://localhost:3001', ws: true } }
+    proxy: {
+      '/socket.io': { target: process.env.LUNA_SERVER_URL ?? 'http://localhost:3001', ws: true },
+      '/api': { target: process.env.LUNA_SERVER_URL ?? 'http://localhost:3001' }
+    }
   },
   test: { environment: 'jsdom', include: ['src/**/*.test.ts'], css: false }
 })

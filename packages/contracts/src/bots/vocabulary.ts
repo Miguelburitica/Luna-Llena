@@ -37,7 +37,13 @@ export const BOT_CASTS: Readonly<Record<BotCastId, Readonly<Record<BotLanguage, 
   }
 }
 
-export const BOT_LIMITS = { maxBots: 10, maxSpeechCallsPerGame: 150 } as const
+export const BOT_LIMITS = {
+  maxBots: 10,
+  maxSpeechCallsPerGame: 150,
+  maxSpeechCallsPerRoom: 400,
+  maxSpeechCallsPerMinute: 12,
+  answerCooldownSeconds: 20
+} as const
 
 export interface BotProfile {
   readonly personality: BotPersonality

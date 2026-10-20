@@ -5,6 +5,8 @@ import {
   done,
   err,
   ok,
+  PUBLIC_LOBBY_LIMITS,
+  ROOM_CLEANUP,
   roomError,
   ROOM_LIMITS,
   type AvatarId,
@@ -13,8 +15,11 @@ import {
   type Result,
   type RoomError,
   type RoomStatus,
+  type RoomVisibility,
+  type SeatTakeover,
   type StartReadiness
 } from '@luna/contracts'
+import type { ClientIdentity } from '../../../shared/domain/ClientIdentity'
 import { alternativeNames } from './alternativeNames'
 import { DisplayName } from './DisplayName'
 import { Member, type MemberIdentity } from './Member'
@@ -30,9 +35,28 @@ export interface RoomOpening {
   readonly settings: RoomSettings
   readonly narrator: MemberIdentity
   readonly voiceCall?: VoiceCallUrl | null
+  readonly visibility?: RoomVisibility
+  readonly openedBy?: ClientIdentity | null
+  readonly now?: number
 }
 
 export type Departure = 'player-left' | 'room-closed'
+
+export type Abandonment = 'narrator-gone' | 'idle-lobby' | 'no-humans'
+
+export interface BotReplacement {
+  readonly token: string
+  readonly profile: BotProfile
+  readonly castWhenNone: BotCastId
+}
+
+export interface Kick {
+  readonly member: Member
+  readonly client: ClientIdentity | undefined
+  readonly takeover: SeatTakeover | null
+}
+
+const MINUTE = 60_000
 
 export class Room {
   private readonly seats: Member[]
@@ -40,21 +64,79 @@ export class Room {
   private currentSettings: RoomSettings
   private currentVoiceCall: VoiceCallUrl | null
   private currentBotCast: BotCastId | null = null
+  private readonly reporters = new Set<string>()
+  private readonly barredDevices = new Set<string>()
+  private narratorAwaySince: number | null = null
+  private humansAwaySince: number | null = null
+  private lastChangedAt: number
 
   private constructor(
     readonly code: RoomCode,
     readonly name: RoomName,
     settings: RoomSettings,
     narrator: Member,
-    voiceCall: VoiceCallUrl | null
+    voiceCall: VoiceCallUrl | null,
+    readonly visibility: RoomVisibility,
+    readonly openedBy: ClientIdentity | null,
+    now: number
   ) {
     this.currentSettings = settings
     this.currentVoiceCall = voiceCall
     this.seats = [narrator]
+    this.lastChangedAt = now
   }
 
-  static open({ code, name, settings, narrator, voiceCall = null }: RoomOpening): Room {
-    return new Room(code, name, settings, new Member(narrator, true), voiceCall)
+  static open({
+    code,
+    name,
+    settings,
+    narrator,
+    voiceCall = null,
+    visibility = 'private',
+    openedBy = null,
+    now = 0
+  }: RoomOpening): Room {
+    return new Room(code, name, settings, new Member(narrator, true), voiceCall, visibility, openedBy, now)
+  }
+
+  get isPublic(): boolean {
+    return this.visibility === 'public'
+  }
+
+  get isHidden(): boolean {
+    return this.reporters.size >= PUBLIC_LOBBY_LIMITS.reportsToHide
+  }
+
+  get reportCount(): number {
+    return this.reporters.size
+  }
+
+  get isListed(): boolean {
+    return this.isPublic && this.narrator.connected && !this.isHidden
+  }
+
+  touch(now: number): void {
+    this.lastChangedAt = now
+  }
+
+  abandonment(now: number): Abandonment | null {
+    if (this.narratorAwaySince !== null && now - this.narratorAwaySince >= ROOM_CLEANUP.narratorAwayMinutes * MINUTE) {
+      return 'narrator-gone'
+    }
+    if (this.humansAwaySince !== null && now - this.humansAwaySince >= ROOM_CLEANUP.noHumansMinutes * MINUTE) {
+      return 'no-humans'
+    }
+    if (this.currentStatus === 'lobby' && now - this.lastChangedAt >= ROOM_CLEANUP.idleLobbyMinutes * MINUTE) {
+      return 'idle-lobby'
+    }
+    return null
+  }
+
+  report(address: string): Result<boolean, RoomError> {
+    if (!this.isPublic) return err(roomError('room-not-public'))
+    const wasHidden = this.isHidden
+    this.reporters.add(address)
+    return ok(!wasHidden && this.isHidden)
   }
 
   get status(): RoomStatus {
@@ -110,6 +192,8 @@ export class Room {
   join(identity: MemberIdentity): Result<Member, RoomError> {
     const lobby = this.requireLobby()
     if (!lobby.ok) return lobby
+    const device = identity.client?.device
+    if (device !== undefined && this.barredDevices.has(device)) return err(roomError('kicked'))
     if (this.players.length >= ROOM_LIMITS.maxPlayers) return err(roomError('room-full'))
     if (this.isNameTaken(identity.name)) {
       return err({ code: 'name-taken', suggestions: alternativeNames(identity.name, (name) => this.isNameTaken(name)) })
@@ -130,16 +214,27 @@ export class Room {
     if (this.players.length >= ROOM_LIMITS.maxPlayers) return err(roomError('room-full'))
     if (this.bots.length >= BOT_LIMITS.maxBots) return err(roomError('bot-limit'))
     const cast = this.currentBotCast ?? castWhenNone
-    const name = BOT_CASTS[cast][this.currentSettings.botLanguage]
-      .map((candidate) => DisplayName.create(candidate))
-      .flatMap((candidate) => (candidate.ok ? [candidate.value] : []))
-      .find((candidate) => !this.isNameTaken(candidate))
+    const name = this.freeBotName(cast)
     if (name === undefined) return err(roomError('bot-limit'))
     const bot = new Member({ ...identity, name }, false, profile)
     bot.avatar = AVATAR_IDS.find((avatar) => !this.avatarsInUse.includes(avatar)) ?? null
     this.seats.push(bot)
     this.currentBotCast = cast
     return ok(bot)
+  }
+
+  mute(actorId: string, targetId: unknown, muted: unknown): Result<Member, RoomError> {
+    const member = this.requireMember(actorId)
+    if (!member.ok) return member
+    if (!member.value.isNarrator) return err(roomError('not-narrator'))
+    const target = this.players.find((player) => player.id === targetId)
+    if (target === undefined) return err(roomError('member-not-found'))
+    target.muted = muted === true
+    return ok(target)
+  }
+
+  isMuted(memberId: string): boolean {
+    return this.memberWithId(memberId)?.muted ?? false
   }
 
   removeBot(actorId: string, memberId: unknown): Result<Member, RoomError> {
@@ -156,12 +251,18 @@ export class Room {
     const member = this.seats.find((seat) => seat.holdsToken(token))
     if (member === undefined) return err(roomError('session-invalid'))
     member.connected = true
+    if (member.isNarrator) this.narratorAwaySince = null
+    this.humansAwaySince = null
     return ok(member)
   }
 
-  disconnect(memberId: string): void {
+  disconnect(memberId: string, now = 0): void {
     const member = this.memberWithId(memberId)
-    if (member !== undefined && !member.isBot) member.connected = false
+    if (member === undefined || member.isBot) return
+    member.connected = false
+    if (member.isNarrator) this.narratorAwaySince ??= now
+    const humansConnected = this.seats.some((seat) => !seat.isBot && seat.connected)
+    if (!humansConnected) this.humansAwaySince ??= now
   }
 
   chooseAvatar(memberId: string, avatar: unknown): Result<void, RoomError> {
@@ -204,13 +305,26 @@ export class Room {
     return done
   }
 
-  kick(actorId: string, targetId: unknown): Result<Member, RoomError> {
-    const authority = this.requireNarratorInLobby(actorId)
-    if (!authority.ok) return authority
+  kick(actorId: string, targetId: unknown, replacement: BotReplacement): Result<Kick, RoomError> {
+    const member = this.requireMember(actorId)
+    if (!member.ok) return member
+    if (!member.value.isNarrator) return err(roomError('not-narrator'))
     const target = this.players.find((player) => player.id === targetId)
     if (target === undefined) return err(roomError('member-not-found'))
-    this.removeSeat(target)
-    return ok(target)
+    const client = target.client
+    if (this.currentStatus !== 'lobby' && target.isBot) return err(roomError('not-a-player'))
+    if (this.isPublic && client !== undefined) this.barredDevices.add(client.device)
+    if (this.currentStatus === 'lobby') {
+      this.removeSeat(target)
+      return ok({ member: target, client, takeover: null })
+    }
+    const cast = this.currentBotCast ?? replacement.castWhenNone
+    const formerName = target.name.value
+    const name = this.freeBotName(cast)
+    if (name === undefined) return err(roomError('bot-limit'))
+    target.becomeBot(name, replacement.token, replacement.profile)
+    this.currentBotCast = cast
+    return ok({ member: target, client, takeover: { formerName, botName: name.value } })
   }
 
   leave(memberId: string): Result<Departure, RoomError> {
@@ -242,6 +356,13 @@ export class Room {
   reopen(): void {
     this.currentStatus = 'lobby'
     for (const player of this.players) player.ready = player.isBot
+  }
+
+  private freeBotName(cast: BotCastId): DisplayName | undefined {
+    return BOT_CASTS[cast][this.currentSettings.botLanguage]
+      .map((candidate) => DisplayName.create(candidate))
+      .flatMap((candidate) => (candidate.ok ? [candidate.value] : []))
+      .find((candidate) => !this.isNameTaken(candidate))
   }
 
   private isNameTaken(name: DisplayName): boolean {

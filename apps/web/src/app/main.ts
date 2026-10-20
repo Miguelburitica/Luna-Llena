@@ -1,6 +1,7 @@
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import { useAtmosphereStore } from '@/features/atmosphere/application/useAtmosphereStore'
+import { installAdmin } from '@/features/admin/infrastructure/installAdmin'
 import { installAtmosphere } from '@/features/atmosphere/infrastructure/installAtmosphere'
 import { installChat } from '@/features/chat/infrastructure/installChat'
 import { installMatch } from '@/features/match/infrastructure/installMatch'
@@ -24,6 +25,7 @@ installMatch(app, socket)
 installChat(app, socket)
 installAtmosphere(app, socket)
 installTable(app)
+installAdmin(app, socket)
 app.use(createPinia())
 const router = createLunaRouter()
 connectOnlineRoutes(router, socket, isTableRoute)

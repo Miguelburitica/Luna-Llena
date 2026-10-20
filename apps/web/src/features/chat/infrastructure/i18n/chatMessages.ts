@@ -4,6 +4,7 @@ const en = {
   toEveryone: 'to everyone',
   lastWordsTag: 'Last words',
   empty: 'Nothing here yet.',
+  removed: 'Message removed',
   bar: { open: 'Chat with the village', unread: '{count} unread' },
   sheet: { label: 'Chat', close: 'Close chat', tabs: 'Channels', messages: 'Messages' },
   composer: {
@@ -11,7 +12,8 @@ const en = {
     wolves: 'Whisper to the pack…',
     ghosts: 'Haunt the afterlife…',
     label: 'Message {channel}',
-    send: 'Send'
+    send: 'Send',
+    left: '{count} characters left'
   },
   notes: {
     villageAsleep: 'The village sleeps — chat opens at dawn',
@@ -45,6 +47,10 @@ const en = {
     'chat-closed': 'This chat is closed right now.',
     'chat-forbidden': 'You cannot write in this chat.',
     'message-invalid': 'Write between 1 and {max} characters.',
+    'chat-too-fast': 'Slow down a little.',
+    'chat-muted': 'The narrator muted you.',
+    'message-blocked': 'That message is not allowed here.',
+    banned: 'You can’t chat right now.',
     unreachable: 'Could not reach the village. Try again.'
   }
 }
@@ -55,6 +61,7 @@ const es: typeof en = {
   toEveryone: 'para todos',
   lastWordsTag: 'Últimas palabras',
   empty: 'Aún no hay nada.',
+  removed: 'Mensaje eliminado',
   bar: { open: 'Hablar con la aldea', unread: '{count} sin leer' },
   sheet: { label: 'Chat', close: 'Cerrar el chat', tabs: 'Canales', messages: 'Mensajes' },
   composer: {
@@ -62,7 +69,8 @@ const es: typeof en = {
     wolves: 'Susurra a la manada…',
     ghosts: 'Embruja el más allá…',
     label: 'Mensaje para {channel}',
-    send: 'Enviar'
+    send: 'Enviar',
+    left: 'Quedan {count} caracteres'
   },
   notes: {
     villageAsleep: 'La aldea duerme — el chat abre al amanecer',
@@ -96,6 +104,10 @@ const es: typeof en = {
     'chat-closed': 'Este chat está cerrado por ahora.',
     'chat-forbidden': 'No puedes escribir en este chat.',
     'message-invalid': 'Escribe entre 1 y {max} caracteres.',
+    'chat-too-fast': 'Más despacio, por favor.',
+    'chat-muted': 'El narrador te silenció.',
+    'message-blocked': 'Ese mensaje no está permitido aquí.',
+    banned: 'No puedes chatear por ahora.',
     unreachable: 'No se pudo llegar a la aldea. Inténtalo de nuevo.'
   }
 }

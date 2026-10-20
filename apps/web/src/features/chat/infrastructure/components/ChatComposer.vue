@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import LunaIcon from '@/shared/infrastructure/ui/components/LunaIcon.vue'
 import { useChatStore } from '../../application/useChatStore'
+import { charactersLeft } from '../../domain/composer'
 
 const props = defineProps<{ channel: ChatChannel; placeholder: string; label: string }>()
 const { t } = useI18n()
@@ -12,6 +13,7 @@ const draft = ref('')
 const sending = ref(false)
 
 const blank = computed(() => draft.value.trim() === '')
+const left = computed(() => charactersLeft(draft.value))
 
 const submit = async () => {
   if (blank.value || sending.value) return
@@ -35,6 +37,13 @@ const submit = async () => {
         :placeholder="placeholder"
         :aria-label="label"
       />
+      <span
+        v-if="left !== null"
+        class="t-small chat-composer-count"
+        :class="{ err: left === 0 }"
+        aria-live="polite"
+        :aria-label="t('chat.composer.left', { count: left })"
+      >{{ left }}</span>
       <button type="submit" class="btn btn-icon btn-primary" :disabled="blank || sending" :aria-label="t('chat.composer.send')">
         <LunaIcon name="send" />
       </button>
@@ -55,6 +64,18 @@ const submit = async () => {
 .composer .input {
   flex: 1;
   min-width: 0;
+}
+
+.chat-composer-count {
+  flex: none;
+  min-width: 2ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.chat-composer-count.err {
+  color: var(--warn);
 }
 
 .chat-composer-error {

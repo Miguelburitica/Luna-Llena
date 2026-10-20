@@ -1,6 +1,15 @@
 import type { BotCastId, BotLanguage, BotProfile } from '../bots/vocabulary'
 import type { RoleId } from '../roles/catalog'
-import type { AvatarId, HouseRuleId, RoomStatus, StartCondition, ThemeId, TimerPhase } from './vocabulary'
+import type {
+  AvatarId,
+  HouseRuleId,
+  PublicRoomStatus,
+  RoomStatus,
+  RoomVisibility,
+  StartCondition,
+  ThemeId,
+  TimerPhase
+} from './vocabulary'
 
 export interface RoomSettingsView {
   readonly theme: ThemeId
@@ -26,6 +35,7 @@ export interface MemberView {
   readonly bot: BotProfile | null
   readonly ready: boolean
   readonly connected: boolean
+  readonly muted: boolean
 }
 
 export interface StartReadiness {
@@ -40,6 +50,7 @@ export interface RoomSnapshot {
   readonly code: string
   readonly name: string
   readonly status: RoomStatus
+  readonly visibility: RoomVisibility
   readonly voiceCallUrl: string | null
   readonly settings: RoomSettingsView
   readonly members: readonly MemberView[]
@@ -57,6 +68,23 @@ export interface RoomSummary {
   readonly avatarsInUse: readonly AvatarId[]
   readonly acceptingPlayers: boolean
   readonly voiceCallUrl: string | null
+}
+
+export interface PublicRoomCard {
+  readonly code: string
+  readonly name: string
+  readonly narratorName: string
+  readonly playerCount: number
+  readonly capacity: number
+  readonly botCount: number
+  readonly deckSize: number
+  readonly status: PublicRoomStatus
+  readonly joinable: boolean
+}
+
+export interface SeatTakeover {
+  readonly formerName: string
+  readonly botName: string
 }
 
 export interface RoomSession {

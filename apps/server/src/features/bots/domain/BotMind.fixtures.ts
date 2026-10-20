@@ -18,7 +18,8 @@ export const rosterFor = (language: 'en' | 'es' = 'en', bots: readonly string[] 
   language,
   status: 'in-game',
   names: new Map(Object.entries(PLAYER_NAMES)),
-  bots: new Map(bots.map((id) => [id, { personality: 'detective', difficulty: 'normal' } satisfies BotProfile]))
+  bots: new Map(bots.map((id) => [id, { personality: 'detective', difficulty: 'normal' } satisfies BotProfile])),
+  mutedIds: new Set()
 })
 
 export const fixedRandom = (value = 0) => ({ next: () => value })

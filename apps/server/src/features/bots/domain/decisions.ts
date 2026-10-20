@@ -1,5 +1,6 @@
 import type { BotLanguage, BotPersonality, HauntInput, NightActionInput, PlayerMatchView } from '@luna/contracts'
 import type { BotMind, RandomNumbers } from './BotMind'
+import { bestPreyOf } from './hunting'
 
 export const STRONG_SUSPICION = 0.85
 
@@ -71,12 +72,6 @@ const packChoiceOf = (mind: BotMind, view: PlayerMatchView, prey: readonly strin
   return choice !== null && prey.includes(choice) ? choice : null
 }
 
-const ownPreyOf = (mind: BotMind, prey: readonly string[], random: RandomNumbers): string | null => {
-  const claimed = claimedAmong(mind, prey)
-  if (claimed.length > 0 && random.next() < 0.7) return pickRandom(claimed, random)
-  return pickRandom(prey, random)
-}
-
 const huntTargetOf = (
   mind: BotMind,
   view: PlayerMatchView,
@@ -87,7 +82,7 @@ const huntTargetOf = (
   const prey = preyOf(mind, view, botIds)
   const packChoice = packChoiceOf(mind, view, prey)
   if (packChoice !== null && random.next() < PACK_AGREEMENT[mind.profile.personality]) return packChoice
-  return ownPreyOf(mind, prey, random)
+  return bestPreyOf(mind, view, prey, random)
 }
 
 export const settledHuntOf = (
@@ -170,8 +165,8 @@ export const revengeTargetOf = (mind: BotMind, view: PlayerMatchView, random: Ra
   mostSuspected(mind, nonAllies(mind, view), random)
 
 const WHISPERS: Readonly<Record<BotLanguage, readonly string[]>> = {
-  es: ['buuu', 'te veo', 'huele a lobo', 'sé lo que hiciste'],
-  en: ['boooo', 'i see you', 'smells wolfy', 'i know what you did']
+  es: ['buuu', 'tevi', 'lobo', 'culpable'],
+  en: ['boooo', 'iseeyou', 'wolfy', 'guilty']
 }
 
 export const hauntOf = (

@@ -6,7 +6,8 @@ import {
   type Result,
   type RoomSession,
   type RoomSettingsInput,
-  type RoomSnapshot
+  type RoomSnapshot,
+  type SeatTakeover
 } from '@luna/contracts'
 import { defineStore } from 'pinia'
 import { computed, inject, ref } from 'vue'
@@ -29,6 +30,7 @@ export const useRoomStore = defineStore('room', () => {
   const savedSeat = ref<StoredSession | null>(sessions.load())
   const snapshot = ref<RoomSnapshot | null>(null)
   const ending = ref<RoomEnding | null>(null)
+  const takeover = ref<SeatTakeover | null>(null)
 
   const me = computed(() => (snapshot.value === null ? null : memberWithId(snapshot.value, session.value?.memberId)))
   const isNarrator = computed(() => me.value?.isNarrator ?? false)
@@ -72,6 +74,9 @@ export const useRoomStore = defineStore('room', () => {
   })
   gateway.onKicked(() => end('kicked'))
   gateway.onClosed(() => end('closed'))
+  gateway.onSeatTakenOver((next) => {
+    takeover.value = next
+  })
   gateway.onReconnected(() => {
     if (session.value !== null) void resume(session.value.code)
   })
@@ -81,6 +86,7 @@ export const useRoomStore = defineStore('room', () => {
     savedSeat,
     snapshot,
     ending,
+    takeover,
     me,
     isNarrator,
     createRoom: async (input: CreateRoomInput) => enter(await gateway.createRoom(input)),
@@ -92,6 +98,10 @@ export const useRoomStore = defineStore('room', () => {
     setReady: (ready: boolean) => gateway.setReady(ready),
     updateSettings: (settings: RoomSettingsInput) => gateway.updateSettings(settings),
     kick: (memberId: string) => gateway.kick(memberId),
+    mute: (memberId: string, muted: boolean) => gateway.mute(memberId, muted),
+    dismissTakeover: () => {
+      takeover.value = null
+    },
     addBot: (choice: BotChoice) => gateway.addBot(choice),
     removeBot: (memberId: string) => gateway.removeBot(memberId),
     setVoiceCall: (url: string | null) => gateway.setVoiceCall(url),
